@@ -45,7 +45,7 @@ The implementation uses:
     - _Requirements: 1.6_
 
 
-  - [-] 2.4 Implement CaseAnalysis and GeneratedDocument models
+  - [x] 2.4 Implement CaseAnalysis and GeneratedDocument models
     - Create CaseAnalysis model with complaint_details, validity_score, score_breakdown
     - Create GeneratedDocument model with document_type, template_inputs, file_path
     - Set up relationships with User model
