@@ -9,13 +9,16 @@ Requirements: 9.1 (Password encryption), 6.4 (Language preference)
 """
 
 import re
-from typing import Optional
+from typing import TYPE_CHECKING, List, Optional
 
 import bcrypt
 from sqlalchemy import Boolean, Column, String
-from sqlalchemy.orm import validates
+from sqlalchemy.orm import relationship, validates
 
 from database import BaseModel
+
+if TYPE_CHECKING:
+    from models.conversation import Conversation
 
 
 class User(BaseModel):
@@ -70,6 +73,13 @@ class User(BaseModel):
         Boolean,
         default=True,
         nullable=False
+    )
+    
+    # Relationships
+    conversations: List["Conversation"] = relationship(
+        "Conversation",
+        back_populates="user",
+        cascade="all, delete-orphan"
     )
     
     # Email validation pattern
