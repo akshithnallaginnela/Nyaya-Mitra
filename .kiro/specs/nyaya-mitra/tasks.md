@@ -38,7 +38,7 @@ The implementation uses:
     - Implement user validation methods
     - _Requirements: 9.1, 6.4_
 
-  - [~] 2.3 Implement Conversation and Message models
+  - [-] 2.3 Implement Conversation and Message models
     - Create Conversation model with user relationship
     - Create Message model with role, content, citations, confidence_score
     - Set up foreign key relationships
