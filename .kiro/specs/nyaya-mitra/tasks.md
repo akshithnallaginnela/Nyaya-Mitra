@@ -32,7 +32,7 @@ The implementation uses:
     - Implement database session management with context managers
     - _Requirements: 9.3, 9.5_
 
-  - [-] 2.2 Implement User model with authentication fields
+  - [x] 2.2 Implement User model with authentication fields
     - Create User model with email, password_hash, full_name, college_name, preferred_language
     - Add password hashing utilities using bcrypt with 10 rounds
     - Implement user validation methods
