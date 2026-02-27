@@ -76,7 +76,7 @@ class User(BaseModel):
     )
     
     # Relationships
-    conversations: List["Conversation"] = relationship(
+    conversations = relationship(
         "Conversation",
         back_populates="user",
         cascade="all, delete-orphan"
