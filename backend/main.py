@@ -2,6 +2,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from database import init_db
+
 app = FastAPI(
     title="Nyaya Mitra API",
     description="AI-powered legal assistance platform for Indian college students",
@@ -17,10 +19,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database on application startup."""
+    init_db()
+
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
     return {"status": "ok", "message": "Nyaya Mitra API is running"}
+
+
+@app.get("/db-health")
+async def db_health_check():
+    """Database health check endpoint"""
+    from database import get_db
+    
+    try:
+        with get_db() as db:
+            db.execute("SELECT 1")
+        return {"status": "ok", "message": "Database connection successful"}
+    except Exception as e:
+        return {"status": "error", "message": f"Database connection failed: {str(e)}"}
+
 
 if __name__ == "__main__":
     import uvicorn
