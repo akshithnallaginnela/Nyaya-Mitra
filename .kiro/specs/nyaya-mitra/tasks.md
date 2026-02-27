@@ -26,13 +26,13 @@ The implementation uses:
   - _Requirements: All requirements depend on proper setup_
 
 - [ ] 2. Implement database models and migrations
-  - [-] 2.1 Create SQLAlchemy base configuration and database connection
+  - [x] 2.1 Create SQLAlchemy base configuration and database connection
     - Set up SQLAlchemy engine with PostgreSQL connection
     - Create Base model class with common fields (id, created_at, updated_at)
     - Implement database session management with context managers
     - _Requirements: 9.3, 9.5_
 
-  - [~] 2.2 Implement User model with authentication fields
+  - [-] 2.2 Implement User model with authentication fields
     - Create User model with email, password_hash, full_name, college_name, preferred_language
     - Add password hashing utilities using bcrypt with 10 rounds
     - Implement user validation methods

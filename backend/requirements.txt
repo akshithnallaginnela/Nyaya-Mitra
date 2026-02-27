@@ -31,10 +31,8 @@ reportlab==4.0.7
 # Utilities
 pydantic==2.5.0
 pydantic-settings==2.1.0
-<<<<<<< HEAD
+bcrypt==4.1.1
 
 # Testing
 pytest==7.4.3
 pytest-asyncio==0.21.1
-=======
->>>>>>> d1831bc1870367c23872fd201e22f3685d5ef71c
