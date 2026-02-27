@@ -38,14 +38,14 @@ The implementation uses:
     - Implement user validation methods
     - _Requirements: 9.1, 6.4_
 
-  - [-] 2.3 Implement Conversation and Message models
+  - [x] 2.3 Implement Conversation and Message models
     - Create Conversation model with user relationship
     - Create Message model with role, content, citations, confidence_score
     - Set up foreign key relationships
     - _Requirements: 1.6_
 
 
-  - [~] 2.4 Implement CaseAnalysis and GeneratedDocument models
+  - [-] 2.4 Implement CaseAnalysis and GeneratedDocument models
     - Create CaseAnalysis model with complaint_details, validity_score, score_breakdown
     - Create GeneratedDocument model with document_type, template_inputs, file_path
     - Set up relationships with User model
