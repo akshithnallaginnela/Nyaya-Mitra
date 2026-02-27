@@ -243,7 +243,8 @@ def test_user_model_fields():
             email="test@example.com",
             full_name="Test User",
             college_name="Test College",
-            preferred_language="hi"
+            preferred_language="hi",
+            is_active=True  # Explicitly set since we're not persisting to DB
         )
         user.set_password("ValidPass123!")
         
