@@ -14,6 +14,11 @@ Requirements: 9.1 (Password encryption), 6.4 (Language preference)
 """
 
 import sys
+import os
+
+# Add parent directory to path to allow imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from models.user import User
 
 
