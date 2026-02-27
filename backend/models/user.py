@@ -15,7 +15,7 @@ import bcrypt
 from sqlalchemy import Boolean, Column, String
 from sqlalchemy.orm import validates
 
-from backend.database import BaseModel
+from database import BaseModel
 
 
 class User(BaseModel):
