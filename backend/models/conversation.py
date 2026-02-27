@@ -60,12 +60,12 @@ class Conversation(BaseModel):
     )
     
     # Relationships
-    user: "User" = relationship(
+    user = relationship(
         "User",
         back_populates="conversations"
     )
     
-    messages: List["Message"] = relationship(
+    messages = relationship(
         "Message",
         back_populates="conversation",
         cascade="all, delete-orphan",
@@ -154,7 +154,7 @@ class Message(BaseModel):
     )
     
     # Relationships
-    conversation: "Conversation" = relationship(
+    conversation = relationship(
         "Conversation",
         back_populates="messages"
     )
