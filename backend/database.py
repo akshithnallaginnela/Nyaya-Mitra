@@ -1,3 +1,4 @@
+
 """
 Database configuration and session management for Nyaya Mitra.
 
