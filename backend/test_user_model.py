@@ -17,8 +17,8 @@ import pytest
 import bcrypt
 from sqlalchemy.exc import IntegrityError
 
-from backend.database import Base, engine, get_db
-from backend.models.user import User
+from database import Base, engine, get_db
+from models.user import User
 
 
 @pytest.fixture(scope="function")
