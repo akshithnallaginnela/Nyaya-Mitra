@@ -238,31 +238,37 @@ def test_user_model_fields():
     """Test User model has all required fields."""
     print("Testing User model fields...")
     
-    user = User(
-        email="test@example.com",
-        full_name="Test User",
-        college_name="Test College",
-        preferred_language="hi"
-    )
-    user.set_password("ValidPass123!")
-    
-    # Check all fields exist
-    assert hasattr(user, 'email'), "User should have email field"
-    assert hasattr(user, 'password_hash'), "User should have password_hash field"
-    assert hasattr(user, 'full_name'), "User should have full_name field"
-    assert hasattr(user, 'college_name'), "User should have college_name field"
-    assert hasattr(user, 'preferred_language'), "User should have preferred_language field"
-    assert hasattr(user, 'is_active'), "User should have is_active field"
-    
-    # Check field values
-    assert user.email == "test@example.com"
-    assert user.full_name == "Test User"
-    assert user.college_name == "Test College"
-    assert user.preferred_language == "hi"
-    assert user.is_active is True
-    assert user.password_hash is not None
-    
-    print("✓ User model has all required fields")
+    try:
+        user = User(
+            email="test@example.com",
+            full_name="Test User",
+            college_name="Test College",
+            preferred_language="hi"
+        )
+        user.set_password("ValidPass123!")
+        
+        # Check all fields exist
+        assert hasattr(user, 'email'), "User should have email field"
+        assert hasattr(user, 'password_hash'), "User should have password_hash field"
+        assert hasattr(user, 'full_name'), "User should have full_name field"
+        assert hasattr(user, 'college_name'), "User should have college_name field"
+        assert hasattr(user, 'preferred_language'), "User should have preferred_language field"
+        assert hasattr(user, 'is_active'), "User should have is_active field"
+        
+        # Check field values
+        assert user.email == "test@example.com", f"Email mismatch: {user.email}"
+        assert user.full_name == "Test User", f"Full name mismatch: {user.full_name}"
+        assert user.college_name == "Test College", f"College name mismatch: {user.college_name}"
+        assert user.preferred_language == "hi", f"Language mismatch: {user.preferred_language}"
+        assert user.is_active is True, f"is_active mismatch: {user.is_active}"
+        assert user.password_hash is not None, "Password hash should not be None"
+        
+        print("✓ User model has all required fields")
+    except Exception as e:
+        print(f"Error in test_user_model_fields: {e}")
+        import traceback
+        traceback.print_exc()
+        raise
 
 
 def main():
