@@ -51,7 +51,7 @@ The implementation uses:
     - Set up relationships with User model
     - _Requirements: 2.1, 4.2_
 
-  - [~] 2.5 Implement LegalAidProvider model
+  - [-] 2.5 Implement LegalAidProvider model
     - Create LegalAidProvider model with name, organization_type, specializations, languages_supported
     - Add location fields (city, state) and contact information
     - Create indexes for efficient searching by location and specialization
