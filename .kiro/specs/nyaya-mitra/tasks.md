@@ -246,3 +246,284 @@ The implementation uses:
     - Include full analysis details
     - _Requirements: 2.1_
 
+
+  - [ ]* 9.5 Write property tests for case analysis
+    - **Property 8: Validity score bounds** - Verify score is 0-100
+    - **Property 9: Score breakdown completeness** - Verify all components present
+    - **Property 10: Weakness highlighting for low scores** - Verify weaknesses for score <40
+    - **Property 11: Legal consultation recommendation for high scores** - Verify recommendation for score >70
+    - **Property 12: Missing elements identification** - Verify missing elements identified
+    - **Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 2.6**
+
+  - [ ]* 9.6 Write unit tests for case analysis edge cases
+    - Test minimal complaint details
+    - Test maximum complaint details
+    - Test missing required fields
+    - Test invalid data types
+    - _Requirements: 2.1, 2.2_
+
+### Phase 5: Action Plans and Document Generation
+
+- [ ] 10. Implement action plan generation
+  - [ ] 10.1 Create action plan generator
+    - Generate numbered steps based on case type
+    - Add specific timelines for each step
+    - Identify and highlight legal deadlines
+    - Sort steps by urgency (urgent first)
+    - Add time estimates for each step
+    - Include alternative approaches when applicable
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
+
+  - [ ] 10.2 Integrate action plan with chat system
+    - Add action plan generation as chat command
+    - Store generated action plans in database
+    - Allow users to retrieve and update action plans
+    - _Requirements: 3.1_
+
+  - [ ]* 10.3 Write property tests for action plans
+    - **Property 13: Numbered steps structure** - Verify sequential numbering from 1
+    - **Property 14: Timeline presence** - Verify each step has timeline
+    - **Property 15: Deadline highlighting** - Verify legal deadlines highlighted
+    - **Property 16: Urgency ordering** - Verify urgent steps (>7/10) appear first
+    - **Property 17: Time estimate presence** - Verify each step has time estimate
+    - **Validates: Requirements 3.1, 3.2, 3.3, 3.4, 3.5**
+
+
+- [ ] 11. Implement document generation system
+  - [ ] 11.1 Create document templates using Jinja2
+    - Create template for legal letters
+    - Create template for RTI applications
+    - Create template for counter-petitions
+    - Define required and optional fields for each template
+    - Add proper legal formatting and language
+    - _Requirements: 4.3, 4.4_
+
+  - [ ] 11.2 Implement document generator service
+    - Load and validate Jinja2 templates
+    - Validate user inputs against template requirements
+    - Render templates with user data
+    - Generate PDF using ReportLab
+    - Generate editable text version
+    - Add placeholders for missing optional fields
+    - _Requirements: 4.2, 4.5, 4.6_
+
+  - [ ] 11.3 Create document generation endpoints
+    - Create GET /api/documents/templates endpoint to list templates
+    - Create POST /api/documents/generate endpoint
+    - Create GET /api/documents/{id} endpoint to retrieve documents
+    - Store generated documents with metadata
+    - _Requirements: 4.1, 4.2_
+
+  - [ ] 11.4 Add attachment checklist generation
+    - Define attachment requirements for each document type
+    - Generate checklist based on document type and user inputs
+    - Include checklist in generated document
+    - _Requirements: 4.7_
+
+  - [ ]* 11.5 Write property tests for document generation
+    - **Property 18: Form presentation** - Verify form structure for each document type
+    - **Property 19: Document generation from valid input** - Verify successful generation
+    - **Property 20: Dual format output** - Verify PDF and text formats
+    - **Property 21: Placeholder inclusion** - Verify placeholders for empty optional fields
+    - **Property 22: Attachment checklist** - Verify checklist for documents requiring attachments
+    - **Validates: Requirements 4.1, 4.2, 4.5, 4.6, 4.7**
+
+  - [ ]* 11.6 Write unit tests for document generation edge cases
+    - Test missing required fields
+    - Test invalid template names
+    - Test PDF generation failures
+    - Test very long input text
+    - _Requirements: 4.1, 4.2_
+
+
+- [ ] 12. Checkpoint - Verify action plans and document generation
+  - Run all tests for action plans and documents
+  - Manually test document generation for all template types
+  - Verify PDF and text format outputs
+  - Verify action plan generation with various case types
+  - Ask the user if questions arise
+
+### Phase 6: Legal Aid and Multilingual Support
+
+- [ ] 13. Implement legal aid search system
+  - [ ] 13.1 Create legal aid provider database seeding
+    - Compile list of legal aid providers across India
+    - Create seed data with contact info, specializations, languages, locations
+    - Implement database seeding script
+    - _Requirements: 5.5_
+
+  - [ ] 13.2 Implement legal aid search logic
+    - Create search query builder with filters (location, case type, language, expertise)
+    - Implement multi-criteria filtering
+    - Add relevance scoring for search results
+    - Implement fallback to national helplines when no local results
+    - _Requirements: 5.1, 5.3, 5.6_
+
+  - [ ] 13.3 Create legal aid endpoints
+    - Create GET /api/legal-aid/search endpoint with query parameters
+    - Create GET /api/legal-aid/{id} endpoint for detailed provider info
+    - Return contact information, specializations, availability
+    - Include multiple contact methods (phone, email, address, website)
+    - _Requirements: 5.2, 5.4_
+
+  - [ ]* 13.4 Write property tests for legal aid search
+    - **Property 23: Location and case type filtering** - Verify results match both criteria
+    - **Property 24: Provider information completeness** - Verify all required fields present
+    - **Property 25: Multi-criteria filtering** - Verify all filters applied
+    - **Property 26: Multiple contact methods** - Verify at least 2 contact methods
+    - **Property 27: National fallback** - Verify fallback when no local results
+    - **Validates: Requirements 5.1, 5.2, 5.3, 5.4, 5.6**
+
+
+- [ ] 14. Implement multilingual support system
+  - [ ] 14.1 Set up translation infrastructure
+    - Install and configure spaCy for English
+    - Install and configure IndicNLP for Hindi and regional languages
+    - Create language detection service using langdetect
+    - Set up translation service for UI elements
+    - _Requirements: 6.1, 6.5_
+
+  - [ ] 14.2 Create translation files for UI elements
+    - Create English translation file with all UI strings
+    - Create Hindi translation file
+    - Create translation files for 5 major regional languages (Tamil, Telugu, Bengali, Marathi, Gujarati)
+    - Ensure consistent legal term translations
+    - _Requirements: 6.2, 6.6_
+
+  - [ ] 14.3 Implement language switching functionality
+    - Add language preference to user profile
+    - Create language selection API endpoint
+    - Implement real-time language switching in frontend
+    - Preserve legal terminology accuracy across translations
+    - _Requirements: 6.3, 6.4_
+
+  - [ ]* 14.4 Write property tests for multilingual support
+    - **Property 28: UI language consistency** - Verify all UI elements in selected language
+    - **Property 29: Language switching** - Verify immediate update on language change
+    - **Property 30: Translation consistency** - Verify identical translations for same terms
+    - **Validates: Requirements 6.2, 6.4, 6.6**
+
+  - [ ]* 14.5 Write unit tests for translation edge cases
+    - Test unsupported language handling
+    - Test missing translation keys
+    - Test language detection accuracy
+    - Test special character handling in translations
+    - _Requirements: 6.1, 6.2_
+
+
+### Phase 7: Evidence Guide and Emergency Features
+
+- [ ] 15. Implement evidence documentation guide
+  - [ ] 15.1 Create evidence guide content system
+    - Create case-type specific evidence guide templates
+    - Add digital evidence preservation instructions
+    - Add legal admissibility requirements
+    - Include evidence tampering warnings
+    - Add digital communication procedures (screenshots, backups)
+    - _Requirements: 7.1, 7.2, 7.3, 7.6, 7.7_
+
+  - [ ] 15.2 Create evidence guide generator
+    - Implement case type detection
+    - Generate customized evidence guides based on case type
+    - Add step-by-step instructions with numbering
+    - Include visual aid references
+    - Generate evidence type checklists
+    - _Requirements: 7.4, 7.5_
+
+  - [ ] 15.3 Create evidence guide endpoint
+    - Create GET /api/evidence/guide endpoint with case type parameter
+    - Return formatted evidence guide with all sections
+    - Support multiple languages
+    - _Requirements: 7.1_
+
+  - [ ]* 15.4 Write property tests for evidence guides
+    - **Property 31: Case-specific guidance** - Verify case-type specific content
+    - **Property 32: Digital preservation instructions** - Verify at least 3 instructions
+    - **Property 33: Admissibility requirements** - Verify admissibility section present
+    - **Property 34: Step-by-step format with visuals** - Verify numbered steps and visual aids
+    - **Property 35: Evidence type checklists** - Verify at least 5 items per checklist
+    - **Property 36: Tampering warnings** - Verify warning present
+    - **Property 37: Digital communication procedures** - Verify screenshot/backup procedures
+    - **Validates: Requirements 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7**
+
+
+- [ ] 16. Implement emergency SOS feature
+  - [ ] 16.1 Create emergency contacts database
+    - Compile emergency contacts by category (police, legal helplines, mental health, student services)
+    - Add location-specific contacts for all Indian states
+    - Add national emergency numbers as fallbacks
+    - Create database seeding script
+    - _Requirements: 8.3, 8.5, 8.6_
+
+  - [ ] 16.2 Create emergency contacts endpoint
+    - Create GET /api/emergency/contacts endpoint
+    - Accept location parameter (state/city)
+    - Return categorized emergency contacts
+    - Include phone numbers with calling capability metadata
+    - Optimize for <1 second response time
+    - _Requirements: 8.2, 8.4_
+
+  - [ ] 16.3 Add emergency mode quick access
+    - Create emergency mode flag in user session
+    - Provide quick access links to evidence documentation in emergency mode
+    - _Requirements: 8.7_
+
+  - [ ]* 16.4 Write property tests for emergency features
+    - **Property 38: Emergency response time** - Verify <1 second response
+    - **Property 39: Contact categorization** - Verify 4+ categories
+    - **Property 40: Callable phone numbers** - Verify phone number field present
+    - **Property 41: Location-specific contacts** - Verify location-specific contact present
+    - **Property 42: National fallback contacts** - Verify at least 2 national numbers
+    - **Property 43: Evidence access in emergency mode** - Verify quick access links
+    - **Validates: Requirements 8.2, 8.3, 8.4, 8.5, 8.6, 8.7**
+
+- [ ] 17. Checkpoint - Verify evidence guides and emergency features
+  - Run all tests for evidence guides and emergency features
+  - Manually test evidence guide generation for different case types
+  - Verify emergency contacts load within 1 second
+  - Test emergency mode functionality
+  - Ask the user if questions arise
+
+
+### Phase 8: OCR and Document Upload
+
+- [ ] 18. Implement OCR functionality
+  - [ ] 18.1 Set up Tesseract.js OCR service
+    - Install and configure Tesseract.js
+    - Download language models for English, Hindi, and regional languages
+    - Create OCR processing service
+    - _Requirements: 11.7_
+
+  - [ ] 18.2 Create document upload and OCR endpoint
+    - Create POST /api/ocr/upload endpoint
+    - Accept image uploads (JPEG, PNG, PDF, HEIC)
+    - Validate file format and size
+    - Enforce 10-page limit for multi-page documents
+    - Process OCR within 10 seconds
+    - Return extracted text with confidence scores
+    - _Requirements: 11.1, 11.2, 11.6_
+
+  - [ ] 18.3 Implement OCR verification and editing
+    - Create POST /api/ocr/verify endpoint for corrected text
+    - Display extracted text for user verification
+    - Allow text editing before analysis
+    - Highlight low-confidence text segments (<80%)
+    - _Requirements: 11.3, 11.4, 11.5_
+
+  - [ ]* 18.4 Write property tests for OCR
+    - **Property 55: OCR processing time** - Verify <10 second processing
+    - **Property 56: Extracted text display** - Verify text returned for verification
+    - **Property 57: Text editability** - Verify editing capability
+    - **Property 58: Low confidence highlighting** - Verify highlighting for confidence <80%
+    - **Property 59: Page limit enforcement** - Verify 10-page limit
+    - **Property 60: Language-specific OCR models** - Verify correct model selection
+    - **Validates: Requirements 11.1, 11.3, 11.4, 11.5, 11.6, 11.7**
+
+  - [ ]* 18.5 Write unit tests for OCR edge cases
+    - Test unsupported file formats
+    - Test oversized files
+    - Test corrupted images
+    - Test very low quality images
+    - Test multi-page documents
+    - _Requirements: 11.1, 11.2, 11.6_
+
