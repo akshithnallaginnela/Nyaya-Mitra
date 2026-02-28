@@ -121,8 +121,16 @@ class TestRegistration:
             sample_user_data["password"] = weak_password
             response = client.post("/api/auth/register", json=sample_user_data)
             
-            assert response.status_code == 400
-            assert "password" in response.json()["detail"].lower()
+            # Pydantic validation returns 422, our custom validation returns 400
+            assert response.status_code in [400, 422]
+            
+            # Check if password is mentioned in error (detail can be string or list)
+            detail = response.json()["detail"]
+            if isinstance(detail, str):
+                assert "password" in detail.lower()
+            else:
+                # Pydantic returns list of errors
+                assert any("password" in str(err).lower() for err in detail)
     
     def test_register_missing_required_fields(self):
         """Test registration with missing required fields."""
@@ -261,9 +269,14 @@ class TestTokenRefresh:
     
     def test_refresh_success(self, sample_user_data):
         """Test successful token refresh."""
+        import time
+        
         # Register and get token
         register_response = client.post("/api/auth/register", json=sample_user_data)
         old_token = register_response.json()["access_token"]
+        
+        # Wait a moment to ensure different iat timestamp
+        time.sleep(1)
         
         # Refresh token
         response = client.post("/api/auth/refresh", json={
@@ -279,7 +292,7 @@ class TestTokenRefresh:
         assert data["token_type"] == "bearer"
         assert "user" in data
         
-        # Verify new token is different
+        # Verify new token is different (due to different iat)
         new_token = data["access_token"]
         assert new_token != old_token
     
@@ -355,12 +368,17 @@ class TestAccountDeletion:
         conversation = Conversation(user_id=user.id, title="Test Conversation")
         db.add(conversation)
         
-        # Create case analysis
+        # Create case analysis with complete score breakdown
         case_analysis = CaseAnalysis(
             user_id=user.id,
             complaint_details={"test": "data"},
             validity_score=50,
-            score_breakdown={"evidence": 20}
+            score_breakdown={
+                "evidence": 20,
+                "legal_basis": 15,
+                "procedural": 10,
+                "timeline": 5
+            }
         )
         db.add(case_analysis)
         
@@ -418,9 +436,11 @@ class TestJWTTokenExpiration:
         assert token_data.exp is not None
         assert token_data.iat is not None
         
+        # Token data already contains datetime objects
+        exp_time = token_data.exp if isinstance(token_data.exp, datetime) else datetime.fromtimestamp(token_data.exp)
+        iat_time = token_data.iat if isinstance(token_data.iat, datetime) else datetime.fromtimestamp(token_data.iat)
+        
         # Calculate expiration duration
-        exp_time = datetime.fromtimestamp(token_data.exp)
-        iat_time = datetime.fromtimestamp(token_data.iat)
         duration = exp_time - iat_time
         
         # Verify expiration is 24 hours (with small tolerance for processing time)
