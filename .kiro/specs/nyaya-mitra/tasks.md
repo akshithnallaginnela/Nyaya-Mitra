@@ -141,7 +141,7 @@ The implementation uses:
     - Implement confidence scoring based on retrieval relevance
     - _Requirements: 1.3, 1.4, 1.7_
 
-  - [ ] 6.3 Implement multilingual query processing
+  - [-] 6.3 Implement multilingual query processing
     - Add language detection using langdetect
     - Create language-specific prompt templates
     - Implement query translation if needed
