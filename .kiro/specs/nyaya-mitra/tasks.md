@@ -98,8 +98,8 @@ The implementation uses:
 
 ### Phase 2: AI/ML Infrastructure
 
-- [ ] 5. Set up vector database and RAG system
-  - [ ] 5.1 Initialize Chroma vector database
+- [-] 5. Set up vector database and RAG system
+  - [-] 5.1 Initialize Chroma vector database
     - Set up Chroma client with persistent storage
     - Create collection for legal documents with metadata schema
     - Configure embedding model (sentence-transformers)
