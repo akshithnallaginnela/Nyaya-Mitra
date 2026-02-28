@@ -155,7 +155,7 @@ def verify_token(token: str) -> TokenData:
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db_session)
 ) -> User:
     """
     FastAPI dependency to get the current authenticated user.
