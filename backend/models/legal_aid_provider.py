@@ -231,7 +231,16 @@ class LegalAidProvider(BaseModel):
         email = email.strip().lower()
         
         # Basic email validation
-        if '@' not in email or '.' not in email.split('@')[1]:
+        if '@' not in email:
+            raise ValueError("Invalid email format")
+        
+        parts = email.split('@')
+        if len(parts) != 2 or not parts[0] or not parts[1]:
+            raise ValueError("Invalid email format")
+        
+        # Check domain part has a dot and valid structure
+        domain = parts[1]
+        if '.' not in domain or domain.startswith('.') or domain.endswith('.'):
             raise ValueError("Invalid email format")
         
         return email

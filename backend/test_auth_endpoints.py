@@ -23,9 +23,9 @@ from models.case_analysis import CaseAnalysis
 from models.generated_document import GeneratedDocument
 
 
-# Test database setup
-TEST_DATABASE_URL = "sqlite:///./test_auth.db"
-engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
+# Test database setup - Use PostgreSQL for testing
+TEST_DATABASE_URL = "postgresql://postgres:password@localhost:5432/nyaya_mitra_test"
+engine = create_engine(TEST_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
