@@ -134,7 +134,7 @@ The implementation uses:
     - Configure model parameters (temperature=0.3 for consistency)
     - _Requirements: 1.1_
 
-  - [-] 6.2 Implement LangChain orchestration
+  - [x] 6.2 Implement LangChain orchestration
     - Create LangChain prompt templates for legal queries
     - Implement chain for RAG: retrieve → format context → generate response
     - Add response parsing and citation extraction
