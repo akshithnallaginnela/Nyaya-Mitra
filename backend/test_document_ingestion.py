@@ -2,12 +2,11 @@
 Tests for document ingestion pipeline.
 
 Tests cover:
-- JSON file ingestion
-- IPC section ingestion
-- CrPC section ingestion
-- Case law ingestion
-- Constitution article ingestion
-- Batch processing
+- Document loading from JSON
+- Document preprocessing
+- Single document ingestion
+- Batch document ingestion
+- Metadata handling
 
 Requirements: 10.2
 """
@@ -16,338 +15,307 @@ import json
 import os
 import pytest
 import shutil
+import tempfile
 
-from document_ingestion import DocumentIngestionPipeline
+from document_ingestion import DocumentIngestionPipeline, create_sample_corpus
 from vector_db import VectorDatabase
 
 
 @pytest.fixture
-def test_pipeline():
-    """Create a test ingestion pipeline with isolated vector database."""
+def test_vector_db():
+    """Create a test vector database."""
     import uuid
-    test_dir = "./test_ingestion_db"
+    test_dir = "./test_ingestion_chroma_db"
     collection_name = f"test_ingestion_{uuid.uuid4().hex[:8]}"
     
-    # Clean up before creating
     if os.path.exists(test_dir):
         shutil.rmtree(test_dir)
     
-    # Create test vector database
-    vector_db = VectorDatabase(
+    db = VectorDatabase(
         persist_directory=test_dir,
         collection_name=collection_name
     )
     
-    # Create pipeline
-    pipeline = DocumentIngestionPipeline(vector_db=vector_db)
+    yield db
     
-    yield pipeline
-    
-    # Clean up after
     if os.path.exists(test_dir):
         shutil.rmtree(test_dir)
+
+
+@pytest.fixture
+def pipeline(test_vector_db):
+    """Create a document ingestion pipeline."""
+    return DocumentIngestionPipeline(vector_db=test_vector_db)
+
+
+@pytest.fixture
+def sample_documents():
+    """Create sample documents for testing."""
+    return [
+        {
+            "id": "test_doc_1",
+            "text": "This is a test legal document about Section 302 IPC",
+            "source": "IPC",
+            "category": "criminal",
+            "language": "en",
+            "section": "302"
+        },
+        {
+            "id": "test_doc_2",
+            "content": "Another test document about CrPC Section 154",
+            "source": "CrPC",
+            "category": "procedure",
+            "language": "en"
+        }
+    ]
+
+
+@pytest.fixture
+def temp_json_file(sample_documents):
+    """Create a temporary JSON file with sample documents."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False, encoding='utf-8') as f:
+        json.dump(sample_documents, f)
+        temp_path = f.name
     
-    # Clean up test data
-    if os.path.exists("./test_legal_data"):
-        shutil.rmtree("./test_legal_data")
-
-
-class TestJSONIngestion:
-    """Test JSON file ingestion."""
+    yield temp_path
     
-    def test_ingest_from_json_file(self, test_pipeline):
-        """Test ingesting documents from JSON file."""
-        # Create test JSON file
-        os.makedirs("./test_legal_data", exist_ok=True)
-        test_file = "./test_legal_data/test_docs.json"
-        
-        test_data = [
-            {
-                "id": "test_1",
-                "text": "Test document 1",
-                "metadata": {"source": "Test", "category": "test"}
-            },
-            {
-                "id": "test_2",
-                "text": "Test document 2",
-                "metadata": {"source": "Test", "category": "test"}
-            }
-        ]
-        
-        with open(test_file, 'w') as f:
-            json.dump(test_data, f)
-        
-        # Ingest
-        count = test_pipeline.ingest_from_json(test_file)
-        
-        assert count == 2
-        assert test_pipeline.vector_db.count_documents() == 2
+    if os.path.exists(temp_path):
+        os.unlink(temp_path)
+
+
+class TestDocumentLoading:
+    """Test document loading functionality."""
     
-    def test_ingest_empty_json_returns_zero(self, test_pipeline):
-        """Test that ingesting empty JSON returns 0."""
-        os.makedirs("./test_legal_data", exist_ok=True)
-        test_file = "./test_legal_data/empty.json"
+    def test_load_documents_from_json(self, pipeline, temp_json_file):
+        """Test loading documents from JSON file."""
+        documents = pipeline.load_documents_from_json(temp_json_file)
         
-        with open(test_file, 'w') as f:
-            json.dump([], f)
-        
-        count = test_pipeline.ingest_from_json(test_file)
-        
-        assert count == 0
-        assert test_pipeline.vector_db.count_documents() == 0
+        assert len(documents) == 2
+        assert documents[0]['id'] == 'test_doc_1'
+        assert documents[1]['id'] == 'test_doc_2'
 
 
-class TestIPCIngestion:
-    """Test IPC section ingestion."""
+class TestDocumentPreprocessing:
+    """Test document preprocessing."""
     
-    def test_ingest_ipc_sections(self, test_pipeline):
-        """Test ingesting IPC sections."""
-        sections = [
-            {
-                "section_number": "302",
-                "title": "Punishment for murder",
-                "description": "Whoever commits murder shall be punished with death or imprisonment for life.",
-                "category": "criminal",
-                "language": "en"
-            },
-            {
-                "section_number": "304",
-                "title": "Culpable homicide not amounting to murder",
-                "description": "Whoever commits culpable homicide not amounting to murder shall be punished.",
-                "category": "criminal",
-                "language": "en"
-            }
-        ]
+    def test_preprocess_document_with_text_field(self, pipeline):
+        """Test preprocessing document with 'text' field."""
+        doc = {
+            "id": "test_1",
+            "text": "Test content",
+            "source": "IPC",
+            "category": "criminal"
+        }
         
-        count = test_pipeline.ingest_ipc_sections(sections)
+        processed = pipeline.preprocess_document(doc)
         
-        assert count == 2
-        assert test_pipeline.vector_db.count_documents() == 2
-        
-        # Verify document structure
-        doc = test_pipeline.vector_db.get_document("ipc_302")
-        assert doc is not None
-        assert "302" in doc['document']
-        assert doc['metadata']['source'] == 'IPC'
-        assert doc['metadata']['section'] == '302'
+        assert processed['id'] == 'test_1'
+        assert processed['text'] == 'Test content'
+        assert processed['metadata']['source'] == 'IPC'
+        assert processed['metadata']['category'] == 'criminal'
     
-    def test_ipc_document_id_format(self, test_pipeline):
-        """Test that IPC documents have correct ID format."""
-        sections = [
-            {
-                "section_number": "123",
-                "title": "Test Section",
-                "description": "Test description"
-            }
-        ]
+    def test_preprocess_document_with_content_field(self, pipeline):
+        """Test preprocessing document with 'content' field instead of 'text'."""
+        doc = {
+            "id": "test_2",
+            "content": "Test content",
+            "source": "CrPC"
+        }
         
-        test_pipeline.ingest_ipc_sections(sections)
+        processed = pipeline.preprocess_document(doc)
         
-        doc = test_pipeline.vector_db.get_document("ipc_123")
-        assert doc is not None
-
-
-class TestCrPCIngestion:
-    """Test CrPC section ingestion."""
+        assert processed['text'] == 'Test content'
     
-    def test_ingest_crpc_sections(self, test_pipeline):
-        """Test ingesting CrPC sections."""
-        sections = [
-            {
-                "section_number": "154",
-                "title": "Information in cognizable cases",
-                "description": "Every information relating to the commission of a cognizable offence shall be reduced to writing.",
-                "category": "procedure",
-                "language": "en"
-            }
-        ]
+    def test_preprocess_document_missing_id_raises_error(self, pipeline):
+        """Test that missing ID raises error."""
+        doc = {
+            "text": "Test content"
+        }
         
-        count = test_pipeline.ingest_crpc_sections(sections)
-        
-        assert count == 1
-        assert test_pipeline.vector_db.count_documents() == 1
-        
-        # Verify document structure
-        doc = test_pipeline.vector_db.get_document("crpc_154")
-        assert doc is not None
-        assert "154" in doc['document']
-        assert doc['metadata']['source'] == 'CrPC'
-
-
-class TestCaseLawIngestion:
-    """Test case law ingestion."""
+        with pytest.raises(ValueError, match="must have an 'id' field"):
+            pipeline.preprocess_document(doc)
     
-    def test_ingest_case_laws(self, test_pipeline):
-        """Test ingesting case laws."""
-        cases = [
-            {
-                "case_id": "2023_SC_001",
-                "case_name": "State v. Accused",
-                "summary": "This case deals with the interpretation of Section 302 IPC.",
-                "court": "Supreme Court",
-                "year": "2023",
-                "category": "precedent",
-                "language": "en"
-            }
-        ]
+    def test_preprocess_document_missing_text_raises_error(self, pipeline):
+        """Test that missing text/content raises error."""
+        doc = {
+            "id": "test_3"
+        }
         
-        count = test_pipeline.ingest_case_laws(cases)
-        
-        assert count == 1
-        assert test_pipeline.vector_db.count_documents() == 1
-        
-        # Verify document structure
-        doc = test_pipeline.vector_db.get_document("case_2023_SC_001")
-        assert doc is not None
-        assert "State v. Accused" in doc['document']
-        assert doc['metadata']['source'] == 'CaseLaw'
-        assert doc['metadata']['court'] == 'Supreme Court'
-
-
-class TestConstitutionIngestion:
-    """Test Constitution article ingestion."""
+        with pytest.raises(ValueError, match="must have a 'text' or 'content' field"):
+            pipeline.preprocess_document(doc)
     
-    def test_ingest_constitution_articles(self, test_pipeline):
-        """Test ingesting Constitution articles."""
-        articles = [
-            {
-                "article_number": "21",
-                "title": "Protection of life and personal liberty",
-                "description": "No person shall be deprived of his life or personal liberty except according to procedure established by law.",
-                "category": "fundamental_rights",
-                "language": "en"
-            }
-        ]
+    def test_preprocess_adds_default_metadata(self, pipeline):
+        """Test that preprocessing adds default metadata."""
+        doc = {
+            "id": "test_4",
+            "text": "Test content"
+        }
         
-        count = test_pipeline.ingest_constitution_articles(articles)
+        processed = pipeline.preprocess_document(doc)
         
-        assert count == 1
-        assert test_pipeline.vector_db.count_documents() == 1
+        assert 'source' in processed['metadata']
+        assert 'category' in processed['metadata']
+        assert 'language' in processed['metadata']
+        assert 'date' in processed['metadata']
+    
+    def test_preprocess_preserves_custom_metadata(self, pipeline):
+        """Test that custom metadata fields are preserved."""
+        doc = {
+            "id": "test_5",
+            "text": "Test content",
+            "custom_field": "custom_value",
+            "section": "123"
+        }
         
-        # Verify document structure
-        doc = test_pipeline.vector_db.get_document("const_21")
-        assert doc is not None
-        assert "Article 21" in doc['document']
-        assert doc['metadata']['source'] == 'Constitution'
+        processed = pipeline.preprocess_document(doc)
+        
+        assert processed['metadata']['custom_field'] == 'custom_value'
+        assert processed['metadata']['section'] == '123'
+
+
+class TestSingleDocumentIngestion:
+    """Test single document ingestion."""
+    
+    def test_ingest_single_document(self, pipeline, test_vector_db):
+        """Test ingesting a single document."""
+        doc = {
+            "id": "single_test",
+            "text": "Test document for single ingestion",
+            "source": "Test"
+        }
+        
+        pipeline.ingest_document(doc)
+        
+        assert test_vector_db.count_documents() == 1
+        
+        # Verify document can be retrieved
+        retrieved = test_vector_db.get_document("single_test")
+        assert retrieved is not None
+        assert "Test document" in retrieved['document']
 
 
 class TestBatchIngestion:
     """Test batch document ingestion."""
     
-    def test_ingest_multiple_document_types(self, test_pipeline):
-        """Test ingesting multiple types of documents."""
-        # Ingest IPC
-        ipc_sections = [
-            {
-                "section_number": "302",
-                "title": "Murder",
-                "description": "Punishment for murder"
-            }
-        ]
-        test_pipeline.ingest_ipc_sections(ipc_sections)
+    def test_ingest_documents_batch(self, pipeline, test_vector_db, sample_documents):
+        """Test ingesting multiple documents in batch."""
+        count = pipeline.ingest_documents_batch(sample_documents)
         
-        # Ingest CrPC
-        crpc_sections = [
-            {
-                "section_number": "154",
-                "title": "FIR",
-                "description": "Information in cognizable cases"
-            }
-        ]
-        test_pipeline.ingest_crpc_sections(crpc_sections)
-        
-        # Ingest Constitution
-        articles = [
-            {
-                "article_number": "21",
-                "title": "Right to life",
-                "description": "Protection of life and personal liberty"
-            }
-        ]
-        test_pipeline.ingest_constitution_articles(articles)
-        
-        # Verify all documents are ingested
-        assert test_pipeline.vector_db.count_documents() == 3
+        assert count == 2
+        assert test_vector_db.count_documents() == 2
     
-    def test_ingest_documents_adds_timestamp(self, test_pipeline):
-        """Test that ingestion adds timestamp to metadata."""
-        documents = [
-            {
-                "id": "test_1",
-                "text": "Test document",
-                "metadata": {"source": "Test"}
-            }
+    def test_ingest_documents_batch_with_custom_batch_size(self, pipeline, test_vector_db):
+        """Test batch ingestion with custom batch size."""
+        docs = [
+            {"id": f"doc_{i}", "text": f"Document {i}"} 
+            for i in range(5)
         ]
         
-        test_pipeline.ingest_documents(documents)
+        count = pipeline.ingest_documents_batch(docs, batch_size=2)
         
-        doc = test_pipeline.vector_db.get_document("test_1")
-        assert 'ingested_at' in doc['metadata']
+        assert count == 5
+        assert test_vector_db.count_documents() == 5
+    
+    def test_ingest_documents_batch_handles_errors(self, pipeline, test_vector_db):
+        """Test that batch ingestion handles errors gracefully."""
+        docs = [
+            {"id": "valid_1", "text": "Valid document"},
+            {"text": "Missing ID"},  # Invalid - no ID
+            {"id": "valid_2", "text": "Another valid document"}
+        ]
+        
+        count = pipeline.ingest_documents_batch(docs)
+        
+        # Should ingest only valid documents
+        assert count == 2
+        assert test_vector_db.count_documents() == 2
 
 
-class TestSampleCorpus:
-    """Test sample corpus creation and ingestion."""
+class TestFileIngestion:
+    """Test ingestion from files."""
     
-    def test_create_sample_corpus(self, test_pipeline):
-        """Test creating sample legal corpus."""
-        file_path = test_pipeline.create_sample_legal_corpus()
+    def test_ingest_from_file(self, pipeline, test_vector_db, temp_json_file):
+        """Test ingesting documents from a JSON file."""
+        count = pipeline.ingest_from_file(temp_json_file)
         
-        assert os.path.exists(file_path)
-        
-        # Verify file content
-        with open(file_path, 'r') as f:
-            data = json.load(f)
-        
-        assert len(data) > 0
-        assert all('id' in doc and 'text' in doc for doc in data)
-    
-    def test_ingest_sample_corpus(self, test_pipeline):
-        """Test ingesting sample corpus."""
-        file_path = test_pipeline.create_sample_legal_corpus()
-        count = test_pipeline.ingest_from_json(file_path)
-        
-        assert count > 0
-        assert test_pipeline.vector_db.count_documents() == count
+        assert count == 2
+        assert test_vector_db.count_documents() == 2
 
 
-class TestMetadataHandling:
-    """Test metadata handling during ingestion."""
+class TestSpecializedIngestion:
+    """Test specialized ingestion methods."""
     
-    def test_metadata_preserved(self, test_pipeline):
-        """Test that metadata is preserved during ingestion."""
-        documents = [
-            {
-                "id": "test_1",
-                "text": "Test document",
-                "metadata": {
-                    "source": "Test",
-                    "category": "test_category",
-                    "custom_field": "custom_value"
-                }
-            }
-        ]
+    def test_ingest_ipc_sections(self, pipeline, test_vector_db, temp_json_file):
+        """Test ingesting IPC sections."""
+        count = pipeline.ingest_ipc_sections(temp_json_file)
         
-        test_pipeline.ingest_documents(documents)
+        assert count == 2
         
-        doc = test_pipeline.vector_db.get_document("test_1")
-        assert doc['metadata']['source'] == 'Test'
-        assert doc['metadata']['category'] == 'test_category'
-        assert doc['metadata']['custom_field'] == 'custom_value'
+        # Verify metadata is set correctly
+        doc = test_vector_db.get_document("test_doc_1")
+        assert doc['metadata']['source'] == 'IPC'
+        assert doc['metadata']['category'] == 'criminal'
     
-    def test_missing_metadata_handled(self, test_pipeline):
-        """Test that documents without metadata are handled."""
-        documents = [
-            {
-                "id": "test_1",
-                "text": "Test document"
-            }
-        ]
+    def test_ingest_crpc_sections(self, pipeline, test_vector_db, temp_json_file):
+        """Test ingesting CrPC sections."""
+        count = pipeline.ingest_crpc_sections(temp_json_file)
         
-        count = test_pipeline.ingest_documents(documents)
+        assert count == 2
         
-        assert count == 1
-        doc = test_pipeline.vector_db.get_document("test_1")
-        assert doc is not None
+        # Verify metadata
+        doc = test_vector_db.get_document("test_doc_2")
+        assert doc['metadata']['source'] == 'CrPC'
+        assert doc['metadata']['category'] == 'procedure'
+    
+    def test_ingest_case_laws(self, pipeline, test_vector_db, temp_json_file):
+        """Test ingesting case laws."""
+        count = pipeline.ingest_case_laws(temp_json_file)
+        
+        assert count == 2
+        
+        # Verify metadata
+        doc = test_vector_db.get_document("test_doc_1")
+        assert doc['metadata']['source'] == 'Case Law'
+        assert doc['metadata']['category'] == 'judgment'
+
+
+class TestIngestionStats:
+    """Test ingestion statistics."""
+    
+    def test_get_ingestion_stats(self, pipeline, test_vector_db, sample_documents):
+        """Test getting ingestion statistics."""
+        pipeline.ingest_documents_batch(sample_documents)
+        
+        stats = pipeline.get_ingestion_stats()
+        
+        assert 'total_documents' in stats
+        assert stats['total_documents'] == 2
+        assert 'timestamp' in stats
+
+
+class TestSampleCorpusCreation:
+    """Test sample corpus creation."""
+    
+    def test_create_sample_corpus(self):
+        """Test creating sample corpus file."""
+        temp_dir = tempfile.mkdtemp()
+        output_path = os.path.join(temp_dir, "test_corpus.json")
+        
+        try:
+            create_sample_corpus(output_path)
+            
+            assert os.path.exists(output_path)
+            
+            # Load and verify
+            with open(output_path, 'r', encoding='utf-8') as f:
+                documents = json.load(f)
+            
+            assert len(documents) > 0
+            assert all('id' in doc for doc in documents)
+            assert all('text' in doc for doc in documents)
+        finally:
+            if os.path.exists(temp_dir):
+                shutil.rmtree(temp_dir)
 
 
 if __name__ == "__main__":
