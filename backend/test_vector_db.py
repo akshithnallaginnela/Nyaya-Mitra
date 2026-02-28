@@ -21,17 +21,23 @@ from vector_db import VectorDatabase
 @pytest.fixture
 def test_vector_db():
     """Create a test vector database and clean up after."""
+    import uuid
     test_dir = "./test_chroma_db"
+    collection_name = f"test_legal_documents_{uuid.uuid4().hex[:8]}"
+    
+    # Clean up before creating
+    if os.path.exists(test_dir):
+        shutil.rmtree(test_dir)
     
     # Create test database
     db = VectorDatabase(
         persist_directory=test_dir,
-        collection_name="test_legal_documents"
+        collection_name=collection_name
     )
     
     yield db
     
-    # Clean up
+    # Clean up after
     if os.path.exists(test_dir):
         shutil.rmtree(test_dir)
 
