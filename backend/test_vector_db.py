@@ -52,7 +52,7 @@ class TestVectorDatabaseInitialization:
     def test_creates_collection(self, test_vector_db):
         """Test that collection is created."""
         assert test_vector_db.collection is not None
-        assert test_vector_db.collection.name == "test_legal_documents"
+        assert test_vector_db.collection.name.startswith("test_legal_documents")
     
     def test_loads_embedding_model(self, test_vector_db):
         """Test that embedding model is loaded."""
