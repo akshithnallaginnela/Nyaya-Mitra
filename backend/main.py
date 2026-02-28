@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import init_db
-from routers import auth
+from routers import auth, chat
 
 app = FastAPI(
     title="Nyaya Mitra API",
@@ -22,6 +22,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth.router)
+app.include_router(chat.router)
 
 
 @app.on_event("startup")

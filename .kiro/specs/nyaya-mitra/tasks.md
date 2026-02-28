@@ -166,7 +166,7 @@ The implementation uses:
 ### Phase 3: Core Feature Implementation - Chat System
 
 - [ ] 7. Implement chat API endpoints
-  - [ ] 7.1 Create POST /api/chat/query endpoint
+  - [-] 7.1 Create POST /api/chat/query endpoint
     - Accept user query and language preference
     - Call RAG system to retrieve context
     - Generate AI response using Ollama
