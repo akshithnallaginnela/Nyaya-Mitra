@@ -123,19 +123,27 @@ class RAGRetrievalSystem:
         n_results = n_results or self.default_n_results
         
         # Build metadata filter
-        where_filter = {}
+        where_filter = None
+        filters = []
+        
         if language:
-            where_filter['language'] = language
+            filters.append({'language': language})
         if category:
-            where_filter['category'] = category
+            filters.append({'category': category})
         if source:
-            where_filter['source'] = source
+            filters.append({'source': source})
+        
+        # Build where clause based on number of filters
+        if len(filters) == 1:
+            where_filter = filters[0]
+        elif len(filters) > 1:
+            where_filter = {'$and': filters}
         
         # Query vector database
         results = self.vector_db.query(
             query_text=query,
             n_results=n_results,
-            where=where_filter if where_filter else None
+            where=where_filter
         )
         
         # Process results
