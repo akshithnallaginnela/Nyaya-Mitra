@@ -105,14 +105,14 @@ The implementation uses:
     - Configure embedding model (sentence-transformers)
     - _Requirements: 10.1_
 
-  - [-] 5.2 Implement document ingestion pipeline
+  - [x] 5.2 Implement document ingestion pipeline
     - Create script to load IPC sections, CrPC sections, case laws
     - Generate embeddings for each document
     - Store documents in Chroma with metadata (source, category, language, date)
     - Create indexing for efficient retrieval
     - _Requirements: 10.2_
 
-  - [ ] 5.3 Implement RAG retrieval system
+  - [-] 5.3 Implement RAG retrieval system
     - Create query embedding generation
     - Implement similarity search to retrieve top 5 documents
     - Add metadata filtering by language and category
