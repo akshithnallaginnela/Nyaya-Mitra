@@ -1,0 +1,92 @@
+[
+  {
+    "id": "ipc_302",
+    "text": "Section 302: Punishment for murder - Whoever commits murder shall be punished with death, or imprisonment for life, and shall also be liable to fine.",
+    "source": "IPC",
+    "category": "criminal",
+    "language": "en",
+    "section": "302",
+    "title": "Punishment for murder"
+  },
+  {
+    "id": "ipc_304",
+    "text": "Section 304: Punishment for culpable homicide not amounting to murder - Whoever commits culpable homicide not amounting to murder shall be punished with imprisonment for life, or imprisonment of either description for a term which may extend to ten years, and shall also be liable to fine.",
+    "source": "IPC",
+    "category": "criminal",
+    "language": "en",
+    "section": "304",
+    "title": "Culpable homicide not amounting to murder"
+  },
+  {
+    "id": "ipc_307",
+    "text": "Section 307: Attempt to murder - Whoever does any act with such intention or knowledge, and under such circumstances that, if he by that act caused death, he would be guilty of murder, shall be punished with imprisonment of either description for a term which may extend to ten years, and shall also be liable to fine.",
+    "source": "IPC",
+    "category": "criminal",
+    "language": "en",
+    "section": "307",
+    "title": "Attempt to murder"
+  },
+  {
+    "id": "ipc_375",
+    "text": "Section 375: Rape - A man is said to commit rape if he has sexual intercourse with a woman under circumstances falling under any of the six following descriptions.",
+    "source": "IPC",
+    "category": "criminal",
+    "language": "en",
+    "section": "375",
+    "title": "Rape"
+  },
+  {
+    "id": "ipc_420",
+    "text": "Section 420: Cheating and dishonestly inducing delivery of property - Whoever cheats and thereby dishonestly induces the person deceived to deliver any property to any person, or to make, alter or destroy the whole or any part of a valuable security, shall be punished with imprisonment of either description for a term which may extend to seven years, and shall also be liable to fine.",
+    "source": "IPC",
+    "category": "criminal",
+    "language": "en",
+    "section": "420",
+    "title": "Cheating"
+  },
+  {
+    "id": "crpc_154",
+    "text": "Section 154: Information in cognizable cases - Every information relating to the commission of a cognizable offence, if given orally to an officer in charge of a police station, shall be reduced to writing by him or under his direction, and be read over to the informant; and every such information, whether given in writing or reduced to writing as aforesaid, shall be signed by the person giving it, and the substance thereof shall be entered in a book to be kept by such officer in such form as the State Government may prescribe in this behalf. This is commonly known as FIR (First Information Report).",
+    "source": "CrPC",
+    "category": "procedure",
+    "language": "en",
+    "section": "154",
+    "title": "FIR - First Information Report"
+  },
+  {
+    "id": "crpc_161",
+    "text": "Section 161: Examination of witnesses by police - Any police officer making an investigation may examine orally any person supposed to be acquainted with the facts and circumstances of the case.",
+    "source": "CrPC",
+    "category": "procedure",
+    "language": "en",
+    "section": "161",
+    "title": "Examination of witnesses"
+  },
+  {
+    "id": "crpc_41",
+    "text": "Section 41: When police may arrest without warrant - Any police officer may without an order from a Magistrate and without a warrant, arrest any person who has been concerned in any cognizable offence, or against whom a reasonable complaint has been made, or credible information has been received.",
+    "source": "CrPC",
+    "category": "procedure",
+    "language": "en",
+    "section": "41",
+    "title": "Arrest without warrant"
+  },
+  {
+    "id": "const_21",
+    "text": "Article 21: Protection of life and personal liberty - No person shall be deprived of his life or personal liberty except according to procedure established by law.",
+    "source": "Constitution",
+    "category": "fundamental_rights",
+    "language": "en",
+    "section": "21",
+    "title": "Right to life and personal liberty"
+  },
+  {
+    "id": "const_14",
+    "text": "Article 14: Equality before law - The State shall not deny to any person equality before the law or the equal protection of the laws within the territory of India.",
+    "source": "Constitution",
+    "category": "fundamental_rights",
+    "language": "en",
+    "section": "14",
+    "title": "Equality before law"
+  }
+]
