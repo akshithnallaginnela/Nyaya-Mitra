@@ -18,7 +18,7 @@ from jose import JWTError as JoseJWTError, jwt
 from pydantic import BaseModel, ValidationError
 from sqlalchemy.orm import Session
 
-from database import get_db
+from database import get_db_session
 from models.user import User
 
 
