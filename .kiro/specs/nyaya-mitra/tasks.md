@@ -105,7 +105,7 @@ The implementation uses:
     - Configure embedding model (sentence-transformers)
     - _Requirements: 10.1_
 
-  - [ ] 5.2 Implement document ingestion pipeline
+  - [-] 5.2 Implement document ingestion pipeline
     - Create script to load IPC sections, CrPC sections, case laws
     - Generate embeddings for each document
     - Store documents in Chroma with metadata (source, category, language, date)
