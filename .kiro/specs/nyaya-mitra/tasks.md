@@ -63,13 +63,13 @@ The implementation uses:
     - **Validates: Requirements 9.1, 9.5**
 
 - [ ] 3. Implement authentication system with JWT
-  - [-] 3.1 Create JWT token generation and validation utilities
+  - [x] 3.1 Create JWT token generation and validation utilities
     - Implement JWT token creation with 24-hour expiration
     - Create token validation middleware for protected routes
     - Add token refresh endpoint logic
     - _Requirements: 9.2_
 
-  - [ ] 3.2 Implement authentication endpoints
+  - [x] 3.2 Implement authentication endpoints
     - Create POST /api/auth/register endpoint with email validation
     - Create POST /api/auth/login endpoint with credential verification
     - Create POST /api/auth/refresh endpoint for token renewal
@@ -90,7 +90,7 @@ The implementation uses:
     - _Requirements: 9.1, 9.2_
 
 
-- [ ] 4. Checkpoint - Ensure database and authentication work
+- [x] 4. Checkpoint - Ensure database and authentication work
   - Run all tests to verify database models and authentication
   - Manually test registration and login flows
   - Verify JWT tokens are properly generated and validated
@@ -98,21 +98,21 @@ The implementation uses:
 
 ### Phase 2: AI/ML Infrastructure
 
-- [ ] 5. Set up vector database and RAG system
-  - [ ] 5.1 Initialize Chroma vector database
+- [-] 5. Set up vector database and RAG system
+  - [x] 5.1 Initialize Chroma vector database
     - Set up Chroma client with persistent storage
     - Create collection for legal documents with metadata schema
     - Configure embedding model (sentence-transformers)
     - _Requirements: 10.1_
 
-  - [ ] 5.2 Implement document ingestion pipeline
+  - [x] 5.2 Implement document ingestion pipeline
     - Create script to load IPC sections, CrPC sections, case laws
     - Generate embeddings for each document
     - Store documents in Chroma with metadata (source, category, language, date)
     - Create indexing for efficient retrieval
     - _Requirements: 10.2_
 
-  - [ ] 5.3 Implement RAG retrieval system
+  - [-] 5.3 Implement RAG retrieval system
     - Create query embedding generation
     - Implement similarity search to retrieve top 5 documents
     - Add metadata filtering by language and category
