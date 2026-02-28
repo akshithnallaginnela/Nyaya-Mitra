@@ -9,6 +9,7 @@ from langchain.schema import HumanMessage, SystemMessage, AIMessage
 from ollama_client import get_ollama_client
 from rag_system import RAGRetrievalSystem
 from vector_db import VectorDatabase
+from multilingual_service import get_multilingual_service
 
 
 class LangChainOrchestrator:
@@ -62,6 +63,7 @@ Clarifying questions:"""
         self.ollama_client = get_ollama_client()
         self.vector_db = vector_db or VectorDatabase()
         self.rag_system = rag_system or RAGRetrievalSystem(self.vector_db)
+        self.multilingual_service = get_multilingual_service()
         
         # Create prompt templates
         self.query_prompt = PromptTemplate(
@@ -98,8 +100,13 @@ Clarifying questions:"""
             - confidence: Confidence score (0-1)
             - retrieved_docs: Documents used for context
             - needs_clarification: Whether query needs clarification
+            - language: Detected/used language
         """
-        # Step 1: Retrieve relevant documents using RAG
+        # Step 1: Process language
+        language_info = self.multilingual_service.process_query_language(query, language)
+        response_language = language_info["response_language"]
+        
+        # Step 2: Retrieve relevant documents using RAG
         retrieval_result = self.rag_system.retrieve_with_context(
             query=query,
             top_k=5,
@@ -109,27 +116,32 @@ Clarifying questions:"""
         relevant_docs = retrieval_result["documents"]
         confidence = retrieval_result["average_relevance"]
         
-        # Step 2: Check if clarification is needed (low confidence)
+        # Step 3: Check if clarification is needed (low confidence)
         if confidence < 0.6:
-            clarification_response = self._generate_clarification(query)
+            clarification_response = self._generate_clarification(query, response_language)
             return {
                 "response": clarification_response,
                 "citations": [],
                 "confidence": confidence,
                 "retrieved_docs": relevant_docs,
-                "needs_clarification": True
+                "needs_clarification": True,
+                "language": response_language
             }
         
-        # Step 3: Format context from retrieved documents
+        # Step 4: Format context from retrieved documents
         context = self._format_context(relevant_docs)
         
-        # Step 4: Build system prompt with context
-        system_prompt = self.LEGAL_SYSTEM_PROMPT.format(context=context)
+        # Step 5: Build system prompt with context and language instructions
+        base_system_prompt = self.LEGAL_SYSTEM_PROMPT.format(context=context)
+        system_prompt = self.multilingual_service.prepare_multilingual_prompt(
+            base_system_prompt,
+            response_language
+        )
         
-        # Step 5: Build user prompt
+        # Step 6: Build user prompt
         user_prompt = self.query_prompt.format(query=query)
         
-        # Step 6: Generate response using Ollama
+        # Step 7: Generate response using Ollama
         try:
             result = self.ollama_client.generate(
                 prompt=user_prompt,
@@ -148,23 +160,28 @@ Clarifying questions:"""
                 "confidence": 0.0,
                 "retrieved_docs": [],
                 "needs_clarification": False,
+                "language": response_language,
                 "error": str(e)
             }
         
-        # Step 7: Extract citations from response
+        # Step 8: Extract citations from response
         citations = self._extract_citations(response_text, relevant_docs)
         
-        # Step 8: Add disclaimer for low confidence responses
+        # Step 9: Add disclaimer for low confidence responses
         if confidence < 0.7:
-            disclaimer = "\n\n⚠️ Please note: I have limited information on this topic. I strongly recommend consulting with a qualified legal professional for accurate advice specific to your situation."
-            response_text += disclaimer
+            response_text = self.multilingual_service.add_language_disclaimer(
+                response_text,
+                response_language,
+                add_disclaimer=True
+            )
         
         return {
             "response": response_text,
             "citations": citations,
             "confidence": confidence,
             "retrieved_docs": relevant_docs,
-            "needs_clarification": False
+            "needs_clarification": False,
+            "language": response_language
         }
     
     def _format_context(self, documents: List[Dict[str, Any]]) -> str:
@@ -263,35 +280,62 @@ Clarifying questions:"""
         
         return citations
     
-    def _generate_clarification(self, query: str) -> str:
+    def _generate_clarification(self, query: str, language: str = "en") -> str:
         """
         Generate clarifying questions for ambiguous queries.
         
         Args:
             query: User's ambiguous query
+            language: Response language code
             
         Returns:
             Response with clarifying questions
         """
         prompt = self.clarification_prompt.format(query=query)
         
+        # Add language instruction
+        system_prompt = self.multilingual_service.prepare_multilingual_prompt(
+            "You are a helpful legal assistant.",
+            language
+        )
+        
         try:
             result = self.ollama_client.generate(
                 prompt=prompt,
+                system_prompt=system_prompt,
                 temperature=0.5  # Slightly higher temperature for variety
             )
             
             clarification = result["response"]
             
-            # Add preamble
-            response = "I'd like to better understand your situation to provide accurate guidance. Could you please clarify:\n\n"
+            # Add preamble based on language
+            if language == "hi":
+                response = "मैं आपकी स्थिति को बेहतर ढंग से समझना चाहता हूं। कृपया स्पष्ट करें:\n\n"
+            elif language == "ta":
+                response = "உங்கள் சூழ்நிலையை நன்கு புரிந்து கொள்ள விரும்புகிறேன். தயவுசெய்து விளக்கவும்:\n\n"
+            elif language == "te":
+                response = "మీ పరిస్థితిని బాగా అర్థం చేసుకోవాలనుకుంటున్నాను. దయచేసి స్పష్టం చేయండి:\n\n"
+            elif language == "bn":
+                response = "আমি আপনার পরিস্থিতি ভালোভাবে বুঝতে চাই। অনুগ্রহ করে স্পষ্ট করুন:\n\n"
+            elif language == "mr":
+                response = "मला तुमची परिस्थिती चांगल्या प्रकारे समजून घ्यायची आहे. कृपया स्पष्ट करा:\n\n"
+            elif language == "gu":
+                response = "હું તમારી પરિસ્થિતિને વધુ સારી રીતે સમજવા માંગુ છું. કૃપા કરીને સ્પષ્ટ કરો:\n\n"
+            else:  # English
+                response = "I'd like to better understand your situation to provide accurate guidance. Could you please clarify:\n\n"
+            
             response += clarification
             
             return response
             
         except RuntimeError:
-            # Fallback clarification
-            return "I'd like to better understand your situation. Could you please provide more details about:\n\n1. The specific circumstances of your case\n2. What actions have been taken so far\n3. What outcome you're hoping to achieve"
+            # Fallback clarification based on language
+            if language == "hi":
+                return "मैं आपकी स्थिति को बेहतर ढंग से समझना चाहता हूं। कृपया अधिक विवरण प्रदान करें:\n\n1. आपके मामले की विशिष्ट परिस्थितियां\n2. अब तक क्या कार्रवाई की गई है\n3. आप क्या परिणाम प्राप्त करना चाहते हैं"
+            elif language == "ta":
+                return "உங்கள் சூழ்நிலையை நன்கு புரிந்து கொள்ள விரும்புகிறேன். மேலும் விவரங்களை வழங்கவும்:\n\n1. உங்கள் வழக்கின் குறிப்பிட்ட சூழ்நிலைகள்\n2. இதுவரை என்ன நடவடிக்கைகள் எடுக்கப்பட்டுள்ளன\n3. நீங்கள் என்ன முடிவை எதிர்பார்க்கிறீர்கள்"
+            else:
+                return "I'd like to better understand your situation. Could you please provide more details about:\n\n1. The specific circumstances of your case\n2. What actions have been taken so far\n3. What outcome you're hoping to achieve"
     
     def calculate_confidence_score(
         self,
