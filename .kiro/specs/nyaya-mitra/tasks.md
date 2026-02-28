@@ -63,13 +63,13 @@ The implementation uses:
     - **Validates: Requirements 9.1, 9.5**
 
 - [ ] 3. Implement authentication system with JWT
-  - [-] 3.1 Create JWT token generation and validation utilities
+  - [x] 3.1 Create JWT token generation and validation utilities
     - Implement JWT token creation with 24-hour expiration
     - Create token validation middleware for protected routes
     - Add token refresh endpoint logic
     - _Requirements: 9.2_
 
-  - [ ] 3.2 Implement authentication endpoints
+  - [-] 3.2 Implement authentication endpoints
     - Create POST /api/auth/register endpoint with email validation
     - Create POST /api/auth/login endpoint with credential verification
     - Create POST /api/auth/refresh endpoint for token renewal
