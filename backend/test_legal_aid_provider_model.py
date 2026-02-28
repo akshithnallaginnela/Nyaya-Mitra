@@ -334,17 +334,20 @@ class TestContactEmailValidation:
             "user@.com"
         ]
         
-        for email in invalid_emails:
-            with pytest.raises(ValueError, match="Invalid email format"):
-                provider = LegalAidProvider(
-                    name="Invalid Email Provider",
-                    organization_type="NGO",
-                    specializations='["Legal Aid"]',
-                    languages_supported='["English"]',
-                    contact_email=email,
-                    city="Bangalore",
-                    state="Karnataka"
-                )
+        with get_db() as db:
+            for email in invalid_emails:
+                with pytest.raises(ValueError, match="Invalid email format"):
+                    provider = LegalAidProvider(
+                        name="Invalid Email Provider",
+                        organization_type="NGO",
+                        specializations='["Legal Aid"]',
+                        languages_supported='["English"]',
+                        contact_email=email,
+                        city="Bangalore",
+                        state="Karnataka"
+                    )
+                    db.add(provider)
+                    db.flush()  # Trigger validation
     
     def test_email_can_be_none(self, setup_database):
         """Test that email can be None (optional field)."""
