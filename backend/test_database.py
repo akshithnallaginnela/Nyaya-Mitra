@@ -66,9 +66,10 @@ def test_base_model_has_required_fields(setup_test_db):
 
 def test_database_connection(setup_test_db):
     """Test that database connection works."""
+    from sqlalchemy import text
     with get_db() as db:
         # Simple query to verify connection
-        result = db.execute("SELECT 1")
+        result = db.execute(text("SELECT 1"))
         assert result.scalar() == 1
 
 

@@ -18,7 +18,7 @@ from jose import JWTError as JoseJWTError, jwt
 from pydantic import BaseModel, ValidationError
 from sqlalchemy.orm import Session
 
-from database import get_db
+from database import get_db_session
 from models.user import User
 
 
@@ -155,7 +155,7 @@ def verify_token(token: str) -> TokenData:
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db_session)
 ) -> User:
     """
     FastAPI dependency to get the current authenticated user.

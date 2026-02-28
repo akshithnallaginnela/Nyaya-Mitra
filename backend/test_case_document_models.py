@@ -343,8 +343,9 @@ class TestGeneratedDocumentModel:
     def test_file_path_max_length(self, test_user):
         """Test that file path has maximum length constraint."""
         with get_db() as db:
-            # Valid path (500 characters)
-            valid_path = "/documents/" + "a" * 489 + ".pdf"
+            # Valid path (500 characters exactly)
+            # "/documents/" (11) + "a" * 485 + ".pdf" (4) = 500
+            valid_path = "/documents/" + "a" * 485 + ".pdf"
             document = GeneratedDocument(
                 user_id=test_user,
                 document_type="legal_letter",
@@ -357,7 +358,7 @@ class TestGeneratedDocumentModel:
             
             # Invalid path (>500 characters)
             with pytest.raises(ValueError, match="exceeds maximum length"):
-                invalid_path = "/documents/" + "a" * 490 + ".pdf"
+                invalid_path = "/documents/" + "a" * 486 + ".pdf"
                 document2 = GeneratedDocument(
                     user_id=test_user,
                     document_type="legal_letter",
