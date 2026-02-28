@@ -90,7 +90,7 @@ The implementation uses:
     - _Requirements: 9.1, 9.2_
 
 
-- [ ] 4. Checkpoint - Ensure database and authentication work
+- [-] 4. Checkpoint - Ensure database and authentication work
   - Run all tests to verify database models and authentication
   - Manually test registration and login flows
   - Verify JWT tokens are properly generated and validated
