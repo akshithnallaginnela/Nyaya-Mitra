@@ -127,14 +127,14 @@ The implementation uses:
 
 
 - [ ] 6. Integrate Ollama and LangChain
-  - [-] 6.1 Set up Ollama with Mistral 7B model
+  - [x] 6.1 Set up Ollama with Mistral 7B model
     - Install and configure Ollama
     - Download Mistral 7B model
     - Create Python client for Ollama API
     - Configure model parameters (temperature=0.3 for consistency)
     - _Requirements: 1.1_
 
-  - [ ] 6.2 Implement LangChain orchestration
+  - [-] 6.2 Implement LangChain orchestration
     - Create LangChain prompt templates for legal queries
     - Implement chain for RAG: retrieve → format context → generate response
     - Add response parsing and citation extraction
