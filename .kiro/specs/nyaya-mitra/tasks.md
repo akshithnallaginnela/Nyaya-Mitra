@@ -112,7 +112,7 @@ The implementation uses:
     - Create indexing for efficient retrieval
     - _Requirements: 10.2_
 
-  - [-] 5.3 Implement RAG retrieval system
+  - [x] 5.3 Implement RAG retrieval system
     - Create query embedding generation
     - Implement similarity search to retrieve top 5 documents
     - Add metadata filtering by language and category
@@ -127,7 +127,7 @@ The implementation uses:
 
 
 - [ ] 6. Integrate Ollama and LangChain
-  - [ ] 6.1 Set up Ollama with Mistral 7B model
+  - [-] 6.1 Set up Ollama with Mistral 7B model
     - Install and configure Ollama
     - Download Mistral 7B model
     - Create Python client for Ollama API
