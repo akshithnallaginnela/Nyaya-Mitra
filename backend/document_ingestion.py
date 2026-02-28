@@ -20,329 +20,359 @@ from vector_db import get_vector_db, VectorDatabase
 
 class DocumentIngestionPipeline:
     """
-    Pipeline for ingesting legal documents into vector database.
+    Pipeline for ingesting legal documents into the vector database.
     
-    Handles document loading, preprocessing, embedding generation,
-    and storage with metadata.
+    Handles document loading, preprocessing, and storage with metadata.
     """
     
     def __init__(self, vector_db: Optional[VectorDatabase] = None):
         """
-        Initialize document ingestion pipeline.
+        Initialize the ingestion pipeline.
         
         Args:
-            vector_db: Vector database instance (uses global if not provided)
+            vector_db: Vector database instance (uses global instance if None)
         """
         self.vector_db = vector_db or get_vector_db()
     
-    def ingest_from_json(self, file_path: str) -> int:
+    def load_documents_from_json(self, file_path: str) -> List[Dict]:
         """
-        Ingest documents from a JSON file.
-        
-        Expected JSON format:
-        [
-            {
-                "id": "ipc_302",
-                "text": "Section 302: Punishment for murder...",
-                "metadata": {
-                    "source": "IPC",
-                    "category": "criminal",
-                    "section": "302",
-                    "language": "en"
-                }
-            },
-            ...
-        ]
+        Load documents from a JSON file.
         
         Args:
             file_path: Path to JSON file
             
         Returns:
-            int: Number of documents ingested
+            List[Dict]: List of document dictionaries
         """
         with open(file_path, 'r', encoding='utf-8') as f:
             documents = json.load(f)
         
-        return self.ingest_documents(documents)
+        return documents
     
-    def ingest_documents(self, documents: List[Dict]) -> int:
+    def preprocess_document(self, document: Dict) -> Dict:
         """
-        Ingest a list of documents.
+        Preprocess a document before ingestion.
         
         Args:
-            documents: List of document dictionaries with id, text, and metadata
+            document: Raw document dictionary
             
         Returns:
-            int: Number of documents ingested
+            Dict: Preprocessed document with standardized fields
         """
-        if not documents:
-            return 0
+        # Ensure required fields exist
+        if 'id' not in document:
+            raise ValueError("Document must have an 'id' field")
         
-        # Extract components
-        ids = []
-        texts = []
-        metadatas = []
+        if 'text' not in document and 'content' not in document:
+            raise ValueError("Document must have a 'text' or 'content' field")
         
-        for doc in documents:
-            # Validate document structure
-            if 'id' not in doc or 'text' not in doc:
+        # Standardize text field
+        text = document.get('text') or document.get('content', '')
+        
+        # Create metadata
+        metadata = {
+            'source': document.get('source', 'unknown'),
+            'category': document.get('category', 'general'),
+            'language': document.get('language', 'en'),
+            'date': document.get('date', datetime.utcnow().isoformat()),
+            'title': document.get('title', ''),
+            'section': document.get('section', ''),
+        }
+        
+        # Add any additional metadata fields
+        for key, value in document.items():
+            if key not in ['id', 'text', 'content'] and key not in metadata:
+                metadata[key] = value
+        
+        return {
+            'id': document['id'],
+            'text': text,
+            'metadata': metadata
+        }
+    
+    def ingest_document(self, document: Dict) -> None:
+        """
+        Ingest a single document into the vector database.
+        
+        Args:
+            document: Document dictionary with id, text, and optional metadata
+        """
+        # Preprocess document
+        processed = self.preprocess_document(document)
+        
+        # Add to vector database
+        self.vector_db.add_document(
+            document_id=processed['id'],
+            text=processed['text'],
+            metadata=processed['metadata']
+        )
+    
+    def ingest_documents_batch(self, documents: List[Dict], batch_size: int = 100) -> int:
+        """
+        Ingest multiple documents in batches.
+        
+        Args:
+            documents: List of document dictionaries
+            batch_size: Number of documents to process in each batch
+            
+        Returns:
+            int: Number of documents successfully ingested
+        """
+        total_ingested = 0
+        
+        # Process in batches
+        for i in range(0, len(documents), batch_size):
+            batch = documents[i:i + batch_size]
+            
+            # Preprocess batch
+            processed_batch = []
+            for doc in batch:
+                try:
+                    processed = self.preprocess_document(doc)
+                    processed_batch.append(processed)
+                except Exception as e:
+                    print(f"Error preprocessing document {doc.get('id', 'unknown')}: {e}")
+                    continue
+            
+            if not processed_batch:
                 continue
             
-            ids.append(doc['id'])
-            texts.append(doc['text'])
+            # Extract data for batch insertion
+            ids = [doc['id'] for doc in processed_batch]
+            texts = [doc['text'] for doc in processed_batch]
+            metadatas = [doc['metadata'] for doc in processed_batch]
             
-            # Add metadata with ingestion timestamp
-            metadata = doc.get('metadata', {})
-            metadata['ingested_at'] = datetime.utcnow().isoformat()
-            metadatas.append(metadata)
+            # Add batch to vector database
+            try:
+                self.vector_db.add_documents_batch(ids, texts, metadatas)
+                total_ingested += len(processed_batch)
+                print(f"Ingested batch {i // batch_size + 1}: {len(processed_batch)} documents")
+            except Exception as e:
+                print(f"Error ingesting batch {i // batch_size + 1}: {e}")
         
-        # Batch ingest
-        if ids:
-            self.vector_db.add_documents_batch(ids, texts, metadatas)
-        
-        return len(ids)
+        return total_ingested
     
-    def ingest_ipc_sections(self, sections: List[Dict]) -> int:
+    def ingest_from_file(self, file_path: str, batch_size: int = 100) -> int:
+        """
+        Load and ingest documents from a JSON file.
+        
+        Args:
+            file_path: Path to JSON file containing documents
+            batch_size: Number of documents to process in each batch
+            
+        Returns:
+            int: Number of documents successfully ingested
+        """
+        print(f"Loading documents from {file_path}...")
+        documents = self.load_documents_from_json(file_path)
+        print(f"Loaded {len(documents)} documents")
+        
+        print("Starting ingestion...")
+        total_ingested = self.ingest_documents_batch(documents, batch_size)
+        print(f"Ingestion complete: {total_ingested} documents ingested")
+        
+        return total_ingested
+    
+    def ingest_ipc_sections(self, file_path: str) -> int:
         """
         Ingest IPC (Indian Penal Code) sections.
         
         Args:
-            sections: List of IPC section dictionaries
+            file_path: Path to JSON file containing IPC sections
             
         Returns:
             int: Number of sections ingested
         """
-        documents = []
+        documents = self.load_documents_from_json(file_path)
         
-        for section in sections:
-            doc = {
-                'id': f"ipc_{section['section_number']}",
-                'text': f"Section {section['section_number']} IPC: {section['title']}. {section['description']}",
-                'metadata': {
-                    'source': 'IPC',
-                    'category': section.get('category', 'criminal'),
-                    'section': section['section_number'],
-                    'language': section.get('language', 'en'),
-                    'title': section['title']
-                }
-            }
-            documents.append(doc)
+        # Ensure proper metadata for IPC sections
+        for doc in documents:
+            doc['source'] = 'IPC'
+            doc['category'] = 'criminal'
+            if 'language' not in doc:
+                doc['language'] = 'en'
         
-        return self.ingest_documents(documents)
+        return self.ingest_documents_batch(documents)
     
-    def ingest_crpc_sections(self, sections: List[Dict]) -> int:
+    def ingest_crpc_sections(self, file_path: str) -> int:
         """
-        Ingest CrPC (Code of Criminal Procedure) sections.
+        Ingest CrPC (Criminal Procedure Code) sections.
         
         Args:
-            sections: List of CrPC section dictionaries
+            file_path: Path to JSON file containing CrPC sections
             
         Returns:
             int: Number of sections ingested
         """
-        documents = []
+        documents = self.load_documents_from_json(file_path)
         
-        for section in sections:
-            doc = {
-                'id': f"crpc_{section['section_number']}",
-                'text': f"Section {section['section_number']} CrPC: {section['title']}. {section['description']}",
-                'metadata': {
-                    'source': 'CrPC',
-                    'category': section.get('category', 'procedure'),
-                    'section': section['section_number'],
-                    'language': section.get('language', 'en'),
-                    'title': section['title']
-                }
-            }
-            documents.append(doc)
+        # Ensure proper metadata for CrPC sections
+        for doc in documents:
+            doc['source'] = 'CrPC'
+            doc['category'] = 'procedure'
+            if 'language' not in doc:
+                doc['language'] = 'en'
         
-        return self.ingest_documents(documents)
+        return self.ingest_documents_batch(documents)
     
-    def ingest_case_laws(self, cases: List[Dict]) -> int:
+    def ingest_case_laws(self, file_path: str) -> int:
         """
-        Ingest case law documents.
+        Ingest case laws and judgments.
         
         Args:
-            cases: List of case law dictionaries
+            file_path: Path to JSON file containing case laws
             
         Returns:
-            int: Number of cases ingested
+            int: Number of case laws ingested
         """
-        documents = []
+        documents = self.load_documents_from_json(file_path)
         
-        for case in cases:
-            doc = {
-                'id': f"case_{case['case_id']}",
-                'text': f"{case['case_name']}. {case['summary']}",
-                'metadata': {
-                    'source': 'CaseLaw',
-                    'category': case.get('category', 'precedent'),
-                    'case_id': case['case_id'],
-                    'case_name': case['case_name'],
-                    'court': case.get('court', 'Unknown'),
-                    'year': case.get('year', 'Unknown'),
-                    'language': case.get('language', 'en')
-                }
-            }
-            documents.append(doc)
+        # Ensure proper metadata for case laws
+        for doc in documents:
+            doc['source'] = 'Case Law'
+            doc['category'] = 'judgment'
+            if 'language' not in doc:
+                doc['language'] = 'en'
         
-        return self.ingest_documents(documents)
+        return self.ingest_documents_batch(documents)
     
-    def ingest_constitution_articles(self, articles: List[Dict]) -> int:
+    def get_ingestion_stats(self) -> Dict:
         """
-        Ingest Constitution of India articles.
-        
-        Args:
-            articles: List of constitution article dictionaries
-            
-        Returns:
-            int: Number of articles ingested
-        """
-        documents = []
-        
-        for article in articles:
-            doc = {
-                'id': f"const_{article['article_number']}",
-                'text': f"Article {article['article_number']}: {article['title']}. {article['description']}",
-                'metadata': {
-                    'source': 'Constitution',
-                    'category': article.get('category', 'fundamental_rights'),
-                    'article': article['article_number'],
-                    'language': article.get('language', 'en'),
-                    'title': article['title']
-                }
-            }
-            documents.append(doc)
-        
-        return self.ingest_documents(documents)
-    
-    def create_sample_legal_corpus(self) -> str:
-        """
-        Create a sample legal corpus JSON file for testing.
+        Get statistics about ingested documents.
         
         Returns:
-            str: Path to created sample file
+            Dict: Statistics including total count and breakdown by source
         """
-        sample_documents = [
-            {
-                "id": "ipc_302",
-                "text": "Section 302 IPC: Punishment for murder. Whoever commits murder shall be punished with death or imprisonment for life, and shall also be liable to fine.",
-                "metadata": {
-                    "source": "IPC",
-                    "category": "criminal",
-                    "section": "302",
-                    "language": "en",
-                    "title": "Punishment for murder"
-                }
-            },
-            {
-                "id": "ipc_304",
-                "text": "Section 304 IPC: Punishment for culpable homicide not amounting to murder. Whoever commits culpable homicide not amounting to murder shall be punished with imprisonment for life, or imprisonment for a term which may extend to ten years, and shall also be liable to fine.",
-                "metadata": {
-                    "source": "IPC",
-                    "category": "criminal",
-                    "section": "304",
-                    "language": "en",
-                    "title": "Culpable homicide not amounting to murder"
-                }
-            },
-            {
-                "id": "ipc_307",
-                "text": "Section 307 IPC: Attempt to murder. Whoever does any act with such intention or knowledge, and under such circumstances that, if he by that act caused death, he would be guilty of murder, shall be punished with imprisonment of either description for a term which may extend to ten years, and shall also be liable to fine.",
-                "metadata": {
-                    "source": "IPC",
-                    "category": "criminal",
-                    "section": "307",
-                    "language": "en",
-                    "title": "Attempt to murder"
-                }
-            },
-            {
-                "id": "crpc_154",
-                "text": "Section 154 CrPC: Information in cognizable cases. Every information relating to the commission of a cognizable offence, if given orally to an officer in charge of a police station, shall be reduced to writing by him or under his direction, and be read over to the informant; and every such information, whether given in writing or reduced to writing as aforesaid, shall be signed by the person giving it.",
-                "metadata": {
-                    "source": "CrPC",
-                    "category": "procedure",
-                    "section": "154",
-                    "language": "en",
-                    "title": "Information in cognizable cases (FIR)"
-                }
-            },
-            {
-                "id": "crpc_156",
-                "text": "Section 156 CrPC: Police officer's power to investigate cognizable case. Any officer in charge of a police station may, without the order of a Magistrate, investigate any cognizable case which a Court having jurisdiction over the local area within the limits of such station would have power to inquire into or try under the provisions of Chapter XIII.",
-                "metadata": {
-                    "source": "CrPC",
-                    "category": "procedure",
-                    "section": "156",
-                    "language": "en",
-                    "title": "Police officer's power to investigate"
-                }
-            },
-            {
-                "id": "const_21",
-                "text": "Article 21: Protection of life and personal liberty. No person shall be deprived of his life or personal liberty except according to procedure established by law.",
-                "metadata": {
-                    "source": "Constitution",
-                    "category": "fundamental_rights",
-                    "article": "21",
-                    "language": "en",
-                    "title": "Right to life and personal liberty"
-                }
-            },
-            {
-                "id": "const_14",
-                "text": "Article 14: Equality before law. The State shall not deny to any person equality before the law or the equal protection of the laws within the territory of India.",
-                "metadata": {
-                    "source": "Constitution",
-                    "category": "fundamental_rights",
-                    "article": "14",
-                    "language": "en",
-                    "title": "Equality before law"
-                }
-            },
-            {
-                "id": "const_19",
-                "text": "Article 19: Protection of certain rights regarding freedom of speech, etc. All citizens shall have the right to freedom of speech and expression, to assemble peaceably and without arms, to form associations or unions, to move freely throughout the territory of India, to reside and settle in any part of the territory of India, and to practice any profession, or to carry on any occupation, trade or business.",
-                "metadata": {
-                    "source": "Constitution",
-                    "category": "fundamental_rights",
-                    "article": "19",
-                    "language": "en",
-                    "title": "Freedom of speech and expression"
-                }
-            }
-        ]
+        total_count = self.vector_db.count_documents()
         
-        # Create sample data directory
-        os.makedirs("./legal_data", exist_ok=True)
-        file_path = "./legal_data/sample_corpus.json"
-        
-        with open(file_path, 'w', encoding='utf-8') as f:
-            json.dump(sample_documents, f, indent=2, ensure_ascii=False)
-        
-        return file_path
+        return {
+            'total_documents': total_count,
+            'timestamp': datetime.utcnow().isoformat()
+        }
 
 
-def ingest_sample_corpus():
+def create_sample_corpus(output_path: str = "backend/data/sample_legal_documents.json") -> None:
     """
-    Convenience function to ingest sample legal corpus.
+    Create a sample corpus of legal documents for testing.
     
-    Returns:
-        int: Number of documents ingested
+    Args:
+        output_path: Path where the sample corpus will be saved
     """
-    pipeline = DocumentIngestionPipeline()
+    sample_documents = [
+        {
+            "id": "ipc_302",
+            "text": "Section 302: Punishment for murder - Whoever commits murder shall be punished with death, or imprisonment for life, and shall also be liable to fine.",
+            "source": "IPC",
+            "category": "criminal",
+            "language": "en",
+            "section": "302",
+            "title": "Punishment for murder"
+        },
+        {
+            "id": "ipc_304",
+            "text": "Section 304: Punishment for culpable homicide not amounting to murder - Whoever commits culpable homicide not amounting to murder shall be punished with imprisonment for life, or imprisonment of either description for a term which may extend to ten years, and shall also be liable to fine.",
+            "source": "IPC",
+            "category": "criminal",
+            "language": "en",
+            "section": "304",
+            "title": "Culpable homicide not amounting to murder"
+        },
+        {
+            "id": "ipc_307",
+            "text": "Section 307: Attempt to murder - Whoever does any act with such intention or knowledge, and under such circumstances that, if he by that act caused death, he would be guilty of murder, shall be punished with imprisonment of either description for a term which may extend to ten years, and shall also be liable to fine.",
+            "source": "IPC",
+            "category": "criminal",
+            "language": "en",
+            "section": "307",
+            "title": "Attempt to murder"
+        },
+        {
+            "id": "ipc_375",
+            "text": "Section 375: Rape - A man is said to commit rape if he has sexual intercourse with a woman under circumstances falling under any of the six following descriptions.",
+            "source": "IPC",
+            "category": "criminal",
+            "language": "en",
+            "section": "375",
+            "title": "Rape"
+        },
+        {
+            "id": "ipc_420",
+            "text": "Section 420: Cheating and dishonestly inducing delivery of property - Whoever cheats and thereby dishonestly induces the person deceived to deliver any property to any person, or to make, alter or destroy the whole or any part of a valuable security, shall be punished with imprisonment of either description for a term which may extend to seven years, and shall also be liable to fine.",
+            "source": "IPC",
+            "category": "criminal",
+            "language": "en",
+            "section": "420",
+            "title": "Cheating"
+        },
+        {
+            "id": "crpc_154",
+            "text": "Section 154: Information in cognizable cases - Every information relating to the commission of a cognizable offence, if given orally to an officer in charge of a police station, shall be reduced to writing by him or under his direction, and be read over to the informant; and every such information, whether given in writing or reduced to writing as aforesaid, shall be signed by the person giving it, and the substance thereof shall be entered in a book to be kept by such officer in such form as the State Government may prescribe in this behalf. This is commonly known as FIR (First Information Report).",
+            "source": "CrPC",
+            "category": "procedure",
+            "language": "en",
+            "section": "154",
+            "title": "FIR - First Information Report"
+        },
+        {
+            "id": "crpc_161",
+            "text": "Section 161: Examination of witnesses by police - Any police officer making an investigation may examine orally any person supposed to be acquainted with the facts and circumstances of the case.",
+            "source": "CrPC",
+            "category": "procedure",
+            "language": "en",
+            "section": "161",
+            "title": "Examination of witnesses"
+        },
+        {
+            "id": "crpc_41",
+            "text": "Section 41: When police may arrest without warrant - Any police officer may without an order from a Magistrate and without a warrant, arrest any person who has been concerned in any cognizable offence, or against whom a reasonable complaint has been made, or credible information has been received.",
+            "source": "CrPC",
+            "category": "procedure",
+            "language": "en",
+            "section": "41",
+            "title": "Arrest without warrant"
+        },
+        {
+            "id": "const_21",
+            "text": "Article 21: Protection of life and personal liberty - No person shall be deprived of his life or personal liberty except according to procedure established by law.",
+            "source": "Constitution",
+            "category": "fundamental_rights",
+            "language": "en",
+            "section": "21",
+            "title": "Right to life and personal liberty"
+        },
+        {
+            "id": "const_14",
+            "text": "Article 14: Equality before law - The State shall not deny to any person equality before the law or the equal protection of the laws within the territory of India.",
+            "source": "Constitution",
+            "category": "fundamental_rights",
+            "language": "en",
+            "section": "14",
+            "title": "Equality before law"
+        }
+    ]
     
-    # Create sample corpus
-    file_path = pipeline.create_sample_legal_corpus()
+    # Create directory if it doesn't exist
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    # Ingest documents
-    count = pipeline.ingest_from_json(file_path)
+    # Write to file
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(sample_documents, f, indent=2, ensure_ascii=False)
     
-    print(f"Ingested {count} documents from sample corpus")
-    return count
+    print(f"Sample corpus created at {output_path}")
 
 
 if __name__ == "__main__":
-    # Run sample ingestion
-    ingest_sample_corpus()
+    # Create sample corpus
+    create_sample_corpus()
+    
+    # Initialize pipeline
+    pipeline = DocumentIngestionPipeline()
+    
+    # Ingest sample documents
+    total = pipeline.ingest_from_file("backend/data/sample_legal_documents.json")
+    
+    # Print stats
+    stats = pipeline.get_ingestion_stats()
+    print(f"\nIngestion Statistics:")
+    print(f"Total documents: {stats['total_documents']}")
+    print(f"Timestamp: {stats['timestamp']}")
