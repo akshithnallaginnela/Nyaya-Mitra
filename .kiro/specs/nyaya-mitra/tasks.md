@@ -298,7 +298,7 @@ The implementation uses:
     - Add proper legal formatting and language
     - _Requirements: 4.3, 4.4_
 
-  - [-] 11.2 Implement document generator service
+  - [x] 11.2 Implement document generator service
     - Load and validate Jinja2 templates
     - Validate user inputs against template requirements
     - Render templates with user data
