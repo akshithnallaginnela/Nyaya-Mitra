@@ -274,7 +274,7 @@ The implementation uses:
     - Include alternative approaches when applicable
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
 
-  - [~] 10.2 Integrate action plan with chat system
+  - [-] 10.2 Integrate action plan with chat system
     - Add action plan generation as chat command
     - Store generated action plans in database
     - Allow users to retrieve and update action plans
