@@ -61,6 +61,10 @@ TEST_DATABASE_URL = "sqlite:///./test_legal_aid_endpoints.db"
 engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+# Monkey-patch BaseModel to use GUID instead of UUID for SQLite compatibility
+from database import BaseModel
+BaseModel.id.type = GUID()
+
 
 def override_get_db():
     """Override database dependency for testing."""
