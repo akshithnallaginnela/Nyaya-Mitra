@@ -359,7 +359,7 @@ The implementation uses:
     - Implement fallback to national helplines when no local results
     - _Requirements: 5.1, 5.3, 5.6_
 
-  - [-] 13.3 Create legal aid endpoints
+  - [x] 13.3 Create legal aid endpoints
     - Create GET /api/legal-aid/search endpoint with query parameters
     - Create GET /api/legal-aid/{id} endpoint for detailed provider info
     - Return contact information, specializations, availability
