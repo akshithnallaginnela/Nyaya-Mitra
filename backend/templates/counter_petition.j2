@@ -1,0 +1,208 @@
+{% set date = date or "[DATE]" %}
+{% set court_name = court_name or "[NAME OF COURT]" %}
+{% set case_number = case_number or "[CASE NUMBER]" %}
+{% set case_year = case_year or "[YEAR]" %}
+{% set petitioner_name = petitioner_name or "[ORIGINAL PETITIONER NAME]" %}
+{% set respondent_name = respondent_name or "[YOUR NAME - RESPONDENT]" %}
+{% set respondent_address = respondent_address or "[YOUR ADDRESS]" %}
+{% set respondent_phone = respondent_phone or "[YOUR PHONE]" %}
+{% set respondent_email = respondent_email or "[YOUR EMAIL]" %}
+{% set case_type = case_type or "[TYPE OF CASE]" %}
+{% set original_petition_date = original_petition_date or "[DATE OF ORIGINAL PETITION]" %}
+{% set facts_of_case = facts_of_case or "[FACTS AS STATED IN ORIGINAL PETITION]" %}
+{% set counter_facts = counter_facts or "[YOUR VERSION OF FACTS]" %}
+{% set legal_objections = legal_objections or "[LEGAL OBJECTIONS TO PETITION]" %}
+{% set evidence_list = evidence_list or "[LIST OF EVIDENCE]" %}
+{% set prayer_relief = prayer_relief or "[RELIEF SOUGHT]" %}
+{% set advocate_name = advocate_name or "" %}
+{% set advocate_enrollment = advocate_enrollment or "" %}
+
+IN THE {{ court_name }}
+
+{{ case_type }} No. {{ case_number }} of {{ case_year }}
+
+IN THE MATTER OF:
+
+{{ petitioner_name }}
+                                                                    ... Petitioner
+
+VERSUS
+
+{{ respondent_name }}
+                                                                    ... Respondent
+
+---
+
+COUNTER-PETITION / REPLY
+UNDER ORDER VIII RULE 1 OF THE CODE OF CIVIL PROCEDURE, 1908
+(OR RELEVANT PROCEDURAL LAW)
+
+---
+
+MOST RESPECTFULLY SHOWETH:
+
+1. PRELIMINARY OBJECTIONS
+
+   1.1 The present counter-petition is being filed by the Respondent in response to the petition filed by the Petitioner dated {{ original_petition_date }}.
+
+   1.2 The Respondent submits that the petition filed by the Petitioner is misconceived, frivolous, and liable to be dismissed with exemplary costs.
+
+2. FACTS OF THE CASE (AS PER ORIGINAL PETITION)
+
+   {{ facts_of_case }}
+
+3. RESPONDENT'S VERSION OF FACTS
+
+   The Respondent submits the following true and correct facts:
+
+   {{ counter_facts }}
+
+4. LEGAL OBJECTIONS AND SUBMISSIONS
+
+   4.1 The Respondent raises the following legal objections to the petition:
+
+   {{ legal_objections }}
+
+   4.2 The petition is not maintainable in law for the following reasons:
+       - [Lack of cause of action]
+       - [Violation of limitation period]
+       - [Lack of jurisdiction]
+       - [Non-joinder of necessary parties]
+       - [Other legal grounds]
+
+   4.3 The Petitioner has failed to disclose material facts and has made false and misleading statements in the petition.
+
+   4.4 The petition is an abuse of the process of law and has been filed with malicious intent to harass the Respondent.
+
+5. EVIDENCE AND DOCUMENTS
+
+   The Respondent relies on the following evidence and documents in support of this counter-petition:
+
+   {{ evidence_list }}
+
+   Copies of all relevant documents are annexed herewith and marked as Annexures R-1 to R-[X].
+
+6. LEGAL PROVISIONS
+
+   The Respondent submits that the following legal provisions are applicable to the present case:
+
+   6.1 [Relevant sections of applicable laws]
+   6.2 [Relevant case law precedents]
+   6.3 [Constitutional provisions, if applicable]
+
+7. GROUNDS FOR DISMISSAL
+
+   The Respondent submits that the petition is liable to be dismissed on the following grounds:
+
+   7.1 The petition does not disclose any cause of action against the Respondent.
+   
+   7.2 The allegations made in the petition are false, frivolous, and vexatious.
+   
+   7.3 The Petitioner has not come to the Court with clean hands.
+   
+   7.4 The petition is barred by limitation.
+   
+   7.5 The petition is an abuse of the process of law.
+
+8. COUNTER-CLAIM (IF ANY)
+
+   Without prejudice to the above submissions, the Respondent hereby files the following counter-claim against the Petitioner:
+
+   [Details of counter-claim, if any]
+
+9. PRAYER
+
+   In light of the above facts, legal submissions, and evidence, the Respondent most respectfully prays that this Hon'ble Court may be pleased to:
+
+   a) Dismiss the petition filed by the Petitioner with exemplary costs;
+
+   b) {{ prayer_relief }}
+
+   c) Award costs of this counter-petition to the Respondent;
+
+   d) Pass any other order(s) that this Hon'ble Court may deem fit and proper in the interest of justice.
+
+AND FOR THIS ACT OF KINDNESS, THE RESPONDENT SHALL DUTY BOUND FOREVER PRAY.
+
+---
+
+VERIFICATION
+
+I, {{ respondent_name }}, the Respondent in the above matter, do hereby solemnly affirm and verify that:
+
+1. The contents of paragraphs 1 to 9 of this counter-petition are true and correct to the best of my knowledge and belief.
+
+2. The contents of this counter-petition are based on facts, legal advice, and documents in my possession.
+
+3. Nothing material has been concealed or suppressed from this Hon'ble Court.
+
+4. I am making this verification at {{ respondent_address.split(',')[0] if ',' in respondent_address else "[PLACE]" }} on {{ date }}.
+
+VERIFIED TODAY ON {{ date }}
+
+
+Signature: _________________
+Name: {{ respondent_name }}
+Respondent
+
+---
+
+RESPONDENT'S DETAILS:
+
+Name: {{ respondent_name }}
+Address: {{ respondent_address }}
+Phone: {{ respondent_phone }}
+Email: {{ respondent_email }}
+
+{% if advocate_name %}
+THROUGH ADVOCATE:
+
+Name: {{ advocate_name }}
+Enrollment No.: {{ advocate_enrollment }}
+
+Advocate's Signature: _________________
+Date: {{ date }}
+{% endif %}
+
+---
+
+ANNEXURES:
+
+{% if attachments %}
+{% for attachment in attachments %}
+Annexure R-{{ loop.index }}: {{ attachment }}
+{% endfor %}
+{% else %}
+Annexure R-1: [Description of document]
+Annexure R-2: [Description of document]
+Annexure R-3: [Description of document]
+[ADD ALL SUPPORTING DOCUMENTS]
+{% endif %}
+
+---
+
+IMPORTANT NOTES:
+
+1. This counter-petition must be filed within the time limit prescribed by law (usually 30 days from service of notice/petition).
+
+2. All facts stated must be true and verifiable. False statements may attract penalties under law.
+
+3. All documentary evidence must be properly annexed and marked.
+
+4. It is advisable to consult a qualified advocate before filing this counter-petition.
+
+5. Keep copies of all documents and the court receipt for your records.
+
+6. Attend all court hearings as per the schedule provided by the court.
+
+---
+
+FILING DETAILS:
+
+Filed on: {{ date }}
+Court: {{ court_name }}
+Case No.: {{ case_number }}/{{ case_year }}
+
+Court Stamp: _________________
+Court Seal: _________________
+Filing Date: _________________

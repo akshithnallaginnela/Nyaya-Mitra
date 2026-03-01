@@ -1,0 +1,95 @@
+{% set date = date or "[DATE]" %}
+{% set sender_name = sender_name or "[YOUR NAME]" %}
+{% set sender_address = sender_address or "[YOUR ADDRESS]" %}
+{% set sender_phone = sender_phone or "[YOUR PHONE]" %}
+{% set sender_email = sender_email or "[YOUR EMAIL]" %}
+{% set recipient_name = recipient_name or "[RECIPIENT NAME]" %}
+{% set recipient_designation = recipient_designation or "[DESIGNATION]" %}
+{% set recipient_address = recipient_address or "[RECIPIENT ADDRESS]" %}
+{% set subject = subject or "[SUBJECT OF LETTER]" %}
+{% set reference_number = reference_number or "" %}
+{% set incident_date = incident_date or "[DATE OF INCIDENT]" %}
+{% set incident_description = incident_description or "[DESCRIPTION OF INCIDENT]" %}
+{% set legal_grounds = legal_grounds or "[LEGAL GROUNDS/SECTIONS]" %}
+{% set demands = demands or "[YOUR DEMANDS/REQUESTS]" %}
+{% set timeline = timeline or "15 days" %}
+{% set consequences = consequences or "appropriate legal action" %}
+
+{{ date }}
+
+From:
+{{ sender_name }}
+{{ sender_address }}
+Phone: {{ sender_phone }}
+Email: {{ sender_email }}
+
+To:
+{{ recipient_name }}
+{{ recipient_designation }}
+{{ recipient_address }}
+
+{% if reference_number %}
+Reference: {{ reference_number }}
+{% endif %}
+
+Subject: {{ subject }}
+
+Respected Sir/Madam,
+
+I, {{ sender_name }}, am writing this letter to formally bring to your attention a matter of serious concern that requires immediate attention and appropriate action.
+
+FACTS OF THE CASE:
+
+On {{ incident_date }}, the following incident occurred:
+
+{{ incident_description }}
+
+LEGAL POSITION:
+
+The above-mentioned actions/incidents are in violation of the following legal provisions:
+
+{{ legal_grounds }}
+
+These actions have caused me significant distress, harm, and violation of my fundamental rights as guaranteed under the Constitution of India.
+
+DEMANDS AND RELIEF SOUGHT:
+
+In light of the above facts and legal position, I hereby demand the following:
+
+{{ demands }}
+
+TIMELINE FOR COMPLIANCE:
+
+I request you to take appropriate action and provide a written response to this letter within {{ timeline }} from the date of receipt of this communication.
+
+CONSEQUENCES OF NON-COMPLIANCE:
+
+Please note that if no satisfactory response or action is taken within the stipulated time period, I shall be constrained to initiate {{ consequences }} without any further notice, and all costs and consequences thereof shall be borne by you.
+
+I trust that you will give this matter the urgent attention it deserves and take appropriate remedial measures at the earliest.
+
+Thanking you,
+
+Yours faithfully,
+
+{{ sender_name }}
+
+---
+ATTACHMENTS (if any):
+{% if attachments %}
+{% for attachment in attachments %}
+{{ loop.index }}. {{ attachment }}
+{% endfor %}
+{% else %}
+[LIST ANY SUPPORTING DOCUMENTS ATTACHED]
+{% endif %}
+
+---
+DECLARATION:
+I, {{ sender_name }}, hereby declare that the contents of this letter are true and correct to the best of my knowledge and belief.
+
+Date: {{ date }}
+Place: {{ sender_address.split(',')[0] if ',' in sender_address else "[PLACE]" }}
+
+Signature: _________________
+Name: {{ sender_name }}
