@@ -3,6 +3,7 @@ Chat API endpoints for legal query processing.
 """
 from fastapi import APIRouter, Depends, HTTPException, status, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from datetime import datetime
@@ -398,24 +399,48 @@ async def get_conversations(
             Conversation.user_id == current_user.id
         ).count()
         
-        # Get conversations with pagination
-        conversations = db.query(Conversation).filter(
-            Conversation.user_id == current_user.id
-        ).order_by(Conversation.updated_at.desc()).offset(offset).limit(page_size).all()
+        # Get conversations with message counts in a single query
+        conversations_with_counts = (
+            db.query(Conversation, func.count(Message.id).label('message_count'))
+            .outerjoin(Message, Message.conversation_id == Conversation.id)
+            .filter(Conversation.user_id == current_user.id)
+            .group_by(Conversation.id)
+            .order_by(Conversation.updated_at.desc())
+            .offset(offset)
+            .limit(page_size)
+            .all()
+        )
+        
+        # Fetch last messages for these conversations in a single bulk query
+        conv_ids = [conv.id for conv, _ in conversations_with_counts]
+        last_messages = {}
+        if conv_ids:
+            # Subquery: max created_at per conversation
+            last_msg_subq = (
+                db.query(
+                    Message.conversation_id,
+                    func.max(Message.created_at).label('max_created_at')
+                )
+                .filter(Message.conversation_id.in_(conv_ids))
+                .group_by(Message.conversation_id)
+                .subquery()
+            )
+            # Join to get the actual message content
+            latest_msgs = (
+                db.query(Message)
+                .join(
+                    last_msg_subq,
+                    (Message.conversation_id == last_msg_subq.c.conversation_id) &
+                    (Message.created_at == last_msg_subq.c.max_created_at)
+                )
+                .all()
+            )
+            last_messages = {msg.conversation_id: msg for msg in latest_msgs}
         
         # Build conversation summaries
         summaries = []
-        for conv in conversations:
-            # Get message count
-            message_count = db.query(Message).filter(
-                Message.conversation_id == conv.id
-            ).count()
-            
-            # Get last message
-            last_message = db.query(Message).filter(
-                Message.conversation_id == conv.id
-            ).order_by(Message.created_at.desc()).first()
-            
+        for conv, message_count in conversations_with_counts:
+            last_message = last_messages.get(conv.id)
             summaries.append(ConversationSummary(
                 id=conv.id,
                 created_at=conv.created_at,

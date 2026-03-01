@@ -100,7 +100,7 @@ class CaseAnalysisService:
         strengths = self._identify_strengths(breakdown, complaint)
         weaknesses = self._identify_weaknesses(breakdown, complaint)
         missing_elements = self._identify_missing_elements(complaint)
-        recommendations = self._generate_recommendations(breakdown, weaknesses, missing_elements)
+        recommendations = self._generate_recommendations(breakdown, weaknesses, missing_elements, total_score)
         
         # Determine if legal consultation is needed
         requires_consultation = total_score > self.STRONG_CASE_THRESHOLD
@@ -391,7 +391,8 @@ class CaseAnalysisService:
         self,
         breakdown: ScoreBreakdown,
         weaknesses: List[str],
-        missing_elements: List[str]
+        missing_elements: List[str],
+        total_score: float
     ) -> List[str]:
         """
         Generate recommendations for improving the case.
@@ -446,13 +447,6 @@ class CaseAnalysisService:
             )
         
         # Always recommend legal consultation for serious cases
-        total_score = (
-            breakdown.evidence_strength +
-            breakdown.legal_basis +
-            breakdown.procedural_compliance +
-            breakdown.timeline_reasonableness
-        )
-        
         if total_score > self.STRONG_CASE_THRESHOLD:
             recommendations.append(
                 "⚠️ Your case appears to have merit. Strongly recommend consulting with a qualified lawyer immediately"

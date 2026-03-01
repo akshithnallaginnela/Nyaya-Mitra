@@ -300,11 +300,16 @@ class TestCaseAnalysisService:
         
         weaknesses = ["Weak evidence", "No procedures"]
         missing = ["Timeline", "Witnesses"]
+        total_score = (
+            weak_breakdown.evidence_strength + weak_breakdown.legal_basis +
+            weak_breakdown.procedural_compliance + weak_breakdown.timeline_reasonableness
+        )
         
         recommendations = service._generate_recommendations(
             weak_breakdown,
             weaknesses,
-            missing
+            missing,
+            total_score
         )
         
         assert len(recommendations) > 0
