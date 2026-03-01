@@ -181,13 +181,13 @@ async def generate_document(
     with open(text_path, "w", encoding="utf-8") as f:
         f.write(text_content)
     
-    # Save document to database with the file path
+    # Save document to database with the file path (store as string relative path)
     generated_doc = GeneratedDocument(
         id=doc_id,
         user_id=current_user.id,
         document_type=request.document_type,
         template_inputs=request.inputs,
-        file_path=str(pdf_path.relative_to(Path.cwd()))
+        file_path=str(pdf_path)  # Store as string path
     )
     
     db.add(generated_doc)
