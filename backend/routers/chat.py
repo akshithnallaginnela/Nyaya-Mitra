@@ -11,13 +11,62 @@ import json
 from database import get_db
 from models.user import User
 from models.conversation import Conversation, Message
+from models.action_plan import ActionPlan
 from utils.jwt import get_current_user, verify_token
 from langchain_service import get_langchain_orchestrator
 from rag_system import RAGRetrievalSystem
 from vector_db import VectorDatabase
+from action_plan_service import get_action_plan_service, ActionPlanRequest
 
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
+
+
+# Helper function to detect action plan commands
+def detect_action_plan_command(query: str) -> Optional[str]:
+    """
+    Detect if the query is requesting an action plan.
+    
+    Args:
+        query: User's query text
+        
+    Returns:
+        Case type if action plan command detected, None otherwise
+    """
+    query_lower = query.lower()
+    
+    # Action plan trigger phrases
+    action_plan_triggers = [
+        "action plan",
+        "step by step",
+        "what should i do",
+        "what steps",
+        "guide me",
+        "help me with steps",
+        "create plan",
+        "generate plan"
+    ]
+    
+    # Check if query contains action plan trigger
+    has_trigger = any(trigger in query_lower for trigger in action_plan_triggers)
+    
+    if not has_trigger:
+        return None
+    
+    # Detect case type from query
+    case_type_keywords = {
+        "false_accusation": ["false accusation", "falsely accused", "fake complaint", "false complaint"],
+        "extortion": ["extortion", "blackmail", "threatening for money", "demanding money"],
+        "harassment": ["harassment", "harass", "stalking", "unwanted contact"],
+        "defamation": ["defamation", "defame", "false statement", "reputation damage", "slander", "libel"]
+    }
+    
+    for case_type, keywords in case_type_keywords.items():
+        if any(keyword in query_lower for keyword in keywords):
+            return case_type
+    
+    # Default to general if no specific case type detected
+    return "general"
 
 
 # Request/Response models
@@ -76,6 +125,126 @@ async def chat_query(
         HTTPException: If query processing fails
     """
     try:
+        # Check if query is requesting an action plan
+        case_type = detect_action_plan_command(request.query)
+        
+        if case_type:
+            # Generate action plan
+            service = get_action_plan_service()
+            service_request = ActionPlanRequest(
+                case_type=case_type,
+                situation_details=request.query,
+                urgency_level="medium"
+            )
+            
+            plan_response = service.generate_action_plan(service_request)
+            
+            # Store action plan in database
+            action_plan = ActionPlan(
+                user_id=current_user.id,
+                case_type=plan_response.case_type,
+                situation_details=request.query,
+                total_steps=plan_response.total_steps,
+                estimated_total_time=plan_response.estimated_total_time,
+                steps=plan_response.steps,
+                urgent_deadlines=plan_response.urgent_deadlines,
+                professional_help_recommended=plan_response.professional_help_recommended,
+                status="active",
+                progress={}
+            )
+            
+            db.add(action_plan)
+            db.commit()
+            db.refresh(action_plan)
+            
+            # Format action plan as response
+            response_text = f"I've created an action plan for your {case_type.replace('_', ' ')} situation.\n\n"
+            response_text += f"**Total Steps:** {plan_response.total_steps}\n"
+            response_text += f"**Estimated Time:** {plan_response.estimated_total_time}\n\n"
+            
+            if plan_response.urgent_deadlines:
+                response_text += "**⚠️ Urgent Deadlines:**\n"
+                for deadline in plan_response.urgent_deadlines:
+                    response_text += f"- {deadline}\n"
+                response_text += "\n"
+            
+            response_text += "**Action Steps:**\n\n"
+            for step in plan_response.steps:
+                response_text += f"**Step {step['step_number']}: {step['title']}**\n"
+                response_text += f"{step['description']}\n\n"
+                response_text += f"⏰ Timeline: {step['timeline']}\n"
+                response_text += f"⏱️ Time Estimate: {step['time_estimate']}\n"
+                response_text += f"🔥 Urgency: {step['urgency']}/10\n"
+                
+                if step['is_legal_deadline']:
+                    response_text += "⚖️ **Legal Deadline**\n"
+                
+                if step['requires_professional']:
+                    response_text += "👨‍⚖️ Professional help recommended\n"
+                
+                if step.get('alternatives'):
+                    response_text += "\n**Alternatives:**\n"
+                    for alt in step['alternatives']:
+                        response_text += f"- {alt}\n"
+                
+                response_text += "\n---\n\n"
+            
+            if plan_response.professional_help_recommended:
+                response_text += "\n⚠️ **Professional legal help is strongly recommended for this situation.**\n"
+            
+            response_text += f"\nYou can view and track this action plan at any time using the action plan ID: {action_plan.id}"
+            
+            # Get or create conversation
+            if request.conversation_id:
+                conversation = db.query(Conversation).filter(
+                    Conversation.id == request.conversation_id,
+                    Conversation.user_id == current_user.id
+                ).first()
+                
+                if not conversation:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail="Conversation not found"
+                    )
+            else:
+                # Create new conversation
+                conversation = Conversation(user_id=current_user.id)
+                db.add(conversation)
+                db.commit()
+                db.refresh(conversation)
+            
+            # Save user message
+            user_message = Message(
+                conversation_id=conversation.id,
+                role="user",
+                content=request.query
+            )
+            db.add(user_message)
+            db.commit()
+            
+            # Save assistant message with action plan
+            assistant_message = Message(
+                conversation_id=conversation.id,
+                role="assistant",
+                content=response_text,
+                citations=[],
+                confidence_score=1.0
+            )
+            db.add(assistant_message)
+            db.commit()
+            db.refresh(assistant_message)
+            
+            return ChatQueryResponse(
+                response=response_text,
+                citations=[],
+                confidence=1.0,
+                needs_clarification=False,
+                language=request.language or "en",
+                conversation_id=conversation.id,
+                message_id=assistant_message.id
+            )
+        
+        # Regular chat query processing (existing code)
         # Get or create conversation
         if request.conversation_id:
             conversation = db.query(Conversation).filter(

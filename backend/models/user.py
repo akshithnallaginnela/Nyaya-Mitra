@@ -18,6 +18,7 @@ from sqlalchemy.orm import relationship, validates
 from database import BaseModel
 
 if TYPE_CHECKING:
+    from models.action_plan import ActionPlan
     from models.case_analysis import CaseAnalysis
     from models.conversation import Conversation
     from models.generated_document import GeneratedDocument
@@ -92,6 +93,12 @@ class User(BaseModel):
     
     generated_documents = relationship(
         "GeneratedDocument",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+    
+    action_plans = relationship(
+        "ActionPlan",
         back_populates="user",
         cascade="all, delete-orphan"
     )
