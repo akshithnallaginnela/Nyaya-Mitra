@@ -160,3 +160,198 @@ async def chat_query(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while processing your query. Please try again."
         )
+
+
+
+class ConversationSummary(BaseModel):
+    """Conversation summary model."""
+    id: int
+    created_at: datetime
+    updated_at: datetime
+    message_count: int
+    last_message: Optional[str] = None
+
+
+class MessageResponse(BaseModel):
+    """Message response model."""
+    id: int
+    role: str
+    content: str
+    citations: Optional[List[Citation]] = None
+    confidence_score: Optional[float] = None
+    created_at: datetime
+
+
+class ConversationHistoryResponse(BaseModel):
+    """Conversation history response model."""
+    conversation_id: int
+    messages: List[MessageResponse]
+    total_messages: int
+    page: int
+    page_size: int
+    has_more: bool
+
+
+class ConversationListResponse(BaseModel):
+    """Conversation list response model."""
+    conversations: List[ConversationSummary]
+    total: int
+    page: int
+    page_size: int
+
+
+@router.get("/history", response_model=ConversationListResponse)
+async def get_conversations(
+    page: int = 1,
+    page_size: int = 20,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get list of user's conversations.
+    
+    Args:
+        page: Page number (default: 1)
+        page_size: Number of conversations per page (default: 20)
+        current_user: Authenticated user
+        db: Database session
+        
+    Returns:
+        ConversationListResponse with paginated conversations
+    """
+    try:
+        # Calculate offset
+        offset = (page - 1) * page_size
+        
+        # Get total count
+        total = db.query(Conversation).filter(
+            Conversation.user_id == current_user.id
+        ).count()
+        
+        # Get conversations with pagination
+        conversations = db.query(Conversation).filter(
+            Conversation.user_id == current_user.id
+        ).order_by(Conversation.updated_at.desc()).offset(offset).limit(page_size).all()
+        
+        # Build conversation summaries
+        summaries = []
+        for conv in conversations:
+            # Get message count
+            message_count = db.query(Message).filter(
+                Message.conversation_id == conv.id
+            ).count()
+            
+            # Get last message
+            last_message = db.query(Message).filter(
+                Message.conversation_id == conv.id
+            ).order_by(Message.created_at.desc()).first()
+            
+            summaries.append(ConversationSummary(
+                id=conv.id,
+                created_at=conv.created_at,
+                updated_at=conv.updated_at,
+                message_count=message_count,
+                last_message=last_message.content[:100] + "..." if last_message and len(last_message.content) > 100 else last_message.content if last_message else None
+            ))
+        
+        return ConversationListResponse(
+            conversations=summaries,
+            total=total,
+            page=page,
+            page_size=page_size
+        )
+        
+    except Exception as e:
+        print(f"Error retrieving conversations: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while retrieving conversations."
+        )
+
+
+@router.get("/history/{conversation_id}", response_model=ConversationHistoryResponse)
+async def get_conversation_history(
+    conversation_id: int,
+    page: int = 1,
+    page_size: int = 50,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get conversation history with messages.
+    
+    Args:
+        conversation_id: ID of the conversation
+        page: Page number (default: 1)
+        page_size: Number of messages per page (default: 50)
+        current_user: Authenticated user
+        db: Database session
+        
+    Returns:
+        ConversationHistoryResponse with paginated messages
+        
+    Raises:
+        HTTPException: If conversation not found or unauthorized
+    """
+    try:
+        # Verify conversation belongs to user
+        conversation = db.query(Conversation).filter(
+            Conversation.id == conversation_id,
+            Conversation.user_id == current_user.id
+        ).first()
+        
+        if not conversation:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Conversation not found"
+            )
+        
+        # Calculate offset
+        offset = (page - 1) * page_size
+        
+        # Get total message count
+        total_messages = db.query(Message).filter(
+            Message.conversation_id == conversation_id
+        ).count()
+        
+        # Get messages with pagination
+        messages = db.query(Message).filter(
+            Message.conversation_id == conversation_id
+        ).order_by(Message.created_at.asc()).offset(offset).limit(page_size).all()
+        
+        # Format messages
+        formatted_messages = []
+        for msg in messages:
+            citations = None
+            if msg.citations:
+                citations = [Citation(**c) for c in msg.citations]
+            
+            formatted_messages.append(MessageResponse(
+                id=msg.id,
+                role=msg.role,
+                content=msg.content,
+                citations=citations,
+                confidence_score=msg.confidence_score,
+                created_at=msg.created_at
+            ))
+        
+        # Check if there are more messages
+        has_more = (offset + page_size) < total_messages
+        
+        return ConversationHistoryResponse(
+            conversation_id=conversation_id,
+            messages=formatted_messages,
+            total_messages=total_messages,
+            page=page,
+            page_size=page_size,
+            has_more=has_more
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error retrieving conversation history: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while retrieving conversation history."
+        )
