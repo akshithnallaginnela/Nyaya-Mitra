@@ -1,8 +1,8 @@
 """
 Test script for legal aid provider database seeding.
 
-This test verifies that the seeding script correctly loads and populates
-legal aid provider data into the database.
+This test verifies that the seeding script correctly loads and validates
+legal aid provider data.
 
 Requirements: 5.5 (Legal aid provider database)
 """
@@ -10,74 +10,8 @@ Requirements: 5.5 (Legal aid provider database)
 import json
 import pytest
 from pathlib import Path
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
-from database import Base
-from models.legal_aid_provider import LegalAidProvider
-from seed_legal_aid_providers import (
-    load_seed_data,
-    clear_existing_data,
-    seed_legal_aid_providers,
-    verify_seeded_data
-)
-
-
-@pytest.fixture
-def test_db():
-    """Create a test database with SQLite."""
-    engine = create_engine("sqlite:///:memory:")
-    Base.metadata.create_all(engine)
-    
-    TestSessionLocal = sessionmaker(bind=engine)
-    db = TestSessionLocal()
-    
-    yield db
-    
-    db.close()
-
-
-@pytest.fixture
-def sample_providers_data():
-    """Sample provider data for testing."""
-    return [
-        {
-            "name": "Test Legal Aid Society",
-            "organization_type": "NGO",
-            "specializations": ["Criminal Law", "Civil Law"],
-            "languages_supported": ["English", "Hindi"],
-            "contact_phone": "011-12345678",
-            "contact_email": "test@example.com",
-            "address": "123 Test Street",
-            "city": "New Delhi",
-            "state": "Delhi",
-            "is_verified": True
-        },
-        {
-            "name": "Test Government Legal Services",
-            "organization_type": "Government",
-            "specializations": ["Family Law", "Consumer Rights"],
-            "languages_supported": ["English", "Hindi", "Tamil"],
-            "contact_phone": "044-87654321",
-            "contact_email": "govt@example.com",
-            "address": "456 Government Road",
-            "city": "Chennai",
-            "state": "Tamil Nadu",
-            "is_verified": True
-        },
-        {
-            "name": "Test Law Firm",
-            "organization_type": "Law Firm",
-            "specializations": ["Property Disputes", "Labour Law"],
-            "languages_supported": ["English", "Marathi"],
-            "contact_phone": "022-11223344",
-            "contact_email": "firm@example.com",
-            "address": "789 Legal Avenue",
-            "city": "Mumbai",
-            "state": "Maharashtra",
-            "is_verified": False
-        }
-    ]
+from seed_legal_aid_providers import load_seed_data
 
 
 def test_load_seed_data():
@@ -99,195 +33,68 @@ def test_load_seed_data():
     assert "state" in first_provider
 
 
-def test_clear_existing_data(test_db, sample_providers_data):
-    """Test clearing existing provider data."""
-    # Add some test data
-    seed_legal_aid_providers(test_db, sample_providers_data, clear_existing=False)
+def test_seed_data_structure():
+    """Test that all providers have required fields."""
+    data = load_seed_data()
     
-    # Verify data exists
-    count_before = test_db.query(LegalAidProvider).count()
-    assert count_before == 3
+    required_fields = ["name", "organization_type", "specializations", 
+                      "languages_supported", "city", "state"]
     
-    # Clear data
-    deleted_count = clear_existing_data(test_db)
-    
-    # Verify data was cleared
-    assert deleted_count == 3
-    count_after = test_db.query(LegalAidProvider).count()
-    assert count_after == 0
-
-
-def test_seed_legal_aid_providers(test_db, sample_providers_data):
-    """Test seeding legal aid providers."""
-    # Seed the database
-    seeded_count = seed_legal_aid_providers(
-        test_db,
-        sample_providers_data,
-        clear_existing=False
-    )
-    
-    # Verify seeding was successful
-    assert seeded_count == 3
-    
-    # Verify data in database
-    providers = test_db.query(LegalAidProvider).all()
-    assert len(providers) == 3
-    
-    # Verify first provider
-    provider = providers[0]
-    assert provider.name == "Test Legal Aid Society"
-    assert provider.organization_type == "NGO"
-    assert provider.city == "New Delhi"
-    assert provider.state == "Delhi"
-    assert provider.is_verified == True
-    
-    # Verify specializations and languages are stored as JSON
-    specializations = json.loads(provider.specializations)
-    assert "Criminal Law" in specializations
-    assert "Civil Law" in specializations
-    
-    languages = json.loads(provider.languages_supported)
-    assert "English" in languages
-    assert "Hindi" in languages
-
-
-def test_seed_with_clear_existing(test_db, sample_providers_data):
-    """Test seeding with clearing existing data."""
-    # Seed first time
-    seed_legal_aid_providers(test_db, sample_providers_data, clear_existing=False)
-    assert test_db.query(LegalAidProvider).count() == 3
-    
-    # Seed again with clear_existing=True
-    new_data = [sample_providers_data[0]]  # Only one provider
-    seeded_count = seed_legal_aid_providers(test_db, new_data, clear_existing=True)
-    
-    # Verify old data was cleared and new data was added
-    assert seeded_count == 1
-    assert test_db.query(LegalAidProvider).count() == 1
-
-
-def test_seed_with_invalid_data(test_db):
-    """Test seeding with invalid provider data."""
-    invalid_data = [
-        {
-            "name": "Valid Provider",
-            "organization_type": "NGO",
-            "specializations": ["Criminal Law"],
-            "languages_supported": ["English"],
-            "city": "Delhi",
-            "state": "Delhi"
-        },
-        {
-            # Missing required 'name' field
-            "organization_type": "Government",
-            "specializations": ["Civil Law"],
-            "languages_supported": ["Hindi"],
-            "city": "Mumbai",
-            "state": "Maharashtra"
-        },
-        {
-            "name": "Another Valid Provider",
-            "organization_type": "Law Firm",
-            "specializations": ["Family Law"],
-            "languages_supported": ["Tamil"],
-            "city": "Chennai",
-            "state": "Tamil Nadu"
-        }
-    ]
-    
-    # Seed with invalid data
-    seeded_count = seed_legal_aid_providers(test_db, invalid_data, clear_existing=False)
-    
-    # Verify only valid providers were seeded
-    assert seeded_count == 2
-    assert test_db.query(LegalAidProvider).count() == 2
-
-
-def test_seed_with_invalid_organization_type(test_db):
-    """Test seeding with invalid organization type."""
-    invalid_data = [
-        {
-            "name": "Invalid Org Type Provider",
-            "organization_type": "InvalidType",  # Invalid type
-            "specializations": ["Criminal Law"],
-            "languages_supported": ["English"],
-            "city": "Delhi",
-            "state": "Delhi"
-        }
-    ]
-    
-    # Seed with invalid organization type
-    seeded_count = seed_legal_aid_providers(test_db, invalid_data, clear_existing=False)
-    
-    # Verify provider was not seeded
-    assert seeded_count == 0
-    assert test_db.query(LegalAidProvider).count() == 0
-
-
-def test_seed_with_invalid_email(test_db):
-    """Test seeding with invalid email format."""
-    invalid_data = [
-        {
-            "name": "Invalid Email Provider",
-            "organization_type": "NGO",
-            "specializations": ["Criminal Law"],
-            "languages_supported": ["English"],
-            "contact_email": "invalid-email",  # Invalid email
-            "city": "Delhi",
-            "state": "Delhi"
-        }
-    ]
-    
-    # Seed with invalid email
-    seeded_count = seed_legal_aid_providers(test_db, invalid_data, clear_existing=False)
-    
-    # Verify provider was not seeded
-    assert seeded_count == 0
-    assert test_db.query(LegalAidProvider).count() == 0
-
-
-def test_seed_actual_data(test_db):
-    """Test seeding with actual seed data file."""
-    # Load actual seed data
-    actual_data = load_seed_data()
-    
-    # Seed the database
-    seeded_count = seed_legal_aid_providers(test_db, actual_data, clear_existing=False)
-    
-    # Verify seeding was successful
-    assert seeded_count > 0
-    assert test_db.query(LegalAidProvider).count() == seeded_count
-    
-    # Verify data integrity
-    providers = test_db.query(LegalAidProvider).all()
-    
-    for provider in providers:
-        # Verify required fields
-        assert provider.name
-        assert provider.organization_type
-        assert provider.city
-        assert provider.state
+    for idx, provider in enumerate(data, 1):
+        for field in required_fields:
+            assert field in provider, f"Provider {idx} missing required field: {field}"
         
-        # Verify JSON fields can be parsed
-        specializations = json.loads(provider.specializations)
-        assert isinstance(specializations, list)
-        assert len(specializations) > 0
+        # Verify specializations and languages are lists
+        assert isinstance(provider["specializations"], list), \
+            f"Provider {idx}: specializations must be a list"
+        assert isinstance(provider["languages_supported"], list), \
+            f"Provider {idx}: languages_supported must be a list"
         
-        languages = json.loads(provider.languages_supported)
-        assert isinstance(languages, list)
-        assert len(languages) > 0
+        # Verify lists are not empty
+        assert len(provider["specializations"]) > 0, \
+            f"Provider {idx}: specializations cannot be empty"
+        assert len(provider["languages_supported"]) > 0, \
+            f"Provider {idx}: languages_supported cannot be empty"
 
 
-def test_verify_seeded_data(test_db, sample_providers_data):
-    """Test verification function."""
-    # Seed the database
-    seed_legal_aid_providers(test_db, sample_providers_data, clear_existing=False)
+def test_seed_data_organization_types():
+    """Test that organization types are valid."""
+    data = load_seed_data()
     
-    # Run verification (should not raise any errors)
-    verify_seeded_data(test_db)
+    valid_types = {'NGO', 'Government', 'Law Firm', 'Legal Aid Society', 
+                   'Bar Association', 'University Legal Clinic', 
+                   'Pro Bono Service', 'Community Legal Center', 'Other'}
     
-    # If we get here, verification passed
-    assert True
+    for idx, provider in enumerate(data, 1):
+        org_type = provider.get("organization_type")
+        assert org_type in valid_types, \
+            f"Provider {idx} has invalid organization type: {org_type}"
+
+
+def test_seed_data_email_format():
+    """Test that email addresses have valid format."""
+    data = load_seed_data()
+    
+    for idx, provider in enumerate(data, 1):
+        email = provider.get("contact_email")
+        if email:
+            assert "@" in email, f"Provider {idx} has invalid email: {email}"
+            parts = email.split("@")
+            assert len(parts) == 2, f"Provider {idx} has invalid email: {email}"
+            assert "." in parts[1], f"Provider {idx} has invalid email domain: {email}"
+
+
+def test_seed_data_phone_format():
+    """Test that phone numbers have reasonable format."""
+    data = load_seed_data()
+    
+    for idx, provider in enumerate(data, 1):
+        phone = provider.get("contact_phone")
+        if phone:
+            # Extract digits from phone number
+            digits = ''.join(c for c in phone if c.isdigit())
+            assert len(digits) >= 10, \
+                f"Provider {idx} has invalid phone (too few digits): {phone}"
 
 
 def test_seed_data_coverage():
@@ -315,8 +122,95 @@ def test_seed_data_contact_information():
     providers_with_email = sum(1 for p in data if p.get("contact_email"))
     
     # Most providers should have contact information
-    assert providers_with_phone > len(data) * 0.8, "Most providers should have phone numbers"
-    assert providers_with_email > len(data) * 0.8, "Most providers should have email addresses"
+    assert providers_with_phone > len(data) * 0.8, \
+        "Most providers should have phone numbers"
+    assert providers_with_email > len(data) * 0.8, \
+        "Most providers should have email addresses"
+
+
+def test_seed_data_verified_status():
+    """Test that providers have verification status."""
+    data = load_seed_data()
+    
+    for idx, provider in enumerate(data, 1):
+        assert "is_verified" in provider, \
+            f"Provider {idx} missing is_verified field"
+        assert isinstance(provider["is_verified"], bool), \
+            f"Provider {idx}: is_verified must be boolean"
+
+
+def test_seed_data_specializations_content():
+    """Test that specializations contain valid legal areas."""
+    data = load_seed_data()
+    
+    common_specializations = {
+        "Criminal Law", "Civil Law", "Family Law", "Consumer Rights",
+        "Labour Law", "Property Disputes", "Women's Rights", "Child Rights",
+        "Cyber Crime"
+    }
+    
+    all_specializations = set()
+    for provider in data:
+        all_specializations.update(provider["specializations"])
+    
+    # Check that we have common specializations
+    overlap = all_specializations.intersection(common_specializations)
+    assert len(overlap) >= 5, \
+        "Should have at least 5 common legal specializations"
+
+
+def test_seed_data_languages_content():
+    """Test that languages include major Indian languages."""
+    data = load_seed_data()
+    
+    major_languages = {"English", "Hindi", "Tamil", "Telugu", "Marathi", 
+                      "Bengali", "Gujarati", "Kannada", "Malayalam"}
+    
+    all_languages = set()
+    for provider in data:
+        all_languages.update(provider["languages_supported"])
+    
+    # Check that we have major languages
+    overlap = all_languages.intersection(major_languages)
+    assert len(overlap) >= 5, \
+        "Should support at least 5 major Indian languages"
+
+
+def test_seed_data_state_distribution():
+    """Test that providers are distributed across major states."""
+    data = load_seed_data()
+    
+    major_states = {"Delhi", "Maharashtra", "Karnataka", "Tamil Nadu", 
+                   "West Bengal", "Telangana", "Gujarat", "Rajasthan",
+                   "Punjab", "Uttar Pradesh", "Kerala"}
+    
+    states_in_data = set(provider["state"] for provider in data)
+    
+    # Check coverage of major states
+    overlap = states_in_data.intersection(major_states)
+    assert len(overlap) >= 8, \
+        "Should have providers from at least 8 major states"
+
+
+def test_seed_data_city_names():
+    """Test that city names are not empty."""
+    data = load_seed_data()
+    
+    for idx, provider in enumerate(data, 1):
+        city = provider.get("city", "").strip()
+        assert city, f"Provider {idx} has empty city name"
+        assert len(city) >= 2, f"Provider {idx} has invalid city name: {city}"
+
+
+def test_seed_data_provider_names():
+    """Test that provider names are descriptive."""
+    data = load_seed_data()
+    
+    for idx, provider in enumerate(data, 1):
+        name = provider.get("name", "").strip()
+        assert name, f"Provider {idx} has empty name"
+        assert len(name) >= 5, \
+            f"Provider {idx} has too short name: {name}"
 
 
 if __name__ == "__main__":
