@@ -198,3 +198,206 @@ class TranslationService:
             "profile": "प्रोफ़ाइल",
             "account": "खाता",
         }
+        
+        # Tamil translations
+        self._ui_translations["ta"] = {
+            "app_name": "நியாய மித்ரா",
+            "welcome": "நியாய மித்ராவிற்கு வரவேற்கிறோம்",
+            "login": "உள்நுழைவு",
+            "register": "பதிவு செய்யவும்",
+            "logout": "வெளியேறு",
+            "email": "மின்னஞ்சல்",
+            "password": "கடவுச்சொல்",
+            "full_name": "முழு பெயர்",
+            "college_name": "கல்லூரி பெயர்",
+            "submit": "சமர்ப்பிக்கவும்",
+            "cancel": "ரத்து செய்",
+            "save": "சேமி",
+            "delete": "நீக்கு",
+            "edit": "திருத்து",
+            "back": "பின்",
+            "next": "அடுத்து",
+            "previous": "முந்தைய",
+            "search": "தேடு",
+            "filter": "வடிகட்டி",
+            "clear": "அழி",
+            "loading": "ஏற்றுகிறது...",
+            "error": "பிழை",
+            "success": "வெற்றி",
+            
+            "chat_title": "சட்ட உதவியாளர்",
+            "chat_placeholder": "உங்கள் சட்ட கேள்வியை கேளுங்கள்...",
+            "send_message": "அனுப்பு",
+            "new_conversation": "புதிய உரையாடல்",
+            "conversation_history": "உரையாடல் வரலாறு",
+            
+            "case_analysis": "வழக்கு பகுப்பாய்வு",
+            "validity_score": "செல்லுபடியாகும் மதிப்பெண்",
+            "evidence_strength": "சான்று வலிமை",
+            "legal_basis": "சட்ட அடிப்படை",
+            "procedural_compliance": "நடைமுறை இணக்கம்",
+            "timeline_analysis": "காலவரிசை பகுப்பாய்வு",
+            "weaknesses": "பலவீனங்கள்",
+            "recommendations": "பரிந்துரைகள்",
+            
+            "document_generator": "ஆவண உருவாக்கி",
+            "select_template": "வார்ப்புரு தேர்ந்தெடுக்கவும்",
+            "legal_letter": "சட்ட கடிதம்",
+            "rti_application": "RTI விண்ணப்பம்",
+            "counter_petition": "எதிர் மனு",
+            "generate_document": "ஆவணத்தை உருவாக்கு",
+            "download_pdf": "PDF பதிவிறக்கம்",
+            "download_text": "உரை பதிவிறக்கம்",
+            
+            "legal_aid": "சட்ட உதவி",
+            "find_legal_aid": "சட்ட உதவியைக் கண்டறியவும்",
+            "location": "இடம்",
+            "specialization": "சிறப்பு",
+            "contact_info": "தொடர்பு தகவல்",
+            "phone": "தொலைபேசி",
+            "address": "முகவரி",
+            
+            "emergency": "அவசரநிலை",
+            "emergency_contacts": "அவசர தொடர்புகள்",
+            "police": "காவல்துறை",
+            "legal_helpline": "சட்ட உதவி எண்",
+            "mental_health": "மன ஆரோக்கிய ஆதரவு",
+            "student_services": "மாணவர் சேவைகள்",
+            
+            "evidence_guide": "சான்று வழிகாட்டி",
+            "collect_evidence": "சான்றுகளை சேகரிக்கவும்",
+            "digital_evidence": "டிஜிட்டல் சான்று",
+            "physical_evidence": "உடல் சான்று",
+            
+            "settings": "அமைப்புகள்",
+            "language": "மொழி",
+            "change_language": "மொழியை மாற்று",
+            "profile": "சுயவிவரம்",
+            "account": "கணக்கு",
+        }
+        
+        # For other languages, we'll use English as fallback for now
+        # In production, these would be properly translated
+        for lang in ["te", "bn", "mr", "gu"]:
+            self._ui_translations[lang] = self._ui_translations["en"].copy()
+    
+    def get_translation(self, key: str, language: str = "en") -> str:
+        """
+        Get translation for a UI element key.
+        
+        Args:
+            key: Translation key
+            language: Target language code
+            
+        Returns:
+            Translated string or key if not found
+        """
+        if language not in self._ui_translations:
+            language = "en"
+        
+        return self._ui_translations[language].get(key, key)
+    
+    def get_all_translations(self, language: str = "en") -> Dict[str, str]:
+        """
+        Get all translations for a language.
+        
+        Args:
+            language: Target language code
+            
+        Returns:
+            Dictionary of all translations
+        """
+        if language not in self._ui_translations:
+            language = "en"
+        
+        return self._ui_translations[language].copy()
+    
+    def process_text(self, text: str, language: str = "en") -> Optional[Any]:
+        """
+        Process text using appropriate NLP model.
+        
+        Args:
+            text: Input text
+            language: Language code
+            
+        Returns:
+            Processed spaCy Doc object or None if model not available
+        """
+        if language not in self._nlp_models or self._nlp_models[language] is None:
+            logger.warning(f"NLP model for {language} not available")
+            return None
+        
+        return self._nlp_models[language](text)
+    
+    def extract_entities(self, text: str, language: str = "en") -> List[Dict[str, str]]:
+        """
+        Extract named entities from text.
+        
+        Args:
+            text: Input text
+            language: Language code
+            
+        Returns:
+            List of entities with text, label, and position
+        """
+        doc = self.process_text(text, language)
+        if doc is None:
+            return []
+        
+        entities = []
+        for ent in doc.ents:
+            entities.append({
+                "text": ent.text,
+                "label": ent.label_,
+                "start": ent.start_char,
+                "end": ent.end_char
+            })
+        
+        return entities
+    
+    def tokenize(self, text: str, language: str = "en") -> List[str]:
+        """
+        Tokenize text into words.
+        
+        Args:
+            text: Input text
+            language: Language code
+            
+        Returns:
+            List of tokens
+        """
+        doc = self.process_text(text, language)
+        if doc is None:
+            # Fallback to simple whitespace tokenization
+            return text.split()
+        
+        return [token.text for token in doc]
+    
+    def add_translation(self, key: str, translations: Dict[str, str]):
+        """
+        Add or update a translation key for multiple languages.
+        
+        Args:
+            key: Translation key
+            translations: Dictionary mapping language codes to translations
+        """
+        for lang, translation in translations.items():
+            if lang in self._ui_translations:
+                self._ui_translations[lang][key] = translation
+
+
+# Singleton instance
+_translation_service: Optional[TranslationService] = None
+
+
+def get_translation_service() -> TranslationService:
+    """
+    Get or create singleton translation service instance.
+    
+    Returns:
+        TranslationService instance
+    """
+    global _translation_service
+    if _translation_service is None:
+        _translation_service = TranslationService()
+    return _translation_service
