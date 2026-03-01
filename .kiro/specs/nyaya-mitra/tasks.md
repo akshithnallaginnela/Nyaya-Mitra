@@ -207,7 +207,7 @@ The implementation uses:
     - _Requirements: 1.1, 1.6_
 
 
-- [~] 8. Checkpoint - Verify chat system functionality
+- [ ] 8. Checkpoint - Verify chat system functionality
   - Run all chat-related tests
   - Manually test chat queries in multiple languages
   - Verify RAG retrieval and citation extraction
@@ -289,7 +289,7 @@ The implementation uses:
     - **Validates: Requirements 3.1, 3.2, 3.3, 3.4, 3.5**
 
 
-- [~] 11. Implement document generation system
+- [ ] 11. Implement document generation system
   - [-] 11.1 Create document templates using Jinja2
     - Create template for legal letters
     - Create template for RTI applications
@@ -298,7 +298,7 @@ The implementation uses:
     - Add proper legal formatting and language
     - _Requirements: 4.3, 4.4_
 
-  - [~] 11.2 Implement document generator service
+  - [ ] 11.2 Implement document generator service
     - Load and validate Jinja2 templates
     - Validate user inputs against template requirements
     - Render templates with user data
@@ -307,14 +307,14 @@ The implementation uses:
     - Add placeholders for missing optional fields
     - _Requirements: 4.2, 4.5, 4.6_
 
-  - [~] 11.3 Create document generation endpoints
+  - [ ] 11.3 Create document generation endpoints
     - Create GET /api/documents/templates endpoint to list templates
     - Create POST /api/documents/generate endpoint
     - Create GET /api/documents/{id} endpoint to retrieve documents
     - Store generated documents with metadata
     - _Requirements: 4.1, 4.2_
 
-  - [~] 11.4 Add attachment checklist generation
+  - [ ] 11.4 Add attachment checklist generation
     - Define attachment requirements for each document type
     - Generate checklist based on document type and user inputs
     - Include checklist in generated document
@@ -336,7 +336,7 @@ The implementation uses:
     - _Requirements: 4.1, 4.2_
 
 
-- [~] 12. Checkpoint - Verify action plans and document generation
+- [ ] 12. Checkpoint - Verify action plans and document generation
   - Run all tests for action plans and documents
   - Manually test document generation for all template types
   - Verify PDF and text format outputs
@@ -345,21 +345,21 @@ The implementation uses:
 
 ### Phase 6: Legal Aid and Multilingual Support
 
-- [~] 13. Implement legal aid search system
-  - [~] 13.1 Create legal aid provider database seeding
+- [ ] 13. Implement legal aid search system
+  - [ ] 13.1 Create legal aid provider database seeding
     - Compile list of legal aid providers across India
     - Create seed data with contact info, specializations, languages, locations
     - Implement database seeding script
     - _Requirements: 5.5_
 
-  - [~] 13.2 Implement legal aid search logic
+  - [ ] 13.2 Implement legal aid search logic
     - Create search query builder with filters (location, case type, language, expertise)
     - Implement multi-criteria filtering
     - Add relevance scoring for search results
     - Implement fallback to national helplines when no local results
     - _Requirements: 5.1, 5.3, 5.6_
 
-  - [~] 13.3 Create legal aid endpoints
+  - [ ] 13.3 Create legal aid endpoints
     - Create GET /api/legal-aid/search endpoint with query parameters
     - Create GET /api/legal-aid/{id} endpoint for detailed provider info
     - Return contact information, specializations, availability
@@ -375,22 +375,22 @@ The implementation uses:
     - **Validates: Requirements 5.1, 5.2, 5.3, 5.4, 5.6**
 
 
-- [~] 14. Implement multilingual support system
-  - [~] 14.1 Set up translation infrastructure
+- [ ] 14. Implement multilingual support system
+  - [ ] 14.1 Set up translation infrastructure
     - Install and configure spaCy for English
     - Install and configure IndicNLP for Hindi and regional languages
     - Create language detection service using langdetect
     - Set up translation service for UI elements
     - _Requirements: 6.1, 6.5_
 
-  - [~] 14.2 Create translation files for UI elements
+  - [ ] 14.2 Create translation files for UI elements
     - Create English translation file with all UI strings
     - Create Hindi translation file
     - Create translation files for 5 major regional languages (Tamil, Telugu, Bengali, Marathi, Gujarati)
     - Ensure consistent legal term translations
     - _Requirements: 6.2, 6.6_
 
-  - [~] 14.3 Implement language switching functionality
+  - [ ] 14.3 Implement language switching functionality
     - Add language preference to user profile
     - Create language selection API endpoint
     - Implement real-time language switching in frontend
@@ -413,8 +413,8 @@ The implementation uses:
 
 ### Phase 7: Evidence Guide and Emergency Features
 
-- [~] 15. Implement evidence documentation guide
-  - [~] 15.1 Create evidence guide content system
+- [ ] 15. Implement evidence documentation guide
+  - [ ] 15.1 Create evidence guide content system
     - Create case-type specific evidence guide templates
     - Add digital evidence preservation instructions
     - Add legal admissibility requirements
@@ -422,7 +422,7 @@ The implementation uses:
     - Add digital communication procedures (screenshots, backups)
     - _Requirements: 7.1, 7.2, 7.3, 7.6, 7.7_
 
-  - [~] 15.2 Create evidence guide generator
+  - [ ] 15.2 Create evidence guide generator
     - Implement case type detection
     - Generate customized evidence guides based on case type
     - Add step-by-step instructions with numbering
@@ -430,7 +430,7 @@ The implementation uses:
     - Generate evidence type checklists
     - _Requirements: 7.4, 7.5_
 
-  - [~] 15.3 Create evidence guide endpoint
+  - [ ] 15.3 Create evidence guide endpoint
     - Create GET /api/evidence/guide endpoint with case type parameter
     - Return formatted evidence guide with all sections
     - Support multiple languages
@@ -447,15 +447,15 @@ The implementation uses:
     - **Validates: Requirements 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7**
 
 
-- [~] 16. Implement emergency SOS feature
-  - [~] 16.1 Create emergency contacts database
+- [ ] 16. Implement emergency SOS feature
+  - [ ] 16.1 Create emergency contacts database
     - Compile emergency contacts by category (police, legal helplines, mental health, student services)
     - Add location-specific contacts for all Indian states
     - Add national emergency numbers as fallbacks
     - Create database seeding script
     - _Requirements: 8.3, 8.5, 8.6_
 
-  - [~] 16.2 Create emergency contacts endpoint
+  - [ ] 16.2 Create emergency contacts endpoint
     - Create GET /api/emergency/contacts endpoint
     - Accept location parameter (state/city)
     - Return categorized emergency contacts
@@ -463,7 +463,7 @@ The implementation uses:
     - Optimize for <1 second response time
     - _Requirements: 8.2, 8.4_
 
-  - [~] 16.3 Add emergency mode quick access
+  - [ ] 16.3 Add emergency mode quick access
     - Create emergency mode flag in user session
     - Provide quick access links to evidence documentation in emergency mode
     - _Requirements: 8.7_
@@ -477,7 +477,7 @@ The implementation uses:
     - **Property 43: Evidence access in emergency mode** - Verify quick access links
     - **Validates: Requirements 8.2, 8.3, 8.4, 8.5, 8.6, 8.7**
 
-- [~] 17. Checkpoint - Verify evidence guides and emergency features
+- [ ] 17. Checkpoint - Verify evidence guides and emergency features
   - Run all tests for evidence guides and emergency features
   - Manually test evidence guide generation for different case types
   - Verify emergency contacts load within 1 second
@@ -487,14 +487,14 @@ The implementation uses:
 
 ### Phase 8: OCR and Document Upload
 
-- [~] 18. Implement OCR functionality
-  - [~] 18.1 Set up Tesseract.js OCR service
+- [ ] 18. Implement OCR functionality
+  - [ ] 18.1 Set up Tesseract.js OCR service
     - Install and configure Tesseract.js
     - Download language models for English, Hindi, and regional languages
     - Create OCR processing service
     - _Requirements: 11.7_
 
-  - [~] 18.2 Create document upload and OCR endpoint
+  - [ ] 18.2 Create document upload and OCR endpoint
     - Create POST /api/ocr/upload endpoint
     - Accept image uploads (JPEG, PNG, PDF, HEIC)
     - Validate file format and size
@@ -503,7 +503,7 @@ The implementation uses:
     - Return extracted text with confidence scores
     - _Requirements: 11.1, 11.2, 11.6_
 
-  - [~] 18.3 Implement OCR verification and editing
+  - [ ] 18.3 Implement OCR verification and editing
     - Create POST /api/ocr/verify endpoint for corrected text
     - Display extracted text for user verification
     - Allow text editing before analysis
@@ -530,8 +530,8 @@ The implementation uses:
 
 ### Phase 9: Frontend Development - Web Application
 
-- [~] 19. Set up React frontend infrastructure
-  - [~] 19.1 Initialize React project with TypeScript
+- [ ] 19. Set up React frontend infrastructure
+  - [ ] 19.1 Initialize React project with TypeScript
     - Create React app with Vite and TypeScript
     - Install Chakra UI and Tailwind CSS
     - Set up React Router for navigation
@@ -539,7 +539,7 @@ The implementation uses:
     - Set up Axios for API calls
     - _Requirements: All frontend requirements_
 
-  - [~] 19.2 Implement authentication UI components
+  - [ ] 19.2 Implement authentication UI components
     - Create Login component with form validation
     - Create Registration component with email validation
     - Create password reset flow
@@ -548,14 +548,14 @@ The implementation uses:
     - Add protected route wrapper
     - _Requirements: 9.1, 9.2_
 
-  - [~] 19.3 Implement language selector component
+  - [ ] 19.3 Implement language selector component
     - Create language dropdown with all supported languages
     - Persist language preference to user profile
     - Update all UI elements on language change
     - _Requirements: 6.2, 6.4_
 
-- [~] 20. Implement chat interface
-  - [~] 20.1 Create chat UI components
+- [ ] 20. Implement chat interface
+  - [ ] 20.1 Create chat UI components
     - Create ChatInterface component with message list
     - Create message input with send button
     - Add typing indicators
@@ -563,7 +563,7 @@ The implementation uses:
     - Style messages differently for user vs assistant
     - _Requirements: 1.1, 1.6_
 
-  - [~] 20.2 Integrate chat with backend API
+  - [ ] 20.2 Integrate chat with backend API
     - Connect to POST /api/chat/query endpoint
     - Display AI responses with citations
     - Show confidence scores
@@ -571,27 +571,27 @@ The implementation uses:
     - Handle error states
     - _Requirements: 1.1, 1.4_
 
-  - [~] 20.3 Implement WebSocket streaming
+  - [ ] 20.3 Implement WebSocket streaming
     - Connect to WebSocket endpoint for real-time responses
     - Stream response tokens as they arrive
     - Handle connection errors and reconnection
     - _Requirements: 1.1_
 
-  - [~] 20.4 Add conversation history
+  - [ ] 20.4 Add conversation history
     - Fetch and display conversation history
     - Implement pagination for long conversations
     - Allow users to start new conversations
     - _Requirements: 1.6_
 
 
-- [~] 21. Implement case analyzer UI
-  - [~] 21.1 Create case analysis form
+- [ ] 21. Implement case analyzer UI
+  - [ ] 21.1 Create case analysis form
     - Create form for complaint details (evidence, allegations, procedures, timeline)
     - Add form validation
     - Add multi-step form for better UX
     - _Requirements: 2.1_
 
-  - [~] 21.2 Create validity score display
+  - [ ] 21.2 Create validity score display
     - Create component to display validity score (0-100)
     - Add visual indicator (color-coded gauge)
     - Display score breakdown with charts
@@ -599,120 +599,120 @@ The implementation uses:
     - Highlight legal consultation recommendation for high scores
     - _Requirements: 2.1, 2.3, 2.4, 2.5_
 
-  - [~] 21.3 Add case analysis history
+  - [ ] 21.3 Add case analysis history
     - Fetch and display past analyses
     - Allow filtering by score range
     - Show analysis details on click
     - _Requirements: 2.1_
 
-- [~] 22. Implement document generator UI
-  - [~] 22.1 Create document template selector
+- [ ] 22. Implement document generator UI
+  - [ ] 22.1 Create document template selector
     - Display available document templates
     - Show template descriptions
     - Allow template selection
     - _Requirements: 4.1_
 
-  - [~] 22.2 Create document generation form
+  - [ ] 22.2 Create document generation form
     - Generate dynamic form based on template requirements
     - Add form validation for required fields
     - Show attachment checklist
     - _Requirements: 4.1, 4.7_
 
-  - [~] 22.3 Create document preview and download
+  - [ ] 22.3 Create document preview and download
     - Display generated document preview
     - Add download buttons for PDF and text formats
     - Show placeholders for manual completion
     - _Requirements: 4.5, 4.6_
 
 
-- [~] 23. Implement legal aid search UI
-  - [~] 23.1 Create legal aid search interface
+- [ ] 23. Implement legal aid search UI
+  - [ ] 23.1 Create legal aid search interface
     - Create search form with filters (location, case type, language, expertise)
     - Add search button and clear filters button
     - _Requirements: 5.1, 5.3_
 
-  - [~] 23.2 Create legal aid provider cards
+  - [ ] 23.2 Create legal aid provider cards
     - Display search results as cards
     - Show provider name, organization type, specializations
     - Show contact information (phone, email, address)
     - Add "View Details" button
     - _Requirements: 5.2_
 
-  - [~] 23.3 Create provider detail view
+  - [ ] 23.3 Create provider detail view
     - Show full provider information
     - Display multiple contact methods with click-to-call/email
     - Show availability and languages supported
     - _Requirements: 5.4_
 
-  - [~] 23.4 Add national helpline fallback
+  - [ ] 23.4 Add national helpline fallback
     - Show national helplines when no local results found
     - Display prominently with emergency styling
     - _Requirements: 5.6_
 
-- [~] 24. Implement evidence guide UI
-  - [~] 24.1 Create evidence guide viewer
+- [ ] 24. Implement evidence guide UI
+  - [ ] 24.1 Create evidence guide viewer
     - Create component to display evidence guides
     - Show case-type specific instructions
     - Display step-by-step instructions with numbering
     - Include visual aids (icons, diagrams)
     - _Requirements: 7.1, 7.4_
 
-  - [~] 24.2 Create evidence checklists
+  - [ ] 24.2 Create evidence checklists
     - Display interactive checklists for different evidence types
     - Allow users to check off completed items
     - Save checklist progress
     - _Requirements: 7.5_
 
-  - [~] 24.3 Add warnings and legal information
+  - [ ] 24.3 Add warnings and legal information
     - Display tampering warnings prominently
     - Show admissibility requirements
     - Include digital preservation instructions
     - _Requirements: 7.2, 7.3, 7.6, 7.7_
 
 
-- [~] 25. Implement emergency SOS UI
-  - [~] 25.1 Create emergency button
+- [ ] 25. Implement emergency SOS UI
+  - [ ] 25.1 Create emergency button
     - Add prominent emergency button accessible from all screens
     - Style with high-visibility colors (red)
     - Position in fixed location (top-right or bottom-right)
     - _Requirements: 8.1_
 
-  - [~] 25.2 Create emergency contacts panel
+  - [ ] 25.2 Create emergency contacts panel
     - Display categorized emergency contacts
     - Show phone numbers with one-tap calling
     - Add location-based filtering
     - Optimize for fast loading (<1 second)
     - _Requirements: 8.2, 8.3, 8.4, 8.5_
 
-  - [~] 25.3 Add emergency mode features
+  - [ ] 25.3 Add emergency mode features
     - Activate emergency mode on button click
     - Show quick access to evidence documentation
     - Highlight most critical contacts
     - _Requirements: 8.7_
 
-- [~] 26. Implement OCR upload UI
-  - [~] 26.1 Create file upload component
+- [ ] 26. Implement OCR upload UI
+  - [ ] 26.1 Create file upload component
     - Add drag-and-drop file upload
     - Add camera capture button for mobile
     - Show file format requirements
     - Display upload progress
     - _Requirements: 11.2_
 
-  - [~] 26.2 Create OCR result viewer
+  - [ ] 26.2 Create OCR result viewer
     - Display extracted text in editable text area
     - Highlight low-confidence segments
     - Add "Confirm" and "Edit" buttons
     - Show confidence scores
     - _Requirements: 11.3, 11.4, 11.5_
 
-  - [~] 26.3 Handle OCR errors
+  - [ ] 26.3 Handle OCR errors
     - Display error messages for unsupported formats
     - Show file size limits
     - Handle page limit errors
     - _Requirements: 11.2, 11.6_
 
 
-- [~] 27. Checkpoint - Verify web frontend functionality
+- [ ] 27. Checkpoint - Verify web frontend functionality
   - Run all frontend tests
   - Manually test all features in web browser
   - Test responsive design on different screen sizes
@@ -722,21 +722,21 @@ The implementation uses:
 
 ### Phase 10: Mobile Application Development
 
-- [~] 28. Set up React Native mobile app
-  - [~] 28.1 Initialize React Native project
+- [ ] 28. Set up React Native mobile app
+  - [ ] 28.1 Initialize React Native project
     - Create React Native project with TypeScript
     - Set up navigation with React Navigation
     - Configure environment variables
     - Set up API client with Axios
     - _Requirements: 12.1_
 
-  - [~] 28.2 Implement mobile authentication
+  - [ ] 28.2 Implement mobile authentication
     - Create login and registration screens
     - Add biometric authentication (fingerprint/Face ID)
     - Implement secure token storage
     - _Requirements: 12.5_
 
-  - [~] 28.3 Implement offline caching
+  - [ ] 28.3 Implement offline caching
     - Set up AsyncStorage for local data
     - Cache emergency contacts for offline access
     - Cache evidence guides for offline access
@@ -744,7 +744,7 @@ The implementation uses:
     - Sync data when connection restored
     - _Requirements: 12.4_
 
-  - [~] 28.4 Implement push notifications
+  - [ ] 28.4 Implement push notifications
     - Set up Firebase Cloud Messaging (FCM)
     - Create notification service
     - Handle notification permissions
@@ -752,45 +752,45 @@ The implementation uses:
     - _Requirements: 12.6_
 
 
-- [~] 29. Implement mobile UI screens
-  - [~] 29.1 Create mobile chat interface
+- [ ] 29. Implement mobile UI screens
+  - [ ] 29.1 Create mobile chat interface
     - Adapt chat interface for mobile screens
     - Optimize for small screens (4.7 inches minimum)
     - Add mobile-specific gestures (swipe to delete, pull to refresh)
     - _Requirements: 12.2, 12.3_
 
-  - [~] 29.2 Create mobile case analyzer
+  - [ ] 29.2 Create mobile case analyzer
     - Adapt case analysis form for mobile
     - Use mobile-friendly input components
     - Optimize validity score display for small screens
     - _Requirements: 12.2, 12.3_
 
-  - [~] 29.3 Create mobile document generator
+  - [ ] 29.3 Create mobile document generator
     - Adapt document generation flow for mobile
     - Use mobile-optimized form inputs
     - Add document preview for mobile
     - _Requirements: 12.2, 12.3_
 
-  - [~] 29.4 Create mobile legal aid search
+  - [ ] 29.4 Create mobile legal aid search
     - Adapt search interface for mobile
     - Use mobile-friendly filter UI
     - Add map view for provider locations
     - Enable one-tap calling from provider cards
     - _Requirements: 12.2, 12.3_
 
-  - [~] 29.5 Create mobile evidence guide
+  - [ ] 29.5 Create mobile evidence guide
     - Adapt evidence guide for mobile reading
     - Optimize checklists for mobile interaction
     - Add camera integration for evidence capture
     - _Requirements: 12.2, 12.3_
 
-  - [~] 29.6 Create mobile emergency SOS
+  - [ ] 29.6 Create mobile emergency SOS
     - Add floating emergency button
     - Optimize emergency contacts for mobile
     - Enable direct calling from emergency panel
     - _Requirements: 12.2, 12.3_
 
-  - [~] 29.7 Add mobile camera upload
+  - [ ] 29.7 Add mobile camera upload
     - Integrate device camera for document capture
     - Add photo editing (crop, rotate, enhance)
     - Optimize image size before upload

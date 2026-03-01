@@ -1,0 +1,145 @@
+{% set date = date or "[DATE]" %}
+{% set applicant_name = applicant_name or "[YOUR NAME]" %}
+{% set applicant_address = applicant_address or "[YOUR ADDRESS]" %}
+{% set applicant_phone = applicant_phone or "[YOUR PHONE]" %}
+{% set applicant_email = applicant_email or "[YOUR EMAIL]" %}
+{% set pio_name = pio_name or "The Public Information Officer" %}
+{% set department_name = department_name or "[DEPARTMENT/OFFICE NAME]" %}
+{% set department_address = department_address or "[DEPARTMENT ADDRESS]" %}
+{% set information_sought = information_sought or "[DETAILS OF INFORMATION REQUESTED]" %}
+{% set period_of_information = period_of_information or "[TIME PERIOD]" %}
+{% set purpose = purpose or "" %}
+{% set preferred_format = preferred_format or "Photocopies" %}
+{% set bpl_status = bpl_status or false %}
+{% set application_fee = application_fee or "₹10" %}
+
+Date: {{ date }}
+
+To,
+{{ pio_name }}
+{{ department_name }}
+{{ department_address }}
+
+Subject: Application under the Right to Information Act, 2005
+
+Respected Sir/Madam,
+
+I, {{ applicant_name }}, a citizen of India, hereby submit this application under Section 6(1) of the Right to Information Act, 2005, seeking information as detailed below:
+
+APPLICANT DETAILS:
+
+Name: {{ applicant_name }}
+Address: {{ applicant_address }}
+Phone: {{ applicant_phone }}
+Email: {{ applicant_email }}
+
+INFORMATION SOUGHT:
+
+I request the following information:
+
+{{ information_sought }}
+
+PERIOD OF INFORMATION:
+
+The information requested pertains to the period: {{ period_of_information }}
+
+{% if purpose %}
+PURPOSE OF INFORMATION:
+
+The purpose for which this information is sought is: {{ purpose }}
+
+(Note: Under Section 6(2) of the RTI Act, the applicant is not required to provide reasons for requesting information. However, this is provided for your reference.)
+{% endif %}
+
+PREFERRED MODE OF RECEIVING INFORMATION:
+
+I would prefer to receive the information in the following format: {{ preferred_format }}
+
+Options: Photocopies / Certified Copies / Inspection of Records / Electronic Format (Email/CD)
+
+{% if bpl_status %}
+FEE EXEMPTION:
+
+I belong to Below Poverty Line (BPL) category and am therefore exempt from paying the application fee under Section 7(5) of the RTI Act. A copy of my BPL certificate is attached herewith.
+{% else %}
+APPLICATION FEE:
+
+I am enclosing the application fee of {{ application_fee }} in the form of:
+□ Cash
+□ Demand Draft No. _______ dated _______ drawn on _______
+□ Indian Postal Order No. _______ dated _______
+□ Court Fee Stamp
+□ Online Payment (Transaction ID: _______)
+{% endif %}
+
+LEGAL PROVISIONS:
+
+This application is made under the Right to Information Act, 2005, which mandates:
+
+1. Under Section 7(1), information shall be provided within 30 days from the date of receipt of the application.
+
+2. Under Section 7(1) proviso, if the information concerns the life or liberty of a person, it shall be provided within 48 hours.
+
+3. Under Section 7(5), if information is not provided within the stipulated period, it shall be deemed to be provided free of cost.
+
+4. Under Section 7(6), if the PIO fails to provide information within the time limit, a penalty of ₹250 per day (subject to a maximum of ₹25,000) may be imposed.
+
+REQUEST FOR TIMELY RESPONSE:
+
+I request you to kindly provide the information sought within the time limit prescribed under the RTI Act, 2005. If the information sought is held by another public authority, I request you to transfer this application to the concerned authority under Section 6(3) of the Act and inform me accordingly.
+
+If any part of the information requested is exempt from disclosure under Section 8 or 9 of the Act, I request you to provide the remaining information after severing the exempt portions, as per Section 10 of the Act.
+
+CONTACT FOR CLARIFICATION:
+
+If any clarification is required regarding this application, please feel free to contact me at the above-mentioned phone number or email address.
+
+I look forward to receiving the requested information at the earliest.
+
+Thanking you,
+
+Yours faithfully,
+
+{{ applicant_name }}
+
+---
+ATTACHMENTS:
+{% if attachments %}
+{% for attachment in attachments %}
+{{ loop.index }}. {{ attachment }}
+{% endfor %}
+{% else %}
+1. Application fee payment proof
+{% if bpl_status %}
+2. BPL certificate (if applicable)
+{% endif %}
+[ADD ANY OTHER SUPPORTING DOCUMENTS]
+{% endif %}
+
+---
+ACKNOWLEDGMENT RECEIPT:
+
+(To be filled by the PIO's office)
+
+Received RTI application from {{ applicant_name }} on _____________ (Date)
+
+Application Registration Number: _________________
+
+Signature of Receiving Officer: _________________
+
+Name: _________________
+
+Designation: _________________
+
+Date: _________________
+
+---
+IMPORTANT NOTES:
+
+1. Keep a copy of this application and the acknowledgment receipt for your records.
+
+2. If you do not receive a response within 30 days (or 48 hours for urgent matters), you may file a First Appeal with the First Appellate Authority of the concerned department.
+
+3. The contact details of the First Appellate Authority should be available on the department's website or can be obtained from the PIO's office.
+
+4. For further assistance, you may contact the Central Information Commission (for Central Government departments) or State Information Commission (for State Government departments).
