@@ -19,7 +19,7 @@ import shutil
 import json
 
 from main import app
-from database import Base, get_db
+from database import Base, get_db, get_db_session
 from models.user import User
 from models.generated_document import GeneratedDocument
 from utils.jwt import create_access_token
@@ -78,7 +78,9 @@ def override_get_db():
         db.close()
 
 
+# Override both database dependencies
 app.dependency_overrides[get_db] = override_get_db
+app.dependency_overrides[get_db_session] = override_get_db
 
 
 @pytest.fixture(scope="function")
