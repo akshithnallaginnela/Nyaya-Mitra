@@ -162,34 +162,35 @@ async def generate_document(
     user_dir = documents_dir / str(current_user.id)
     user_dir.mkdir(exist_ok=True)
     
-    # Save document to database first to get the ID
-    generated_doc = GeneratedDocument(
-        user_id=current_user.id,
-        document_type=request.document_type,
-        template_inputs=request.inputs,
-        file_path=""  # Will be updated after saving files
-    )
+    # Generate a temporary ID for the filename
+    import uuid
+    doc_id = uuid.uuid4()
     
-    db.add(generated_doc)
-    db.flush()  # Flush to get the ID without committing
-    
-    # Save PDF file with document ID in filename
-    pdf_filename = f"{generated_doc.id}_{request.document_type}.pdf"
+    # Create file paths
+    pdf_filename = f"{doc_id}_{request.document_type}.pdf"
     pdf_path = user_dir / pdf_filename
     
+    text_filename = f"{doc_id}_{request.document_type}.txt"
+    text_path = user_dir / text_filename
+    
+    # Save PDF file
     with open(pdf_path, "wb") as f:
         f.write(pdf_bytes)
     
     # Save text file
-    text_filename = f"{generated_doc.id}_{request.document_type}.txt"
-    text_path = user_dir / text_filename
-    
     with open(text_path, "w", encoding="utf-8") as f:
         f.write(text_content)
     
-    # Update file path in database (store relative path)
-    generated_doc.file_path = str(pdf_path.relative_to(Path.cwd()))
+    # Save document to database with the file path
+    generated_doc = GeneratedDocument(
+        id=doc_id,
+        user_id=current_user.id,
+        document_type=request.document_type,
+        template_inputs=request.inputs,
+        file_path=str(pdf_path.relative_to(Path.cwd()))
+    )
     
+    db.add(generated_doc)
     db.commit()
     db.refresh(generated_doc)
     
