@@ -345,7 +345,7 @@ The implementation uses:
 
 ### Phase 6: Legal Aid and Multilingual Support
 
-- [ ] 13. Implement legal aid search system
+- [x] 13. Implement legal aid search system
   - [x] 13.1 Create legal aid provider database seeding
     - Compile list of legal aid providers across India
     - Create seed data with contact info, specializations, languages, locations
@@ -376,7 +376,7 @@ The implementation uses:
 
 
 - [ ] 14. Implement multilingual support system
-  - [ ] 14.1 Set up translation infrastructure
+  - [-] 14.1 Set up translation infrastructure
     - Install and configure spaCy for English
     - Install and configure IndicNLP for Hindi and regional languages
     - Create language detection service using langdetect
