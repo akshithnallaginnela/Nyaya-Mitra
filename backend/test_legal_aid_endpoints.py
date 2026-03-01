@@ -11,11 +11,9 @@ This module tests the legal aid search and detail endpoints to ensure they:
 Requirements: 5.2 (Provider information), 5.4 (Multiple contact methods)
 """
 import json
-import uuid
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, TypeDecorator, CHAR
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from main import app
@@ -23,47 +21,10 @@ from database import Base, get_db
 from models.legal_aid_provider import LegalAidProvider
 
 
-# Platform-independent GUID type for SQLite testing
-class GUID(TypeDecorator):
-    """Platform-independent GUID type. Uses PostgreSQL's UUID type, otherwise uses CHAR(36)."""
-    impl = CHAR
-    cache_ok = True
-
-    def load_dialect_impl(self, dialect):
-        if dialect.name == 'postgresql':
-            return dialect.type_descriptor(PG_UUID())
-        else:
-            return dialect.type_descriptor(CHAR(36))
-
-    def process_bind_param(self, value, dialect):
-        if value is None:
-            return value
-        elif dialect.name == 'postgresql':
-            return str(value)
-        else:
-            if isinstance(value, uuid.UUID):
-                return str(value)
-            else:
-                return str(uuid.UUID(value))
-
-    def process_result_value(self, value, dialect):
-        if value is None:
-            return value
-        else:
-            if isinstance(value, uuid.UUID):
-                return value
-            else:
-                return uuid.UUID(value)
-
-
-# Test database setup
-TEST_DATABASE_URL = "sqlite:///./test_legal_aid_endpoints.db"
-engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
+# Test database setup - Use PostgreSQL test database
+TEST_DATABASE_URL = "postgresql://postgres:password@localhost:5432/nyaya_mitra_test"
+engine = create_engine(TEST_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Monkey-patch BaseModel to use GUID instead of UUID for SQLite compatibility
-from database import BaseModel
-BaseModel.id.type = GUID()
 
 
 def override_get_db():
