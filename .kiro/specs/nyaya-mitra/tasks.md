@@ -314,7 +314,7 @@ The implementation uses:
     - Store generated documents with metadata
     - _Requirements: 4.1, 4.2_
 
-  - [-] 11.4 Add attachment checklist generation
+  - [x] 11.4 Add attachment checklist generation
     - Define attachment requirements for each document type
     - Generate checklist based on document type and user inputs
     - Include checklist in generated document
