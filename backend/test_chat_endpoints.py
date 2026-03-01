@@ -321,3 +321,260 @@ class TestChatQueryEndpoint:
         call_kwargs = mock_orch.process_query.call_args[1]
         assert call_kwargs["conversation_context"] is not None
         assert len(call_kwargs["conversation_context"]) == 2
+
+
+
+class TestChatHistoryEndpoints:
+    """Test suite for chat history endpoints."""
+    
+    def test_get_conversations_empty(self, test_user, auth_headers):
+        """Test getting conversations when user has none."""
+        response = client.get(
+            "/api/chat/history",
+            headers=auth_headers
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["total"] == 0
+        assert len(data["conversations"]) == 0
+        assert data["page"] == 1
+    
+    def test_get_conversations_with_data(self, test_user, auth_headers):
+        """Test getting conversations with existing data."""
+        # Create test conversations
+        db = TestingSessionLocal()
+        conv1 = Conversation(user_id=test_user.id)
+        conv2 = Conversation(user_id=test_user.id)
+        db.add(conv1)
+        db.add(conv2)
+        db.commit()
+        db.refresh(conv1)
+        db.refresh(conv2)
+        
+        # Add messages
+        msg1 = Message(
+            conversation_id=conv1.id,
+            role="user",
+            content="First question"
+        )
+        msg2 = Message(
+            conversation_id=conv1.id,
+            role="assistant",
+            content="First answer"
+        )
+        db.add(msg1)
+        db.add(msg2)
+        db.commit()
+        db.close()
+        
+        response = client.get(
+            "/api/chat/history",
+            headers=auth_headers
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["total"] == 2
+        assert len(data["conversations"]) == 2
+        assert data["conversations"][0]["message_count"] == 2
+    
+    def test_get_conversations_pagination(self, test_user, auth_headers):
+        """Test conversation pagination."""
+        # Create multiple conversations
+        db = TestingSessionLocal()
+        for i in range(25):
+            conv = Conversation(user_id=test_user.id)
+            db.add(conv)
+        db.commit()
+        db.close()
+        
+        # Get first page
+        response = client.get(
+            "/api/chat/history?page=1&page_size=10",
+            headers=auth_headers
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["total"] == 25
+        assert len(data["conversations"]) == 10
+        assert data["page"] == 1
+        assert data["page_size"] == 10
+        
+        # Get second page
+        response = client.get(
+            "/api/chat/history?page=2&page_size=10",
+            headers=auth_headers
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data["conversations"]) == 10
+        assert data["page"] == 2
+    
+    def test_get_conversations_unauthorized(self):
+        """Test getting conversations without authentication."""
+        response = client.get("/api/chat/history")
+        assert response.status_code == 401 or response.status_code == 403
+    
+    def test_get_conversation_history_success(self, test_user, auth_headers):
+        """Test getting conversation history."""
+        # Create conversation with messages
+        db = TestingSessionLocal()
+        conv = Conversation(user_id=test_user.id)
+        db.add(conv)
+        db.commit()
+        db.refresh(conv)
+        
+        msg1 = Message(
+            conversation_id=conv.id,
+            role="user",
+            content="What is defamation?"
+        )
+        msg2 = Message(
+            conversation_id=conv.id,
+            role="assistant",
+            content="Defamation is...",
+            confidence_score=0.85
+        )
+        db.add(msg1)
+        db.add(msg2)
+        db.commit()
+        conversation_id = conv.id
+        db.close()
+        
+        response = client.get(
+            f"/api/chat/history/{conversation_id}",
+            headers=auth_headers
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["conversation_id"] == conversation_id
+        assert data["total_messages"] == 2
+        assert len(data["messages"]) == 2
+        assert data["messages"][0]["role"] == "user"
+        assert data["messages"][0]["content"] == "What is defamation?"
+        assert data["messages"][1]["role"] == "assistant"
+        assert data["messages"][1]["confidence_score"] == 0.85
+    
+    def test_get_conversation_history_with_citations(self, test_user, auth_headers):
+        """Test getting conversation history with citations."""
+        db = TestingSessionLocal()
+        conv = Conversation(user_id=test_user.id)
+        db.add(conv)
+        db.commit()
+        db.refresh(conv)
+        
+        msg = Message(
+            conversation_id=conv.id,
+            role="assistant",
+            content="Response with citations",
+            citations=[
+                {"type": "IPC", "section": "499", "text": "IPC Section 499"}
+            ],
+            confidence_score=0.9
+        )
+        db.add(msg)
+        db.commit()
+        conversation_id = conv.id
+        db.close()
+        
+        response = client.get(
+            f"/api/chat/history/{conversation_id}",
+            headers=auth_headers
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data["messages"]) == 1
+        assert data["messages"][0]["citations"] is not None
+        assert len(data["messages"][0]["citations"]) == 1
+        assert data["messages"][0]["citations"][0]["type"] == "IPC"
+    
+    def test_get_conversation_history_pagination(self, test_user, auth_headers):
+        """Test conversation history pagination."""
+        db = TestingSessionLocal()
+        conv = Conversation(user_id=test_user.id)
+        db.add(conv)
+        db.commit()
+        db.refresh(conv)
+        
+        # Add many messages
+        for i in range(60):
+            msg = Message(
+                conversation_id=conv.id,
+                role="user" if i % 2 == 0 else "assistant",
+                content=f"Message {i}"
+            )
+            db.add(msg)
+        db.commit()
+        conversation_id = conv.id
+        db.close()
+        
+        # Get first page
+        response = client.get(
+            f"/api/chat/history/{conversation_id}?page=1&page_size=20",
+            headers=auth_headers
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["total_messages"] == 60
+        assert len(data["messages"]) == 20
+        assert data["has_more"] is True
+        
+        # Get last page
+        response = client.get(
+            f"/api/chat/history/{conversation_id}?page=3&page_size=20",
+            headers=auth_headers
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data["messages"]) == 20
+        assert data["has_more"] is False
+    
+    def test_get_conversation_history_not_found(self, test_user, auth_headers):
+        """Test getting non-existent conversation."""
+        response = client.get(
+            "/api/chat/history/99999",
+            headers=auth_headers
+        )
+        
+        assert response.status_code == 404
+    
+    def test_get_conversation_history_unauthorized_access(self, test_user, auth_headers):
+        """Test accessing another user's conversation."""
+        # Create conversation for different user
+        db = TestingSessionLocal()
+        other_user = User(
+            email="other@example.com",
+            full_name="Other User",
+            college_name="Other College"
+        )
+        other_user.set_password("password123")
+        db.add(other_user)
+        db.commit()
+        db.refresh(other_user)
+        
+        conv = Conversation(user_id=other_user.id)
+        db.add(conv)
+        db.commit()
+        db.refresh(conv)
+        conversation_id = conv.id
+        db.close()
+        
+        # Try to access with test_user's token
+        response = client.get(
+            f"/api/chat/history/{conversation_id}",
+            headers=auth_headers
+        )
+        
+        assert response.status_code == 404  # Should not reveal existence
+    
+    def test_get_conversation_history_unauthorized(self):
+        """Test getting conversation history without authentication."""
+        response = client.get("/api/chat/history/1")
+        assert response.status_code == 401 or response.status_code == 403

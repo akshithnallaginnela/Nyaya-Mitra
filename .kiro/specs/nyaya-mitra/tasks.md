@@ -175,7 +175,7 @@ The implementation uses:
     - Return response with citations and confidence score
     - _Requirements: 1.1, 1.3, 1.4_
 
-  - [ ] 7.2 Create GET /api/chat/history endpoint
+  - [x] 7.2 Create GET /api/chat/history endpoint
     - Retrieve conversation history for authenticated user
     - Support pagination for long conversations
     - Include message metadata (timestamps, confidence scores)
@@ -187,7 +187,7 @@ The implementation uses:
     - Handle connection errors and reconnection
     - _Requirements: 1.1_
 
-  - [ ] 7.4 Implement ambiguity detection and clarification
+  - [x] 7.4 Implement ambiguity detection and clarification
     - Add confidence threshold check (0.6) for ambiguous queries
     - Generate clarifying questions when confidence is low
     - Store clarification state in conversation context
