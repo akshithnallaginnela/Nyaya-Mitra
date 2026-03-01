@@ -307,7 +307,7 @@ The implementation uses:
     - Add placeholders for missing optional fields
     - _Requirements: 4.2, 4.5, 4.6_
 
-  - [ ] 11.3 Create document generation endpoints
+  - [-] 11.3 Create document generation endpoints
     - Create GET /api/documents/templates endpoint to list templates
     - Create POST /api/documents/generate endpoint
     - Create GET /api/documents/{id} endpoint to retrieve documents
