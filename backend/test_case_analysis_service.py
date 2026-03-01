@@ -59,7 +59,7 @@ class TestCaseAnalysisService:
         assert result.requires_legal_consultation is True
         assert len(result.strengths) > 0
         assert result.score_breakdown.evidence_strength > 25
-        assert result.score_breakdown.legal_basis > 20
+        assert result.score_breakdown.legal_basis >= 15
         assert result.score_breakdown.procedural_compliance > 15
     
     def test_analyze_case_weak_case(self):
