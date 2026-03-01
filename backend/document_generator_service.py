@@ -21,6 +21,10 @@ from templates.template_config import (
     validate_template_inputs,
     get_all_fields
 )
+from attachment_checklist import (
+    get_attachment_checklist,
+    format_checklist_for_document
+)
 
 
 class DocumentGeneratorService:
@@ -142,6 +146,11 @@ class DocumentGeneratorService:
         
         # Add placeholders for missing optional fields
         inputs_with_placeholders = self.add_placeholders(user_inputs, document_type)
+        
+        # Generate attachment checklist
+        checklist = get_attachment_checklist(document_type, user_inputs)
+        formatted_checklist = format_checklist_for_document(checklist)
+        inputs_with_placeholders['attachment_checklist'] = formatted_checklist
         
         # Render template
         rendered_text = template.render(**inputs_with_placeholders)

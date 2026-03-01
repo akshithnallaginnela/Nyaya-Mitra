@@ -17,6 +17,7 @@ from models.user import User
 from models.generated_document import GeneratedDocument
 from utils.jwt import get_current_user
 from document_generator_service import get_document_generator_service, DocumentType
+from attachment_checklist import get_attachment_checklist, get_attachment_summary
 from templates.template_config import (
     TEMPLATE_REGISTRY,
     get_template_config,
@@ -50,6 +51,16 @@ class TemplateResponse(BaseModel):
     description: str
     category: str
     fields: List[TemplateFieldResponse]
+    attachment_summary: Dict[str, Any] = Field(default_factory=dict, description="Summary of attachment requirements")
+
+
+class AttachmentChecklistResponse(BaseModel):
+    """Response model for attachment checklist"""
+    document_type: str
+    checklist: List[Dict[str, Any]]
+    total_attachments: int
+    required_count: int
+    optional_count: int
 
 
 class GenerateDocumentRequest(BaseModel):
@@ -76,9 +87,10 @@ async def list_templates(
     List all available document templates
     
     Requirements: 4.1 - Present form collecting required information
+    Requirements: 4.7 - Provide checklist of required documents
     
     Returns:
-        List of available document templates with their field configurations
+        List of available document templates with their field configurations and attachment requirements
     """
     templates = []
     
@@ -95,12 +107,16 @@ async def list_templates(
                 placeholder=field.placeholder
             ))
         
+        # Get attachment summary
+        attachment_summary = get_attachment_summary(doc_type)
+        
         templates.append(TemplateResponse(
             document_type=doc_type.value,
             name=config["name"],
             description=config["description"],
             category=config["category"],
-            fields=fields
+            fields=fields,
+            attachment_summary=attachment_summary
         ))
     
     return templates
@@ -297,3 +313,47 @@ async def list_user_documents(
         }
         for doc in documents
     ]
+
+
+@router.post("/attachment-checklist", response_model=AttachmentChecklistResponse)
+async def get_attachment_checklist_endpoint(
+    request: GenerateDocumentRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get attachment checklist for a document type based on user inputs
+    
+    Requirements: 4.7 - Provide checklist of required documents
+    
+    Args:
+        request: Document type and user inputs
+        current_user: Authenticated user
+        
+    Returns:
+        Attachment checklist with required and optional items
+        
+    Raises:
+        HTTPException: If document type is invalid
+    """
+    # Validate document type
+    try:
+        doc_type = DocumentType(request.document_type)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid document type: {request.document_type}"
+        )
+    
+    # Get checklist based on user inputs
+    checklist = get_attachment_checklist(doc_type, request.inputs)
+    
+    # Get summary
+    summary = get_attachment_summary(doc_type)
+    
+    return AttachmentChecklistResponse(
+        document_type=request.document_type,
+        checklist=checklist,
+        total_attachments=summary["total_attachments"],
+        required_count=summary["required_count"],
+        optional_count=summary["optional_count"]
+    )
