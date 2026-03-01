@@ -307,14 +307,14 @@ The implementation uses:
     - Add placeholders for missing optional fields
     - _Requirements: 4.2, 4.5, 4.6_
 
-  - [-] 11.3 Create document generation endpoints
+  - [x] 11.3 Create document generation endpoints
     - Create GET /api/documents/templates endpoint to list templates
     - Create POST /api/documents/generate endpoint
     - Create GET /api/documents/{id} endpoint to retrieve documents
     - Store generated documents with metadata
     - _Requirements: 4.1, 4.2_
 
-  - [ ] 11.4 Add attachment checklist generation
+  - [-] 11.4 Add attachment checklist generation
     - Define attachment requirements for each document type
     - Generate checklist based on document type and user inputs
     - Include checklist in generated document
