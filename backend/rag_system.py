@@ -10,6 +10,7 @@ This module implements:
 Requirements: 10.1, 1.3 (RAG retrieval)
 """
 
+import math
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
 
@@ -85,7 +86,6 @@ class RAGRetrievalSystem:
         """
         # Convert L2 distance to similarity score
         # Using exponential decay: score = e^(-distance)
-        import math
         relevance = math.exp(-distance)
         return min(1.0, max(0.0, relevance))
     

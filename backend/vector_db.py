@@ -134,8 +134,8 @@ class VectorDatabase:
             texts: List of document text contents
             metadatas: Optional list of metadata dictionaries
         """
-        # Generate embeddings for all texts
-        embeddings = [self.generate_embedding(text) for text in texts]
+        # Generate embeddings for all texts in a single batch call
+        embeddings = self.embedding_model.encode(texts, convert_to_numpy=True).tolist()
         
         # Add to collection
         self.collection.add(

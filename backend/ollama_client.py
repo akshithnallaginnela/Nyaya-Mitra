@@ -1,6 +1,7 @@
 """
 Ollama client for AI response generation using Mistral 7B model.
 """
+import json
 import os
 import requests
 from typing import Dict, List, Optional, Any
@@ -212,7 +213,6 @@ class OllamaClient:
             
             for line in response.iter_lines():
                 if line:
-                    import json
                     chunk = json.loads(line)
                     yield chunk
                     
