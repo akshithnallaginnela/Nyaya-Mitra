@@ -11,19 +11,36 @@ Requirements: 5.1, 5.3, 5.6
 
 import json
 import pytest
-from sqlalchemy.orm import Session
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
+from contextlib import contextmanager
 
-from database import Base, engine, get_db
+from database import Base
 from models.legal_aid_provider import LegalAidProvider
 from legal_aid_search_service import LegalAidSearchService, NATIONAL_HELPLINES
+
+
+# Create in-memory SQLite database for testing
+test_engine = create_engine("sqlite:///:memory:", echo=False)
+TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+
+
+@contextmanager
+def get_test_db():
+    """Get test database session."""
+    db = TestSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 @pytest.fixture(scope="function")
 def setup_database():
     """Create test database tables before each test and drop after."""
-    Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=test_engine)
     yield
-    Base.metadata.drop_all(bind=engine)
+    Base.metadata.drop_all(bind=test_engine)
 
 
 @pytest.fixture
@@ -117,7 +134,7 @@ class TestLegalAidSearchService:
     
     def test_search_by_city(self, setup_database, sample_providers):
         """Test searching providers by city."""
-        with get_db() as db:
+        with get_test_db() as db:
             seed_test_providers(db, sample_providers)
             service = LegalAidSearchService(db)
             
@@ -130,7 +147,7 @@ class TestLegalAidSearchService:
     
     def test_search_by_state(self, setup_database, sample_providers):
         """Test searching providers by state."""
-        with get_db() as db:
+        with get_test_db() as db:
             seed_test_providers(db, sample_providers)
             service = LegalAidSearchService(db)
             
@@ -144,7 +161,7 @@ class TestLegalAidSearchService:
     
     def test_search_by_location_general(self, setup_database, sample_providers):
         """Test searching with general location (searches both city and state)."""
-        with get_db() as db:
+        with get_test_db() as db:
             seed_test_providers(db, sample_providers)
             service = LegalAidSearchService(db)
             
@@ -156,7 +173,7 @@ class TestLegalAidSearchService:
     
     def test_search_by_case_type(self, setup_database, sample_providers):
         """Test searching with case type filter and relevance scoring."""
-        with get_db() as db:
+        with get_test_db() as db:
             seed_test_providers(db, sample_providers)
             service = LegalAidSearchService(db)
             
@@ -177,7 +194,7 @@ class TestLegalAidSearchService:
     
     def test_search_by_language(self, setup_database, sample_providers):
         """Test searching with language filter."""
-        with get_db() as db:
+        with get_test_db() as db:
             seed_test_providers(db, sample_providers)
             service = LegalAidSearchService(db)
             
@@ -192,7 +209,7 @@ class TestLegalAidSearchService:
     
     def test_multi_criteria_search(self, setup_database, sample_providers):
         """Test searching with multiple criteria."""
-        with get_db() as db:
+        with get_test_db() as db:
             seed_test_providers(db, sample_providers)
             service = LegalAidSearchService(db)
             
@@ -214,7 +231,7 @@ class TestLegalAidSearchService:
     
     def test_relevance_scoring_verified_bonus(self, setup_database, sample_providers):
         """Test that verified providers get bonus points."""
-        with get_db() as db:
+        with get_test_db() as db:
             seed_test_providers(db, sample_providers)
             service = LegalAidSearchService(db)
             
@@ -229,7 +246,7 @@ class TestLegalAidSearchService:
     
     def test_relevance_scoring_all_criteria(self, setup_database, sample_providers):
         """Test relevance scoring with all criteria matching."""
-        with get_db() as db:
+        with get_test_db() as db:
             seed_test_providers(db, sample_providers)
             service = LegalAidSearchService(db)
             
@@ -247,7 +264,7 @@ class TestLegalAidSearchService:
     
     def test_fuzzy_matching_case_insensitive(self, setup_database, sample_providers):
         """Test that fuzzy matching is case-insensitive."""
-        with get_db() as db:
+        with get_test_db() as db:
             seed_test_providers(db, sample_providers)
             service = LegalAidSearchService(db)
             
@@ -261,7 +278,7 @@ class TestLegalAidSearchService:
     
     def test_fuzzy_matching_partial(self, setup_database, sample_providers):
         """Test that fuzzy matching works with partial terms."""
-        with get_db() as db:
+        with get_test_db() as db:
             seed_test_providers(db, sample_providers)
             service = LegalAidSearchService(db)
             
@@ -276,7 +293,7 @@ class TestLegalAidSearchService:
     
     def test_national_helpline_fallback_no_results(self, setup_database):
         """Test that national helplines are returned when no local results found."""
-        with get_db() as db:
+        with get_test_db() as db:
             # Don't seed any providers
             service = LegalAidSearchService(db)
             
@@ -292,7 +309,7 @@ class TestLegalAidSearchService:
     
     def test_national_helpline_fallback_with_case_type(self, setup_database):
         """Test that national helplines are scored by case type when used as fallback."""
-        with get_db() as db:
+        with get_test_db() as db:
             service = LegalAidSearchService(db)
             
             # Search for Women's Rights in non-existent location
@@ -311,7 +328,7 @@ class TestLegalAidSearchService:
     
     def test_national_helpline_fallback_sorted_by_relevance(self, setup_database):
         """Test that national helplines are sorted by relevance score."""
-        with get_db() as db:
+        with get_test_db() as db:
             service = LegalAidSearchService(db)
             
             # Search for Consumer Rights
@@ -329,7 +346,7 @@ class TestLegalAidSearchService:
     
     def test_get_provider_by_id(self, setup_database, sample_providers):
         """Test retrieving a specific provider by ID."""
-        with get_db() as db:
+        with get_test_db() as db:
             seed_test_providers(db, sample_providers)
             service = LegalAidSearchService(db)
             
@@ -347,7 +364,7 @@ class TestLegalAidSearchService:
     
     def test_get_provider_by_id_not_found(self, setup_database):
         """Test retrieving non-existent provider returns None."""
-        with get_db() as db:
+        with get_test_db() as db:
             service = LegalAidSearchService(db)
             
             # Try to get non-existent provider
@@ -357,7 +374,7 @@ class TestLegalAidSearchService:
     
     def test_search_no_filters_returns_all(self, setup_database, sample_providers):
         """Test that search with no filters returns all providers."""
-        with get_db() as db:
+        with get_test_db() as db:
             seed_test_providers(db, sample_providers)
             service = LegalAidSearchService(db)
             
@@ -368,7 +385,7 @@ class TestLegalAidSearchService:
     
     def test_search_results_sorted_by_score(self, setup_database, sample_providers):
         """Test that search results are sorted by relevance score."""
-        with get_db() as db:
+        with get_test_db() as db:
             seed_test_providers(db, sample_providers)
             service = LegalAidSearchService(db)
             
@@ -381,7 +398,7 @@ class TestLegalAidSearchService:
     
     def test_case_insensitive_location_search(self, setup_database, sample_providers):
         """Test that location search is case-insensitive."""
-        with get_db() as db:
+        with get_test_db() as db:
             seed_test_providers(db, sample_providers)
             service = LegalAidSearchService(db)
             
@@ -394,7 +411,7 @@ class TestLegalAidSearchService:
     
     def test_partial_location_match(self, setup_database, sample_providers):
         """Test that partial location names work."""
-        with get_db() as db:
+        with get_test_db() as db:
             seed_test_providers(db, sample_providers)
             service = LegalAidSearchService(db)
             
@@ -406,7 +423,7 @@ class TestLegalAidSearchService:
     
     def test_expertise_filter(self, setup_database, sample_providers):
         """Test searching with expertise filter."""
-        with get_db() as db:
+        with get_test_db() as db:
             seed_test_providers(db, sample_providers)
             service = LegalAidSearchService(db)
             
@@ -420,7 +437,7 @@ class TestLegalAidSearchService:
     
     def test_combined_state_and_case_type(self, setup_database, sample_providers):
         """Test combining state filter with case type."""
-        with get_db() as db:
+        with get_test_db() as db:
             seed_test_providers(db, sample_providers)
             service = LegalAidSearchService(db)
             
