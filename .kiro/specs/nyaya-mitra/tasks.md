@@ -181,7 +181,7 @@ The implementation uses:
     - Include message metadata (timestamps, confidence scores)
     - _Requirements: 1.6_
 
-  - [-] 7.3 Implement WebSocket endpoint for streaming responses
+  - [x] 7.3 Implement WebSocket endpoint for streaming responses
     - Create WebSocket connection handler at /api/chat/stream
     - Stream AI response tokens in real-time
     - Handle connection errors and reconnection
@@ -265,7 +265,7 @@ The implementation uses:
 ### Phase 5: Action Plans and Document Generation
 
 - [~] 10. Implement action plan generation
-  - [~] 10.1 Create action plan generator
+  - [-] 10.1 Create action plan generator
     - Generate numbered steps based on case type
     - Add specific timelines for each step
     - Identify and highlight legal deadlines
