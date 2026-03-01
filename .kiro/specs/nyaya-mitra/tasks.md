@@ -383,7 +383,7 @@ The implementation uses:
     - Set up translation service for UI elements
     - _Requirements: 6.1, 6.5_
 
-  - [ ] 14.2 Create translation files for UI elements
+  - [-] 14.2 Create translation files for UI elements
     - Create English translation file with all UI strings
     - Create Hindi translation file
     - Create translation files for 5 major regional languages (Tamil, Telugu, Bengali, Marathi, Gujarati)
