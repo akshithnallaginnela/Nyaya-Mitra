@@ -11,13 +11,47 @@ Requirements: 5.1, 5.3, 5.6
 
 import json
 import pytest
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, TypeDecorator, CHAR
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Session, sessionmaker
 from contextlib import contextmanager
+from uuid import uuid4
 
 from database import Base
 from models.legal_aid_provider import LegalAidProvider
 from legal_aid_search_service import LegalAidSearchService, NATIONAL_HELPLINES
+
+
+# Custom UUID type for SQLite compatibility
+class UUID(TypeDecorator):
+    """Platform-independent GUID type.
+    Uses PostgreSQL's UUID type, otherwise uses CHAR(36), storing as stringified hex values.
+    """
+    impl = CHAR
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == 'postgresql':
+            return dialect.type_descriptor(PG_UUID())
+        else:
+            return dialect.type_descriptor(CHAR(36))
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return value
+        elif dialect.name == 'postgresql':
+            return str(value)
+        else:
+            if not isinstance(value, uuid4.__class__):
+                return str(value)
+            else:
+                return str(value)
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return value
+        else:
+            return value
 
 
 # Create in-memory SQLite database for testing

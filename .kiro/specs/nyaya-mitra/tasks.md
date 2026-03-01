@@ -352,14 +352,14 @@ The implementation uses:
     - Implement database seeding script
     - _Requirements: 5.5_
 
-  - [-] 13.2 Implement legal aid search logic
+  - [x] 13.2 Implement legal aid search logic
     - Create search query builder with filters (location, case type, language, expertise)
     - Implement multi-criteria filtering
     - Add relevance scoring for search results
     - Implement fallback to national helplines when no local results
     - _Requirements: 5.1, 5.3, 5.6_
 
-  - [ ] 13.3 Create legal aid endpoints
+  - [-] 13.3 Create legal aid endpoints
     - Create GET /api/legal-aid/search endpoint with query parameters
     - Create GET /api/legal-aid/{id} endpoint for detailed provider info
     - Return contact information, specializations, availability
