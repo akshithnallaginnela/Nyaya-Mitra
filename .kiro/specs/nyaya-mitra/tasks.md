@@ -207,7 +207,7 @@ The implementation uses:
     - _Requirements: 1.1, 1.6_
 
 
-- [ ] 8. Checkpoint - Verify chat system functionality
+- [x] 8. Checkpoint - Verify chat system functionality
   - Run all chat-related tests
   - Manually test chat queries in multiple languages
   - Verify RAG retrieval and citation extraction
@@ -336,7 +336,7 @@ The implementation uses:
     - _Requirements: 4.1, 4.2_
 
 
-- [ ] 12. Checkpoint - Verify action plans and document generation
+- [x] 12. Checkpoint - Verify action plans and document generation
   - Run all tests for action plans and documents
   - Manually test document generation for all template types
   - Verify PDF and text format outputs
