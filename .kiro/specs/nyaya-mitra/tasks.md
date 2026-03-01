@@ -217,7 +217,7 @@ The implementation uses:
 ### Phase 4: Case Validity Assessment
 
 - [ ] 9. Implement case analysis system
-  - [-] 9.1 Create case validity scoring algorithm
+  - [x] 9.1 Create case validity scoring algorithm
     - Implement evidence strength analysis (0-40 points)
     - Implement legal basis checking (0-30 points)
     - Implement procedural compliance checking (0-20 points)
@@ -225,13 +225,13 @@ The implementation uses:
     - Calculate total validity score (0-100)
     - _Requirements: 2.1, 2.2_
 
-  - [ ] 9.2 Implement weakness identification logic
+  - [x] 9.2 Implement weakness identification logic
     - Analyze score breakdown to identify weak areas
     - Generate specific weakness descriptions
     - Provide actionable recommendations for improvement
     - _Requirements: 2.4, 2.6_
 
-  - [ ] 9.3 Create POST /api/case/analyze endpoint
+  - [x] 9.3 Create POST /api/case/analyze endpoint
     - Accept complaint details (evidence, allegations, procedures, timeline)
     - Run validity scoring algorithm
     - Generate detailed breakdown and recommendations
@@ -240,7 +240,7 @@ The implementation uses:
     - Return complete analysis results
     - _Requirements: 2.1, 2.3, 2.5_
 
-  - [ ] 9.4 Create GET /api/case/history endpoint
+  - [x] 9.4 Create GET /api/case/history endpoint
     - Retrieve past case analyses for authenticated user
     - Support filtering by validity score range
     - Include full analysis details
