@@ -337,6 +337,110 @@ Clarifying questions:"""
             else:
                 return "I'd like to better understand your situation. Could you please provide more details about:\n\n1. The specific circumstances of your case\n2. What actions have been taken so far\n3. What outcome you're hoping to achieve"
     
+    def process_query_stream(
+        self,
+        query: str,
+        language: str = "en",
+        conversation_context: Optional[List[Dict[str, str]]] = None,
+        filters: Optional[Dict[str, Any]] = None
+    ):
+        """
+        Process a legal query using RAG pipeline with streaming response.
+        
+        Args:
+            query: User's legal question
+            language: Language code (default: "en")
+            conversation_context: Previous conversation messages
+            filters: Optional metadata filters for retrieval
+            
+        Yields:
+            Dictionary chunks containing:
+            - type: "metadata", "token", "citations", or "error"
+            - data: Chunk-specific data
+        """
+        try:
+            # Step 1: Process language
+            language_info = self.multilingual_service.process_query_language(query, language)
+            response_language = language_info["response_language"]
+            
+            # Step 2: Retrieve relevant documents using RAG
+            retrieval_result = self.rag_system.retrieve_with_context(
+                query=query,
+                top_k=5,
+                filters=filters
+            )
+            
+            relevant_docs = retrieval_result["documents"]
+            confidence = retrieval_result["average_relevance"]
+            
+            # Send metadata first
+            yield {
+                "type": "metadata",
+                "data": {
+                    "confidence": confidence,
+                    "language": response_language,
+                    "needs_clarification": confidence < 0.6
+                }
+            }
+            
+            # Step 3: Check if clarification is needed (low confidence)
+            if confidence < 0.6:
+                clarification_response = self._generate_clarification(query, response_language)
+                # Send clarification as complete response
+                yield {
+                    "type": "token",
+                    "data": {"content": clarification_response}
+                }
+                yield {
+                    "type": "citations",
+                    "data": {"citations": []}
+                }
+                return
+            
+            # Step 4: Format context from retrieved documents
+            context = self._format_context(relevant_docs)
+            
+            # Step 5: Build system prompt with context and language instructions
+            base_system_prompt = self.LEGAL_SYSTEM_PROMPT.format(context=context)
+            system_prompt = self.multilingual_service.prepare_multilingual_prompt(
+                base_system_prompt,
+                response_language
+            )
+            
+            # Step 6: Build user prompt
+            user_prompt = self.query_prompt.format(query=query)
+            
+            # Step 7: Stream response using Ollama
+            full_response = ""
+            for chunk in self.ollama_client.generate_stream(
+                prompt=user_prompt,
+                system_prompt=system_prompt,
+                context=conversation_context,
+                temperature=0.3
+            ):
+                if chunk.get("message", {}).get("content"):
+                    token = chunk["message"]["content"]
+                    full_response += token
+                    yield {
+                        "type": "token",
+                        "data": {"content": token}
+                    }
+            
+            # Step 8: Extract citations from full response
+            citations = self._extract_citations(full_response, relevant_docs)
+            
+            # Step 9: Send citations
+            yield {
+                "type": "citations",
+                "data": {"citations": citations}
+            }
+            
+        except Exception as e:
+            yield {
+                "type": "error",
+                "data": {"message": str(e)}
+            }
+    
     def calculate_confidence_score(
         self,
         retrieved_docs: List[Dict[str, Any]],

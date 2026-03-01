@@ -1,16 +1,17 @@
 """
 Chat API endpoints for legal query processing.
 """
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from datetime import datetime
+import json
 
 from database import get_db
 from models.user import User
 from models.conversation import Conversation, Message
-from utils.jwt import get_current_user
+from utils.jwt import get_current_user, verify_token
 from langchain_service import get_langchain_orchestrator
 from rag_system import RAGRetrievalSystem
 from vector_db import VectorDatabase
@@ -355,3 +356,251 @@ async def get_conversation_history(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving conversation history."
         )
+
+
+@router.websocket("/stream")
+async def websocket_chat_stream(websocket: WebSocket):
+    """
+    WebSocket endpoint for streaming AI responses in real-time.
+    
+    Protocol:
+    1. Client connects and sends authentication message:
+       {"type": "auth", "token": "JWT_TOKEN"}
+    
+    2. Client sends query message:
+       {
+           "type": "query",
+           "query": "legal question",
+           "language": "en",
+           "conversation_id": 123  // optional
+       }
+    
+    3. Server streams response chunks:
+       {"type": "metadata", "data": {"confidence": 0.8, "language": "en", "needs_clarification": false}}
+       {"type": "token", "data": {"content": "text chunk"}}
+       {"type": "citations", "data": {"citations": [...]}}
+       {"type": "complete", "data": {"conversation_id": 123, "message_id": 456}}
+    
+    4. Server sends error if something goes wrong:
+       {"type": "error", "data": {"message": "error description"}}
+    
+    Connection handling:
+    - Automatic reconnection supported
+    - Connection errors handled gracefully
+    - Client should implement exponential backoff for reconnection
+    """
+    await websocket.accept()
+    
+    user = None
+    db = None
+    
+    try:
+        # Wait for authentication message
+        auth_message = await websocket.receive_json()
+        
+        if auth_message.get("type") != "auth":
+            await websocket.send_json({
+                "type": "error",
+                "data": {"message": "First message must be authentication"}
+            })
+            await websocket.close(code=1008)  # Policy violation
+            return
+        
+        # Verify JWT token
+        token = auth_message.get("token")
+        if not token:
+            await websocket.send_json({
+                "type": "error",
+                "data": {"message": "Authentication token required"}
+            })
+            await websocket.close(code=1008)
+            return
+        
+        try:
+            # Verify token and get user
+            token_data = verify_token(token)
+            user_id = token_data.user_id
+            
+            # Get database session
+            db = next(get_db())
+            user = db.query(User).filter(User.id == user_id).first()
+            
+            if not user:
+                await websocket.send_json({
+                    "type": "error",
+                    "data": {"message": "User not found"}
+                })
+                await websocket.close(code=1008)
+                return
+            
+            # Send authentication success
+            await websocket.send_json({
+                "type": "auth_success",
+                "data": {"user_id": str(user.id)}
+            })
+            
+        except Exception as e:
+            await websocket.send_json({
+                "type": "error",
+                "data": {"message": f"Authentication failed: {str(e)}"}
+            })
+            await websocket.close(code=1008)
+            return
+        
+        # Main message loop
+        while True:
+            try:
+                # Receive query message
+                message = await websocket.receive_json()
+                
+                if message.get("type") != "query":
+                    await websocket.send_json({
+                        "type": "error",
+                        "data": {"message": "Expected query message"}
+                    })
+                    continue
+                
+                query = message.get("query")
+                language = message.get("language", "en")
+                conversation_id = message.get("conversation_id")
+                
+                if not query:
+                    await websocket.send_json({
+                        "type": "error",
+                        "data": {"message": "Query text required"}
+                    })
+                    continue
+                
+                # Get or create conversation
+                if conversation_id:
+                    conversation = db.query(Conversation).filter(
+                        Conversation.id == conversation_id,
+                        Conversation.user_id == user.id
+                    ).first()
+                    
+                    if not conversation:
+                        await websocket.send_json({
+                            "type": "error",
+                            "data": {"message": "Conversation not found"}
+                        })
+                        continue
+                else:
+                    # Create new conversation
+                    conversation = Conversation(user_id=user.id)
+                    db.add(conversation)
+                    db.commit()
+                    db.refresh(conversation)
+                
+                # Get conversation context (last 5 messages)
+                previous_messages = db.query(Message).filter(
+                    Message.conversation_id == conversation.id
+                ).order_by(Message.created_at.desc()).limit(5).all()
+                
+                # Format context for LangChain
+                conversation_context = []
+                for msg in reversed(previous_messages):
+                    conversation_context.append({
+                        "role": msg.role,
+                        "content": msg.content
+                    })
+                
+                # Save user message
+                user_message = Message(
+                    conversation_id=conversation.id,
+                    role="user",
+                    content=query
+                )
+                db.add(user_message)
+                db.commit()
+                
+                # Stream response
+                orchestrator = get_langchain_orchestrator()
+                full_response = ""
+                citations = []
+                confidence = 0.0
+                needs_clarification = False
+                response_language = language
+                
+                try:
+                    for chunk in orchestrator.process_query_stream(
+                        query=query,
+                        language=language,
+                        conversation_context=conversation_context if conversation_context else None
+                    ):
+                        # Send chunk to client
+                        await websocket.send_json(chunk)
+                        
+                        # Accumulate response data
+                        if chunk["type"] == "metadata":
+                            confidence = chunk["data"]["confidence"]
+                            response_language = chunk["data"]["language"]
+                            needs_clarification = chunk["data"]["needs_clarification"]
+                        elif chunk["type"] == "token":
+                            full_response += chunk["data"]["content"]
+                        elif chunk["type"] == "citations":
+                            citations = chunk["data"]["citations"]
+                        elif chunk["type"] == "error":
+                            # Error already sent to client
+                            raise Exception(chunk["data"]["message"])
+                    
+                    # Save assistant message
+                    assistant_message = Message(
+                        conversation_id=conversation.id,
+                        role="assistant",
+                        content=full_response,
+                        citations=citations,
+                        confidence_score=confidence
+                    )
+                    db.add(assistant_message)
+                    db.commit()
+                    db.refresh(assistant_message)
+                    
+                    # Send completion message
+                    await websocket.send_json({
+                        "type": "complete",
+                        "data": {
+                            "conversation_id": conversation.id,
+                            "message_id": assistant_message.id,
+                            "confidence": confidence,
+                            "needs_clarification": needs_clarification
+                        }
+                    })
+                    
+                except Exception as e:
+                    await websocket.send_json({
+                        "type": "error",
+                        "data": {"message": f"Error processing query: {str(e)}"}
+                    })
+                    
+            except WebSocketDisconnect:
+                print(f"WebSocket disconnected for user {user.id if user else 'unknown'}")
+                break
+            except Exception as e:
+                print(f"Error in WebSocket message loop: {str(e)}")
+                await websocket.send_json({
+                    "type": "error",
+                    "data": {"message": f"Internal error: {str(e)}"}
+                })
+                
+    except WebSocketDisconnect:
+        print("WebSocket disconnected during authentication")
+    except Exception as e:
+        print(f"WebSocket error: {str(e)}")
+        try:
+            await websocket.send_json({
+                "type": "error",
+                "data": {"message": f"Connection error: {str(e)}"}
+            })
+        except:
+            pass
+    finally:
+        # Clean up database session
+        if db:
+            db.close()
+        
+        # Close WebSocket if still open
+        try:
+            await websocket.close()
+        except:
+            pass
+
