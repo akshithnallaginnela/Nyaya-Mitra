@@ -26,7 +26,44 @@ from utils.jwt import create_access_token
 import bcrypt
 
 
-# Test database setup
+# Test database setup - Use in-memory SQLite with TypeDecorator for UUID
+from sqlalchemy import TypeDecorator, CHAR
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+import uuid
+
+
+class GUID(TypeDecorator):
+    """Platform-independent GUID type. Uses PostgreSQL's UUID type, otherwise uses CHAR(36)."""
+    impl = CHAR
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == 'postgresql':
+            return dialect.type_descriptor(PG_UUID())
+        else:
+            return dialect.type_descriptor(CHAR(36))
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return value
+        elif dialect.name == 'postgresql':
+            return str(value)
+        else:
+            if isinstance(value, uuid.UUID):
+                return str(value)
+            else:
+                return str(uuid.UUID(value))
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return value
+        else:
+            if isinstance(value, uuid.UUID):
+                return value
+            else:
+                return uuid.UUID(value)
+
+
 TEST_DATABASE_URL = "sqlite:///./test_document_endpoints.db"
 engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -47,9 +84,13 @@ app.dependency_overrides[get_db] = override_get_db
 @pytest.fixture(scope="function")
 def test_db():
     """Create test database and tables"""
-    Base.metadata.create_all(bind=engine)
+    # Only create the tables we need for document tests
+    User.__table__.create(bind=engine, checkfirst=True)
+    GeneratedDocument.__table__.create(bind=engine, checkfirst=True)
     yield
-    Base.metadata.drop_all(bind=engine)
+    # Drop tables
+    GeneratedDocument.__table__.drop(bind=engine, checkfirst=True)
+    User.__table__.drop(bind=engine, checkfirst=True)
     
     # Clean up generated documents directory
     docs_dir = Path("generated_documents")
@@ -83,7 +124,7 @@ def test_user(test_db):
 @pytest.fixture
 def auth_headers(test_user):
     """Create authentication headers with JWT token"""
-    token = create_access_token({"sub": test_user.email})
+    token = create_access_token(test_user.id, test_user.email)
     return {"Authorization": f"Bearer {token}"}
 
 
@@ -128,7 +169,7 @@ class TestListTemplates:
     def test_list_templates_requires_auth(self, client):
         """Test that listing templates requires authentication"""
         response = client.get("/api/documents/templates")
-        assert response.status_code == 401
+        assert response.status_code == 403  # FastAPI HTTPBearer returns 403 for missing auth
     
     def test_list_templates_contains_expected_types(self, client, auth_headers):
         """Test that all expected document types are present"""
@@ -293,7 +334,7 @@ class TestGenerateDocument:
         }
         
         response = client.post("/api/documents/generate", json=request_data)
-        assert response.status_code == 401
+        assert response.status_code == 403  # FastAPI HTTPBearer returns 403 for missing auth
     
     def test_generate_document_with_optional_fields(self, client, auth_headers):
         """Test document generation with optional fields"""
@@ -382,12 +423,12 @@ class TestGetDocument:
         fake_id = "00000000-0000-0000-0000-000000000000"
         response = client.get(f"/api/documents/{fake_id}")
         
-        assert response.status_code == 401
+        assert response.status_code == 403  # FastAPI HTTPBearer returns 403 for missing auth
     
     def test_get_document_different_user(self, client, test_user):
         """Test that users can only access their own documents"""
         # Create first user's document
-        token1 = create_access_token({"sub": test_user.email})
+        token1 = create_access_token(test_user.id, test_user.email)
         headers1 = {"Authorization": f"Bearer {token1}"}
         
         request_data = {
@@ -425,7 +466,7 @@ class TestGetDocument:
         db.close()
         
         # Try to access first user's document as second user
-        token2 = create_access_token({"sub": user2.email})
+        token2 = create_access_token(user2.id, user2.email)
         headers2 = {"Authorization": f"Bearer {token2}"}
         
         response = client.get(f"/api/documents/{doc_id}", headers=headers2)
@@ -501,7 +542,7 @@ class TestListUserDocuments:
     def test_list_user_documents_requires_auth(self, client):
         """Test that listing documents requires authentication"""
         response = client.get("/api/documents/")
-        assert response.status_code == 401
+        assert response.status_code == 403  # FastAPI HTTPBearer returns 403 for missing auth
 
 
 if __name__ == "__main__":
