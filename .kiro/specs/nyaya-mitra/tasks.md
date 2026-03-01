@@ -346,13 +346,13 @@ The implementation uses:
 ### Phase 6: Legal Aid and Multilingual Support
 
 - [ ] 13. Implement legal aid search system
-  - [-] 13.1 Create legal aid provider database seeding
+  - [x] 13.1 Create legal aid provider database seeding
     - Compile list of legal aid providers across India
     - Create seed data with contact info, specializations, languages, locations
     - Implement database seeding script
     - _Requirements: 5.5_
 
-  - [ ] 13.2 Implement legal aid search logic
+  - [-] 13.2 Implement legal aid search logic
     - Create search query builder with filters (location, case type, language, expertise)
     - Implement multi-criteria filtering
     - Add relevance scoring for search results
