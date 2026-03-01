@@ -12,7 +12,7 @@ Requirements: 4.1, 4.2
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from pathlib import Path
 import shutil
@@ -83,14 +83,47 @@ app.dependency_overrides[get_db] = override_get_db
 
 @pytest.fixture(scope="function")
 def test_db():
-    """Create test database and tables"""
-    # Only create the tables we need for document tests
-    User.__table__.create(bind=engine, checkfirst=True)
-    GeneratedDocument.__table__.create(bind=engine, checkfirst=True)
+    """Create test database and tables using raw SQL to avoid UUID issues"""
+    # Create tables with raw SQL
+    with engine.connect() as conn:
+        # Create users table
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS users (
+                id TEXT PRIMARY KEY,
+                email TEXT NOT NULL UNIQUE,
+                password_hash TEXT NOT NULL,
+                full_name TEXT NOT NULL,
+                college_name TEXT,
+                preferred_language TEXT NOT NULL DEFAULT 'en',
+                last_login TIMESTAMP,
+                is_active BOOLEAN NOT NULL DEFAULT 1,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP
+            )
+        """))
+        
+        # Create generated_documents table
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS generated_documents (
+                id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                document_type TEXT NOT NULL,
+                template_inputs TEXT NOT NULL,
+                file_path TEXT NOT NULL,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+        """))
+        conn.commit()
+    
     yield
+    
     # Drop tables
-    GeneratedDocument.__table__.drop(bind=engine, checkfirst=True)
-    User.__table__.drop(bind=engine, checkfirst=True)
+    with engine.connect() as conn:
+        conn.execute(text("DROP TABLE IF EXISTS generated_documents"))
+        conn.execute(text("DROP TABLE IF EXISTS users"))
+        conn.commit()
     
     # Clean up generated documents directory
     docs_dir = Path("generated_documents")
