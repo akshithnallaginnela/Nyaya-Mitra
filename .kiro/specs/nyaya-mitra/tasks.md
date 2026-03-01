@@ -290,7 +290,7 @@ The implementation uses:
 
 
 - [ ] 11. Implement document generation system
-  - [-] 11.1 Create document templates using Jinja2
+  - [x] 11.1 Create document templates using Jinja2
     - Create template for legal letters
     - Create template for RTI applications
     - Create template for counter-petitions
@@ -298,7 +298,7 @@ The implementation uses:
     - Add proper legal formatting and language
     - _Requirements: 4.3, 4.4_
 
-  - [ ] 11.2 Implement document generator service
+  - [-] 11.2 Implement document generator service
     - Load and validate Jinja2 templates
     - Validate user inputs against template requirements
     - Render templates with user data
