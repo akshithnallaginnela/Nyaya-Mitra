@@ -498,10 +498,15 @@ class TestGetDocument:
         )
         db.add(user2)
         db.commit()
+        db.refresh(user2)  # Refresh to load all attributes
+        
+        # Store user2 attributes before closing session
+        user2_id = user2.id
+        user2_email = user2.email
         db.close()
         
         # Try to access first user's document as second user
-        token2 = create_access_token(user2.id, user2.email)
+        token2 = create_access_token(user2_id, user2_email)
         headers2 = {"Authorization": f"Bearer {token2}"}
         
         response = client.get(f"/api/documents/{doc_id}", headers=headers2)
