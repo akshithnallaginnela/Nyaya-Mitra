@@ -477,7 +477,7 @@ The implementation uses:
     - **Property 43: Evidence access in emergency mode** - Verify quick access links
     - **Validates: Requirements 8.2, 8.3, 8.4, 8.5, 8.6, 8.7**
 
-- [ ] 17. Checkpoint - Verify evidence guides and emergency features
+- [x] 17. Checkpoint - Verify evidence guides and emergency features
   - Run all tests for evidence guides and emergency features
   - Manually test evidence guide generation for different case types
   - Verify emergency contacts load within 1 second
