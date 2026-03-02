@@ -20,6 +20,7 @@ import {
 } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 import api from '../api/axios';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface Provider {
   id: string;
@@ -38,6 +39,7 @@ const LegalAidSearch: React.FC = () => {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const { t } = useLanguage();
 
   const searchProviders = async () => {
     setLoading(true);
@@ -68,7 +70,7 @@ const LegalAidSearch: React.FC = () => {
         <HStack mb={6}>
           <Text fontSize="3xl">⚖️</Text>
           <VStack align="start" spacing={0}>
-            <Heading size="lg" color="gray.800">Legal Aid Search</Heading>
+            <Heading size="lg" color="gray.800">{t('find_legal_aid', 'Legal Aid Search')}</Heading>
             <Text color="gray.600" fontSize="sm">
               Find free legal aid providers, NGOs, and legal clinics near you
             </Text>
@@ -115,7 +117,7 @@ const LegalAidSearch: React.FC = () => {
                 leftIcon={<SearchIcon />}
                 px={8}
               >
-                Search
+                {t('search', 'Search')}
               </Button>
             </HStack>
           </CardBody>

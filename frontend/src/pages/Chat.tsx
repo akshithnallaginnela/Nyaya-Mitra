@@ -17,6 +17,7 @@ import {
 import { ArrowForwardIcon } from '@chakra-ui/icons';
 import api from '../api/axios';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -32,6 +33,7 @@ const Chat: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
+  const { language, t } = useLanguage();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -50,19 +52,22 @@ const Chat: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await api.post('/chat/query', { query: input });
+      const response = await api.post('/chat/query', {
+        query: input,
+        language: language,
+      });
       const assistantMessage: Message = {
         role: 'assistant',
         content: response.data.response,
         citations: response.data.citations,
-        confidence_score: response.data.confidence_score,
+        confidence_score: response.data.confidence,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error: any) {
       const errorMessage: Message = {
         role: 'assistant',
-        content: 'Sorry, I encountered an error processing your request. Please try again.',
+        content: t('error', 'Sorry, I encountered an error processing your request. Please try again.'),
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -78,8 +83,8 @@ const Chat: React.FC = () => {
       <Box bg="white" px={6} py={3} borderBottom="1px" borderColor="gray.200" boxShadow="sm">
         <HStack>
           <Text fontSize="xl">💬</Text>
-          <Heading size="sm" color="gray.700">Legal Chat Assistant</Heading>
-          <Badge colorScheme="green" ml={2}>AI Powered</Badge>
+          <Heading size="sm" color="gray.700">{t('chat_title', 'Legal Chat Assistant')}</Heading>
+          <Badge colorScheme="green" ml={2}>AI</Badge>
         </HStack>
       </Box>
 
@@ -90,7 +95,7 @@ const Chat: React.FC = () => {
             <VStack spacing={6} py={12} textAlign="center">
               <Text fontSize="5xl">⚖️</Text>
               <Heading size="md" color="gray.600">
-                How can I help you today?
+                {t('chat_placeholder', 'How can I help you today?')}
               </Heading>
               <Text color="gray.500" maxW="md">
                 Ask me about Indian legal rights, procedures, FIR filing, 
@@ -187,7 +192,7 @@ const Chat: React.FC = () => {
                   <Box bg="white" px={4} py={3} borderRadius="xl" boxShadow="sm" borderWidth="1px" borderColor="gray.200">
                     <HStack spacing={2}>
                       <Spinner size="sm" color="brand.500" />
-                      <Text fontSize="sm" color="gray.500">Thinking...</Text>
+                      <Text fontSize="sm" color="gray.500">{t('loading', 'Thinking...')}</Text>
                     </HStack>
                   </Box>
                 </HStack>
@@ -206,7 +211,7 @@ const Chat: React.FC = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-              placeholder="Type your legal question here..."
+              placeholder={t('chat_placeholder', 'Type your legal question here...')}
               size="lg"
               bg="gray.50"
               borderRadius="xl"

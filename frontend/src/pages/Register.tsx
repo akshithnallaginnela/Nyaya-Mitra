@@ -21,6 +21,7 @@ import {
 import { EmailIcon, LockIcon } from '@chakra-ui/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -32,6 +33,7 @@ const Register: React.FC = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
+  const { t } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +71,7 @@ const Register: React.FC = () => {
         <VStack spacing={4} textAlign="center" mb={6}>
           <Text fontSize="5xl">⚖️</Text>
           <Heading size="lg" bgGradient="linear(to-r, brand.600, brand.400)" bgClip="text">
-            Join Nyaya Mitra
+            {t('register', 'Join Nyaya Mitra')}
           </Heading>
           <Text color="gray.600">Create your account to get started</Text>
         </VStack>
@@ -77,10 +79,10 @@ const Register: React.FC = () => {
         <Card borderRadius="2xl" boxShadow="lg" bg="white">
           <CardBody p={8}>
             <VStack spacing={4} as="form" onSubmit={handleSubmit}>
-              <Heading size="md" color="gray.700">Create Account</Heading>
+              <Heading size="md" color="gray.700">{t('register', 'Create Account')}</Heading>
 
               <FormControl isRequired>
-                <FormLabel fontSize="sm" fontWeight="600" color="gray.600">Full Name</FormLabel>
+                <FormLabel fontSize="sm" fontWeight="600" color="gray.600">{t('full_name', 'Full Name')}</FormLabel>
                 <InputGroup>
                   <InputLeftElement pointerEvents="none">
                     <Text color="gray.400">👤</Text>
@@ -130,7 +132,7 @@ const Register: React.FC = () => {
               </FormControl>
 
               <FormControl>
-                <FormLabel fontSize="sm" fontWeight="600" color="gray.600">College Name (Optional)</FormLabel>
+                <FormLabel fontSize="sm" fontWeight="600" color="gray.600">{t('college_name', 'College Name')} (Optional)</FormLabel>
                 <InputGroup>
                   <InputLeftElement pointerEvents="none">
                     <Text color="gray.400">🎓</Text>
@@ -146,7 +148,7 @@ const Register: React.FC = () => {
               </FormControl>
 
               <FormControl>
-                <FormLabel fontSize="sm" fontWeight="600" color="gray.600">Preferred Language</FormLabel>
+                <FormLabel fontSize="sm" fontWeight="600" color="gray.600">{t('language', 'Preferred Language')}</FormLabel>
                 <Select
                   value={preferredLanguage}
                   onChange={(e) => setPreferredLanguage(e.target.value)}
@@ -173,7 +175,7 @@ const Register: React.FC = () => {
                 fontWeight="700"
                 mt={2}
               >
-                Create Account
+                {t('register', 'Create Account')}
               </Button>
 
               <Divider />
@@ -181,7 +183,7 @@ const Register: React.FC = () => {
               <Text fontSize="sm" color="gray.600">
                 Already have an account?{' '}
                 <Link color="brand.500" fontWeight="600" onClick={() => navigate('/login')}>
-                  Sign in here
+                  {t('login', 'Sign in here')}
                 </Link>
               </Text>
             </VStack>

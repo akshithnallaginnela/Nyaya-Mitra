@@ -173,7 +173,7 @@ const Navbar: React.FC = () => {
                 onClick={handleLogout}
                 size="lg"
               >
-                Logout
+                {t('logout', 'Logout')}
               </Button>
             </VStack>
           </DrawerBody>
