@@ -414,7 +414,7 @@ The implementation uses:
 ### Phase 7: Evidence Guide and Emergency Features
 
 - [-] 15. Implement evidence documentation guide
-  - [ ] 15.1 Create evidence guide content system
+  - [-] 15.1 Create evidence guide content system
     - Create case-type specific evidence guide templates
     - Add digital evidence preservation instructions
     - Add legal admissibility requirements
