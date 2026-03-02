@@ -539,7 +539,7 @@ The implementation uses:
     - Set up Axios for API calls
     - _Requirements: All frontend requirements_
 
-  - [-] 19.2 Implement authentication UI components
+  - [x] 19.2 Implement authentication UI components
     - Create Login component with form validation
     - Create Registration component with email validation
     - Create password reset flow
@@ -548,7 +548,7 @@ The implementation uses:
     - Add protected route wrapper
     - _Requirements: 9.1, 9.2_
 
-  - [ ] 19.3 Implement language selector component
+  - [-] 19.3 Implement language selector component
     - Create language dropdown with all supported languages
     - Persist language preference to user profile
     - Update all UI elements on language change
