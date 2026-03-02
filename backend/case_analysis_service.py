@@ -464,43 +464,47 @@ class CaseAnalysisService:
         # Evidence-related recommendations
         if breakdown.evidence_strength < 20:
             recommendations.append(
-                "Gather more documentary evidence such as photographs, videos, written communications, or official documents"
+                "🔍 Strengthen Your Evidence — Collect at least 3-4 pieces of proof: "
+                "screenshots (with timestamps visible), photographs, written communications, "
+                "official documents, or receipts. Store both digital and physical copies."
             )
             recommendations.append(
-                "Obtain witness statements from people who can corroborate your account"
+                "👥 Get Witness Support — Identify 2-3 people who can back your account. "
+                "Ask them to write a signed statement with their contact details. "
+                "Even shopkeepers, security guards, or auto drivers near the incident location can be witnesses."
             )
         
         # Legal basis recommendations
         if breakdown.legal_basis < 15:
             recommendations.append(
-                "Identify specific IPC or CrPC sections that apply to your case"
+                "📚 Find Applicable Laws — Use Nyaya Mitra's Legal Chat to ask about laws that apply to your case. "
+                "For example, ask: 'What IPC sections apply to [your situation]?' "
+                "Then mention those specific sections in your allegations."
             )
             recommendations.append(
-                "Clearly document all allegations with specific details and dates"
+                "✍️ Write Detailed Allegations — Describe exactly WHAT happened, WHEN, WHERE, "
+                "WHO was involved, and WHAT impact it had on you. The more specific you are, the stronger your case."
             )
         
         # Procedural recommendations
         if breakdown.procedural_compliance < 10:
             recommendations.append(
-                "File an FIR or formal complaint with the police if you haven't already"
-            )
-            recommendations.append(
-                "Send legal notices to relevant parties through registered post"
+                "🏛️ File Formal Complaints — Visit these in order: "
+                "(1) College grievance cell or ICC, "
+                "(2) Local police station for FIR (they cannot refuse — if they do, go to the SP office or file online at your state's citizen portal), "
+                "(3) Send a legal notice via registered post. "
+                "Keep a copy of every complaint and its acknowledgment receipt."
             )
         
         # Timeline recommendations
         if breakdown.timeline_reasonableness < 5:
             recommendations.append(
-                "Create a detailed timeline of all events with specific dates and times"
+                "📅 Build a Clear Timeline — Open a notebook or document and list every event: "
+                "'Date | Time | What happened | Where | Who was present.' "
+                "Start from the very first incident. This helps lawyers and judges understand your case quickly."
             )
         
-        # General recommendations
-        if missing_elements:
-            recommendations.append(
-                f"Address the following missing elements: {', '.join(missing_elements[:3])}"
-            )
-        
-        # Always recommend legal consultation for serious cases
+        # General recommendations based on score
         total_score = (
             breakdown.evidence_strength +
             breakdown.legal_basis +
@@ -510,11 +514,22 @@ class CaseAnalysisService:
         
         if total_score > self.STRONG_CASE_THRESHOLD:
             recommendations.append(
-                "⚠️ Your case appears to have merit. Strongly recommend consulting with a qualified lawyer immediately"
+                "✅ Your case looks strong! Next steps: "
+                "(1) Consult a lawyer — use Nyaya Mitra's Legal Aid Search to find free legal aid near you, "
+                "(2) File your case formally, "
+                "(3) Keep all original documents safe."
             )
-        elif total_score < self.WEAK_CASE_THRESHOLD:
+        elif total_score >= self.WEAK_CASE_THRESHOLD:
             recommendations.append(
-                "Consider strengthening your case before proceeding. Consult with a legal aid provider for guidance"
+                "📈 Your case has potential but needs more work. "
+                "Focus on the weaknesses listed above. Use Nyaya Mitra's other features: "
+                "Legal Chat for law references, Document Generator for notices, and Legal Aid Search for free lawyers."
+            )
+        else:
+            recommendations.append(
+                "💪 Don't be discouraged by a low score — it means you need to gather more information first. "
+                "Focus on collecting evidence and filing formal complaints. "
+                "Use Nyaya Mitra's Legal Chat to understand your rights, and Legal Aid Search to find free legal help near your location."
             )
         
         return recommendations
