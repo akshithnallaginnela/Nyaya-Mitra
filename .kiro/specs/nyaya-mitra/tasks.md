@@ -448,14 +448,14 @@ The implementation uses:
 
 
 - [-] 16. Implement emergency SOS feature
-  - [-] 16.1 Create emergency contacts database
+  - [x] 16.1 Create emergency contacts database
     - Compile emergency contacts by category (police, legal helplines, mental health, student services)
     - Add location-specific contacts for all Indian states
     - Add national emergency numbers as fallbacks
     - Create database seeding script
     - _Requirements: 8.3, 8.5, 8.6_
 
-  - [ ] 16.2 Create emergency contacts endpoint
+  - [-] 16.2 Create emergency contacts endpoint
     - Create GET /api/emergency/contacts endpoint
     - Accept location parameter (state/city)
     - Return categorized emergency contacts
