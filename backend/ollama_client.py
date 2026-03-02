@@ -13,7 +13,7 @@ class OllamaClient:
     def __init__(
         self,
         base_url: Optional[str] = None,
-        model: str = "mistral:7b",
+        model: Optional[str] = None,
         temperature: float = 0.3
     ):
         """
@@ -21,11 +21,11 @@ class OllamaClient:
         
         Args:
             base_url: Base URL for Ollama API (default: http://localhost:11434)
-            model: Model name to use (default: mistral:7b)
+            model: Model name to use (reads OLLAMA_MODEL env var, fallback: mistral:7b)
             temperature: Temperature for response generation (default: 0.3 for consistency)
         """
         self.base_url = base_url or os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-        self.model = model
+        self.model = model or os.getenv("OLLAMA_MODEL", "mistral:7b")
         self.temperature = temperature
         self.timeout = 30  # 30 second timeout for API calls
         
