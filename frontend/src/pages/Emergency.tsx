@@ -21,6 +21,7 @@ import {
 } from '@chakra-ui/react';
 import { PhoneIcon } from '@chakra-ui/icons';
 import api from '../api/axios';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface Contact {
   name: string;
@@ -41,6 +42,7 @@ const defaultContacts: Contact[] = [
 const Emergency: React.FC = () => {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadContacts();
@@ -85,7 +87,7 @@ const Emergency: React.FC = () => {
         <VStack spacing={4} textAlign="center" mb={8}>
           <HStack>
             <Text fontSize="4xl">🚨</Text>
-            <Heading size="xl" color="red.600">Emergency SOS</Heading>
+            <Heading size="xl" color="red.600">{t('emergency', 'Emergency SOS')}</Heading>
           </HStack>
           <Text color="gray.600" maxW="lg">
             Quick access to emergency helpline numbers. If you are in immediate danger, call 112 now.
@@ -136,7 +138,7 @@ const Emergency: React.FC = () => {
         </Alert>
 
         {/* Contact Cards */}
-        <Heading size="md" color="gray.700" mb={4}>All Emergency Contacts</Heading>
+        <Heading size="md" color="gray.700" mb={4}>{t('emergency_contacts', 'All Emergency Contacts')}</Heading>
 
         {loading ? (
           <Center py={12}>
