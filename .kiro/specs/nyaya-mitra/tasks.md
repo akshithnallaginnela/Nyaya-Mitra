@@ -448,7 +448,7 @@ The implementation uses:
 
 
 - [-] 16. Implement emergency SOS feature
-  - [ ] 16.1 Create emergency contacts database
+  - [-] 16.1 Create emergency contacts database
     - Compile emergency contacts by category (police, legal helplines, mental health, student services)
     - Add location-specific contacts for all Indian states
     - Add national emergency numbers as fallbacks
