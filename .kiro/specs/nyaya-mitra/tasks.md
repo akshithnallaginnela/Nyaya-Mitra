@@ -468,7 +468,7 @@ The implementation uses:
     - Provide quick access links to evidence documentation in emergency mode
     - _Requirements: 8.7_
 
-  - [-] 16.4 Write property tests for emergency features
+  - [ ] 16.4 Write property tests for emergency features
     - **Property 38: Emergency response time** - Verify <1 second response
     - **Property 39: Contact categorization** - Verify 4+ categories
     - **Property 40: Callable phone numbers** - Verify phone number field present
