@@ -375,7 +375,7 @@ The implementation uses:
     - **Validates: Requirements 5.1, 5.2, 5.3, 5.4, 5.6**
 
 
-- [ ] 14. Implement multilingual support system
+- [x] 14. Implement multilingual support system
   - [x] 14.1 Set up translation infrastructure
     - Install and configure spaCy for English
     - Install and configure IndicNLP for Hindi and regional languages
@@ -390,7 +390,7 @@ The implementation uses:
     - Ensure consistent legal term translations
     - _Requirements: 6.2, 6.6_
 
-  - [-] 14.3 Implement language switching functionality
+  - [x] 14.3 Implement language switching functionality
     - Add language preference to user profile
     - Create language selection API endpoint
     - Implement real-time language switching in frontend
@@ -413,7 +413,7 @@ The implementation uses:
 
 ### Phase 7: Evidence Guide and Emergency Features
 
-- [ ] 15. Implement evidence documentation guide
+- [-] 15. Implement evidence documentation guide
   - [ ] 15.1 Create evidence guide content system
     - Create case-type specific evidence guide templates
     - Add digital evidence preservation instructions
