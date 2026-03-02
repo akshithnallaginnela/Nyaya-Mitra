@@ -8,7 +8,7 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime
 import json
 
-from database import get_db
+from database import get_db_session as get_db
 from models.user import User
 from models.conversation import Conversation, Message
 from models.action_plan import ActionPlan
@@ -591,7 +591,8 @@ async def websocket_chat_stream(websocket: WebSocket):
             user_id = token_data.user_id
             
             # Get database session
-            db = next(get_db())
+            db_gen = get_db()
+            db = next(db_gen)
             user = db.query(User).filter(User.id == user_id).first()
             
             if not user:
