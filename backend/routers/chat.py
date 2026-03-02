@@ -325,7 +325,9 @@ async def chat_query(
         raise
     except Exception as e:
         # Log error and return user-friendly message
+        import traceback
         print(f"Error processing chat query: {str(e)}")
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while processing your query. Please try again."
