@@ -103,19 +103,15 @@ Clarifying questions:"""
             - language: Detected/used language
         """
         # Step 1: Process language
-        print(f"[CHAT DEBUG] Step 1: Processing language for query: {query[:50]}...")
         language_info = self.multilingual_service.process_query_language(query, language)
         response_language = language_info["response_language"]
-        print(f"[CHAT DEBUG] Step 1 done. response_language={response_language}")
         
         # Step 2: Retrieve relevant documents using RAG
-        print(f"[CHAT DEBUG] Step 2: RAG retrieval...")
         context_str, rag_result = self.rag_system.retrieve_with_context(
             query=query,
             n_results=5,
             **(filters or {})
         )
-        print(f"[CHAT DEBUG] Step 2 done. Got {len(rag_result.documents)} docs, avg_relevance={rag_result.avg_relevance}")
         
         relevant_docs = [{"content": d.text, "metadata": d.metadata, "relevance_score": d.relevance_score} for d in rag_result.documents]
         confidence = rag_result.avg_relevance
@@ -134,7 +130,6 @@ Clarifying questions:"""
         user_prompt = self.query_prompt.format(query=query)
         
         # Step 6: Generate response using Ollama
-        print(f"[CHAT DEBUG] About to call ollama_client.generate(). Timeout={self.ollama_client.timeout}")
         try:
             result = self.ollama_client.generate(
                 prompt=user_prompt,
@@ -147,9 +142,6 @@ Clarifying questions:"""
             
         except RuntimeError as e:
             # Handle Ollama service errors
-            import traceback
-            print(f"[CHAT ERROR] RuntimeError in process_query: {str(e)}")
-            traceback.print_exc()
             return {
                 "response": "I apologize, but I'm currently unable to process your query due to a technical issue. Please try again in a moment.",
                 "citations": [],
