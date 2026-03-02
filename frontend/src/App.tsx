@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ChakraProvider, Box } from '@chakra-ui/react';
 import { AuthProvider } from './contexts/AuthContext';
+import { LanguageProvider } from './contexts/LanguageContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
 import Login from './pages/Login';
@@ -17,8 +18,9 @@ import theme from './theme';
 function App() {
   return (
     <ChakraProvider theme={theme}>
-      <AuthProvider>
-        <Router>
+      <LanguageProvider>
+        <AuthProvider>
+          <Router>
           <Box minH="100vh" bg="gray.50">
             <Navbar />
             <Routes>
@@ -85,6 +87,7 @@ function App() {
           </Box>
         </Router>
       </AuthProvider>
+    </LanguageProvider>
     </ChakraProvider>
   );
 }
