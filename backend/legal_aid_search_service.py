@@ -5,6 +5,7 @@ This service implements search logic for legal aid providers with:
 - Multi-criteria filtering (location, case type, language, expertise)
 - Relevance scoring for search results
 - Fallback to national helplines when no local results found
+- Caching for improved performance
 
 Requirements: 5.1 (Location and case type filtering), 5.3 (Multi-criteria filtering), 
               5.6 (National fallback)
@@ -16,6 +17,7 @@ from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
 
 from models.legal_aid_provider import LegalAidProvider
+from utils.cache import cache, cache_key
 
 
 # National helplines as fallback when no local providers found

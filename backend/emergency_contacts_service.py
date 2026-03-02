@@ -6,6 +6,7 @@ This service provides fast retrieval of emergency contacts with:
 - Category-based filtering
 - National fallback contacts
 - Optimized for <1 second response time
+- Caching for improved performance
 
 Requirements: 8.2 (Response time), 8.3 (Categorization), 8.5 (Location-specific), 8.6 (National fallback)
 """
@@ -16,6 +17,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from models.emergency_contact import EmergencyContact
+from utils.cache import cache, cache_key
 
 
 class EmergencyContactsService:
@@ -49,6 +51,7 @@ class EmergencyContactsService:
         2. Always includes national fallback contacts
         3. Organizes contacts by category (police, legal, mental health, student services)
         4. Optimized for <1 second response time
+        5. Uses caching for improved performance
         
         Args:
             location: General location (searches both state and city)
@@ -61,6 +64,12 @@ class EmergencyContactsService:
         Requirements: 8.2 (Response time), 8.3 (Categorization), 
                       8.5 (Location-specific), 8.6 (National fallback)
         """
+        # Check cache first
+        key = cache_key("emergency_contacts", location=location, state=state, city=city)
+        cached_result = cache.get(key)
+        if cached_result:
+            return cached_result
+        
         # Build query for location-specific contacts
         location_contacts = []
         
@@ -119,6 +128,9 @@ class EmergencyContactsService:
             
             if contact.category in categorized:
                 categorized[contact.category].append(contact_dict)
+        
+        # Cache for 10 minutes (emergency contacts don't change frequently)
+        cache.set(key, categorized, ttl_seconds=600)
         
         return categorized
     
