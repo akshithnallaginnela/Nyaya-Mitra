@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 
-from database import get_db
+from database import get_db_session as get_db
 from models.user import User
 from models.case_analysis import CaseAnalysis
 from utils.jwt import get_current_user

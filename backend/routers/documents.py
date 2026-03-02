@@ -12,7 +12,7 @@ from uuid import UUID
 from pathlib import Path
 import os
 
-from database import get_db
+from database import get_db_session as get_db
 from models.user import User
 from models.generated_document import GeneratedDocument
 from utils.jwt import get_current_user

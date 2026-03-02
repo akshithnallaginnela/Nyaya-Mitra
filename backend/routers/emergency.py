@@ -17,7 +17,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Dict, List, Optional
 
-from database import get_db
+from database import get_db_session as get_db
 from emergency_contacts_service import EmergencyContactsService
 from models.user import User
 from utils.jwt import get_current_user
