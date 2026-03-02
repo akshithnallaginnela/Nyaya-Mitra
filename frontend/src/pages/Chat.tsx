@@ -13,10 +13,6 @@ import {
   Avatar,
   Badge,
   IconButton,
-  Tooltip,
-  Divider,
-  Card,
-  CardBody,
 } from '@chakra-ui/react';
 import { ArrowForwardIcon } from '@chakra-ui/icons';
 import api from '../api/axios';
