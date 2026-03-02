@@ -326,64 +326,119 @@ class CaseAnalysisService:
         complaint: ComplaintDetails
     ) -> List[str]:
         """
-        Identify case weaknesses.
+        Identify case weaknesses with student-friendly actionable guidance.
         
         Args:
             breakdown: Score breakdown
             complaint: Complaint details
             
         Returns:
-            List of weakness descriptions
+            List of weakness descriptions with HOW-TO fix guidance
         """
         weaknesses = []
         
         if breakdown.evidence_strength < 15:
-            weaknesses.append("Insufficient or weak evidence to support allegations")
+            weaknesses.append(
+                "📉 Weak Evidence — Your evidence is not strong enough yet. "
+                "HOW TO FIX: Collect physical proof like screenshots, photos, CCTV footage, emails, or written documents. "
+                "Even WhatsApp chats or SMS messages count as evidence. Save everything digitally AND as printouts."
+            )
         
         if len(complaint.witness_statements) == 0:
-            weaknesses.append("No witness statements to corroborate the case")
+            weaknesses.append(
+                "👤 No Witness Statements — You haven't mentioned any witnesses. "
+                "HOW TO FIX: Think of anyone who saw or heard what happened — classmates, friends, roommates, "
+                "shopkeepers nearby, or college staff. Ask them to write down what they saw with their name, date, "
+                "and signature. Even a simple handwritten note counts as a statement."
+            )
         
         if breakdown.legal_basis < 15:
-            weaknesses.append("Unclear legal basis or lack of specific legal references")
+            weaknesses.append(
+                "⚖️ Unclear Legal Basis — Your case doesn't reference specific laws. "
+                "HOW TO FIX: Use the Legal Chat feature of Nyaya Mitra to ask 'Which IPC/BNS sections apply to [your situation]?' "
+                "Common sections students need: Section 354 (assault on woman), Section 506 (criminal intimidation), "
+                "Section 420 (cheating), Section 499 (defamation), Article 21 (right to life & personal liberty). "
+                "Adding the right legal sections greatly strengthens your case."
+            )
         
         if breakdown.procedural_compliance < 10:
-            weaknesses.append("Important legal procedures may not have been followed")
+            weaknesses.append(
+                "📝 Missing Legal Procedures — Key steps haven't been taken yet. "
+                "HOW TO FIX: Depending on your situation, consider these steps: "
+                "(1) File a written complaint with your college/university grievance cell, "
+                "(2) File an FIR at the nearest police station (they CANNOT refuse — cite Section 154 CrPC), "
+                "(3) Send a legal notice via registered post to the other party, "
+                "(4) File a complaint on the National/State Human Rights Commission website if applicable. "
+                "Keep acknowledgment receipts of every complaint you file."
+            )
         
         if breakdown.timeline_reasonableness < 5:
-            weaknesses.append("Incomplete or unclear timeline of events")
+            weaknesses.append(
+                "🕐 Incomplete Timeline — Your timeline of events is missing or unclear. "
+                "HOW TO FIX: Write down EVERY event with exact dates and times, starting from the first incident. "
+                "Example format: '15-Jan-2026, 3:30 PM — Incident happened in college canteen.' "
+                "Include when you reported it, to whom, and what response you got. A clear timeline shows "
+                "you acted promptly and helps establish credibility."
+            )
         
         return weaknesses
     
     def _identify_missing_elements(self, complaint: ComplaintDetails) -> List[str]:
         """
-        Identify missing elements in the complaint.
+        Identify missing elements with student-friendly guidance on how to obtain them.
         
         Args:
             complaint: Complaint details
             
         Returns:
-            List of missing element descriptions
+            List of missing element descriptions with actionable steps
         """
         missing = []
         
         if len(complaint.evidence) == 0:
-            missing.append("Documentary evidence (photos, videos, documents, messages)")
+            missing.append(
+                "📷 Documentary Evidence — You need proof! Collect: screenshots of messages/emails, "
+                "photographs of damage or incidents, CCTV footage (request from college security office in writing), "
+                "any written documents, agreements, or letters related to the issue."
+            )
         
         if len(complaint.witness_statements) == 0:
-            missing.append("Witness statements or testimonies")
+            missing.append(
+                "🗣️ Witness Statements — Ask anyone who saw/heard what happened to write: "
+                "'I, [Name], witnessed [what happened] on [date] at [place]. Signed: [Name], Date: [Date].' "
+                "This can be handwritten on plain paper. Get at least 2 witnesses if possible."
+            )
         
         if len(complaint.procedures_followed) == 0:
-            missing.append("Documentation of legal procedures followed (FIR, complaints, notices)")
+            missing.append(
+                "📋 Formal Complaints Filed — You should file at least one formal complaint. Options: "
+                "(1) College Internal Complaints Committee (ICC) for harassment, "
+                "(2) University Grievance Redressal Cell for academic issues, "
+                "(3) Police FIR for criminal matters, "
+                "(4) District Consumer Forum for service/payment disputes. "
+                "Always get a written acknowledgment with date and reference number."
+            )
         
         if len(complaint.timeline) == 0:
-            missing.append("Detailed timeline of events with dates")
+            missing.append(
+                "📅 Dated Timeline — Create a chronological list: Date → What happened → Where → Who was involved → "
+                "What action you took. Start from the very first incident. This is crucial for any legal proceeding."
+            )
         
         if len(complaint.documentation) == 0:
-            missing.append("Supporting documentation (medical reports, receipts, contracts)")
+            missing.append(
+                "📄 Supporting Documents — Gather: ID proof, college ID, fee receipts, "
+                "rent agreements (for housing disputes), medical reports (if injured — visit a government hospital "
+                "for a medico-legal case report), bank statements showing transactions, or any contracts/agreements."
+            )
         
         # Check for specific legal references
-        if "ipc" not in complaint.allegations.lower() and "section" not in complaint.allegations.lower():
-            missing.append("Specific legal sections or laws that apply to the case")
+        if "ipc" not in complaint.allegations.lower() and "section" not in complaint.allegations.lower() and "bns" not in complaint.allegations.lower():
+            missing.append(
+                "⚖️ Legal Section References — Your case needs applicable law references. "
+                "Use Nyaya Mitra's Chat feature and ask: 'What legal sections apply to [describe your situation]?' "
+                "Then add those sections (e.g., IPC Section 420, BNS Section 318) to your allegations."
+            )
         
         return missing
     
