@@ -101,12 +101,14 @@ const CaseAnalyzer: React.FC = () => {
                 <FormLabel fontWeight="600" color="gray.700">
                   📝 Evidence Details
                 </FormLabel>
-                <Text fontSize="xs" color="gray.500" mb={1}>Enter each piece of evidence on a separate line</Text>
+                <Text fontSize="xs" color="gray.500" mb={1}>
+                  List each piece of PROOF you have — one per line (screenshots, photos, documents, messages, receipts, CCTV footage, etc.)
+                </Text>
                 <Textarea
                   value={evidence}
                   onChange={(e) => setEvidence(e.target.value)}
-                  placeholder={"CCTV footage from campus\nWitness statement from roommate\nScreenshots of threatening messages"}
-                  rows={4}
+                  placeholder={"Screenshot of threatening WhatsApp messages\nCCTV footage from college campus (requested from security)\nRent agreement signed by both parties\nBank transfer receipt of Rs 50000 deposit\nPhotos of flat condition at move-out"}
+                  rows={5}
                   bg="gray.50"
                   borderRadius="xl"
                   _focus={{ bg: 'white' }}
@@ -115,13 +117,16 @@ const CaseAnalyzer: React.FC = () => {
 
               <FormControl>
                 <FormLabel fontWeight="600" color="gray.700">
-                  ⚠️ Allegations
+                  ⚠️ Allegations / What Happened
                 </FormLabel>
+                <Text fontSize="xs" color="gray.500" mb={1}>
+                  Describe your situation in detail — what happened, who is responsible, and what harm was caused. Mention any law sections if you know them.
+                </Text>
                 <Textarea
                   value={allegations}
                   onChange={(e) => setAllegations(e.target.value)}
-                  placeholder="What are the allegations against you? Be as specific as possible..."
-                  rows={4}
+                  placeholder="My landlord is refusing to return my security deposit of Rs 50000 despite vacating the flat on time with no damage. This is a violation of the rent agreement clause 7 and Section 420 IPC (cheating). The landlord verbally threatened me when I demanded my deposit back..."
+                  rows={5}
                   bg="gray.50"
                   borderRadius="xl"
                   _focus={{ bg: 'white' }}
@@ -130,14 +135,16 @@ const CaseAnalyzer: React.FC = () => {
 
               <FormControl>
                 <FormLabel fontWeight="600" color="gray.700">
-                  📋 Procedures Followed
+                  📋 Steps You've Already Taken
                 </FormLabel>
-                <Text fontSize="xs" color="gray.500" mb={1}>Enter each procedure on a separate line</Text>
+                <Text fontSize="xs" color="gray.500" mb={1}>
+                  List each action you've taken — one per line (complaints filed, notices sent, FIR, college grievance cell, etc.)
+                </Text>
                 <Textarea
                   value={procedures}
                   onChange={(e) => setProcedures(e.target.value)}
-                  placeholder={"FIR filed at local police station\nMedical examination conducted\nStatements recorded"}
-                  rows={3}
+                  placeholder={"Sent written demand notice to landlord via registered post\nFiled complaint with college grievance cell on 10-Feb-2025\nFiled FIR at local police station\nComplained to consumer forum online"}
+                  rows={4}
                   bg="gray.50"
                   borderRadius="xl"
                   _focus={{ bg: 'white' }}
@@ -148,11 +155,14 @@ const CaseAnalyzer: React.FC = () => {
                 <FormLabel fontWeight="600" color="gray.700">
                   🕐 Timeline of Events
                 </FormLabel>
+                <Text fontSize="xs" color="gray.500" mb={1}>
+                  List events in order with dates: "Date — What happened". Start from the first incident.
+                </Text>
                 <Textarea
                   value={timeline}
                   onChange={(e) => setTimeline(e.target.value)}
-                  placeholder="Describe the chronological sequence of events..."
-                  rows={3}
+                  placeholder={"15-Jan-2025 — Incident happened at college campus\n16-Jan-2025 — Reported to college administration\n20-Jan-2025 — Sent written complaint via email\n01-Feb-2025 — Filed FIR at police station\n15-Feb-2025 — Received response from college"}
+                  rows={5}
                   bg="gray.50"
                   borderRadius="xl"
                   _focus={{ bg: 'white' }}
@@ -244,30 +254,47 @@ const CaseAnalyzer: React.FC = () => {
             )}
 
             {result.weaknesses && result.weaknesses.length > 0 && (
-              <Card borderRadius="xl" boxShadow="md">
+              <Card borderRadius="xl" boxShadow="md" borderLeft="4px solid" borderLeftColor="red.400">
                 <CardBody p={5}>
-                  <Text fontWeight="700" mb={3} color="red.700">⚠️ Weaknesses</Text>
-                  <List spacing={2}>
-                    {result.weaknesses.map((w: string, i: number) => (
-                      <ListItem key={i} display="flex" alignItems="flex-start">
-                        <ListIcon as={WarningIcon} color="red.500" mt={1} />
-                        <Text fontSize="sm" color="gray.700">{w}</Text>
-                      </ListItem>
-                    ))}
+                  <Text fontWeight="700" mb={3} color="red.700">⚠️ Areas to Improve</Text>
+                  <Text fontSize="xs" color="gray.500" mb={3}>Each item tells you what's weak AND exactly how to fix it</Text>
+                  <List spacing={4}>
+                    {result.weaknesses.map((w: string, i: number) => {
+                      const parts = w.split('HOW TO FIX:');
+                      return (
+                        <ListItem key={i} bg="red.50" p={3} borderRadius="lg">
+                          <HStack align="flex-start" spacing={2}>
+                            <WarningIcon color="red.500" mt={1} flexShrink={0} />
+                            <VStack align="start" spacing={1} w="full">
+                              <Text fontSize="sm" fontWeight="600" color="red.800">{parts[0].trim()}</Text>
+                              {parts[1] && (
+                                <Box bg="white" p={2} borderRadius="md" w="full" borderLeft="3px solid" borderLeftColor="green.400">
+                                  <Text fontSize="xs" fontWeight="600" color="green.700" mb={1}>💡 How to fix:</Text>
+                                  <Text fontSize="xs" color="gray.700">{parts[1].trim()}</Text>
+                                </Box>
+                              )}
+                            </VStack>
+                          </HStack>
+                        </ListItem>
+                      );
+                    })}
                   </List>
                 </CardBody>
               </Card>
             )}
 
             {result.missing_elements && result.missing_elements.length > 0 && (
-              <Card borderRadius="xl" boxShadow="md">
+              <Card borderRadius="xl" boxShadow="md" borderLeft="4px solid" borderLeftColor="orange.400">
                 <CardBody p={5}>
-                  <Text fontWeight="700" mb={3} color="orange.700">📋 Missing Elements</Text>
-                  <List spacing={2}>
+                  <Text fontWeight="700" mb={3} color="orange.700">📋 What You Still Need</Text>
+                  <Text fontSize="xs" color="gray.500" mb={3}>These items will boost your score significantly when added</Text>
+                  <List spacing={3}>
                     {result.missing_elements.map((m: string, i: number) => (
-                      <ListItem key={i} display="flex" alignItems="flex-start">
-                        <ListIcon as={InfoIcon} color="orange.500" mt={1} />
-                        <Text fontSize="sm" color="gray.700">{m}</Text>
+                      <ListItem key={i} bg="orange.50" p={3} borderRadius="lg">
+                        <HStack align="flex-start" spacing={2}>
+                          <InfoIcon color="orange.500" mt={1} flexShrink={0} />
+                          <Text fontSize="sm" color="gray.700">{m}</Text>
+                        </HStack>
                       </ListItem>
                     ))}
                   </List>
@@ -276,14 +303,17 @@ const CaseAnalyzer: React.FC = () => {
             )}
 
             {result.recommendations && result.recommendations.length > 0 && (
-              <Card borderRadius="xl" boxShadow="md">
+              <Card borderRadius="xl" boxShadow="md" borderLeft="4px solid" borderLeftColor="blue.400">
                 <CardBody p={5}>
-                  <Text fontWeight="700" mb={3} color="blue.700">💡 {t('recommendations', 'Recommendations')}</Text>
-                  <List spacing={2}>
+                  <Text fontWeight="700" mb={3} color="blue.700">🎯 {t('recommendations', 'Your Next Steps')}</Text>
+                  <Text fontSize="xs" color="gray.500" mb={3}>Follow these steps in order to strengthen your case</Text>
+                  <List spacing={3}>
                     {result.recommendations.map((r: string, i: number) => (
-                      <ListItem key={i} display="flex" alignItems="flex-start">
-                        <ListIcon as={InfoIcon} color="blue.500" mt={1} />
-                        <Text fontSize="sm" color="gray.700">{r}</Text>
+                      <ListItem key={i} bg="blue.50" p={3} borderRadius="lg">
+                        <HStack align="flex-start" spacing={2}>
+                          <Text fontWeight="700" color="blue.600" fontSize="sm" flexShrink={0}>Step {i + 1}:</Text>
+                          <Text fontSize="sm" color="gray.700">{r}</Text>
+                        </HStack>
                       </ListItem>
                     ))}
                   </List>
