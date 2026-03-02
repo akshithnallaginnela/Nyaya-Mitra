@@ -11,9 +11,6 @@ import {
   HStack,
   Badge,
   Container,
-  Flex,
-  Icon,
-  Divider,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';

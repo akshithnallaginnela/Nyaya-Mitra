@@ -18,7 +18,6 @@ import {
   AlertIcon,
   AlertTitle,
   AlertDescription,
-  Divider,
 } from '@chakra-ui/react';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import api from '../api/axios';
