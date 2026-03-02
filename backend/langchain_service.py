@@ -107,14 +107,14 @@ Clarifying questions:"""
         response_language = language_info["response_language"]
         
         # Step 2: Retrieve relevant documents using RAG
-        retrieval_result = self.rag_system.retrieve_with_context(
+        context_str, rag_result = self.rag_system.retrieve_with_context(
             query=query,
-            top_k=5,
-            filters=filters
+            n_results=5,
+            **(filters or {})
         )
         
-        relevant_docs = retrieval_result["documents"]
-        confidence = retrieval_result["average_relevance"]
+        relevant_docs = [{"content": d.text, "metadata": d.metadata, "relevance_score": d.relevance_score} for d in rag_result.documents]
+        confidence = rag_result.avg_relevance
         
         # Step 3: Check if clarification is needed (low confidence)
         if confidence < 0.6:
@@ -364,14 +364,14 @@ Clarifying questions:"""
             response_language = language_info["response_language"]
             
             # Step 2: Retrieve relevant documents using RAG
-            retrieval_result = self.rag_system.retrieve_with_context(
+            context_str, rag_result = self.rag_system.retrieve_with_context(
                 query=query,
-                top_k=5,
-                filters=filters
+                n_results=5,
+                **(filters or {})
             )
             
-            relevant_docs = retrieval_result["documents"]
-            confidence = retrieval_result["average_relevance"]
+            relevant_docs = [{"content": d.text, "metadata": d.metadata, "relevance_score": d.relevance_score} for d in rag_result.documents]
+            confidence = rag_result.avg_relevance
             
             # Send metadata first
             yield {
