@@ -28,6 +28,7 @@ app.include_router(action_plan.router)
 app.include_router(documents.router)
 app.include_router(legal_aid.router)
 app.include_router(language.router)
+app.include_router(evidence.router)
 
 
 @app.on_event("startup")
