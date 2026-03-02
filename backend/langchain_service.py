@@ -116,32 +116,20 @@ Clarifying questions:"""
         relevant_docs = [{"content": d.text, "metadata": d.metadata, "relevance_score": d.relevance_score} for d in rag_result.documents]
         confidence = rag_result.avg_relevance
         
-        # Step 3: Check if clarification is needed (low confidence)
-        if confidence < 0.6:
-            clarification_response = self._generate_clarification(query, response_language)
-            return {
-                "response": clarification_response,
-                "citations": [],
-                "confidence": confidence,
-                "retrieved_docs": relevant_docs,
-                "needs_clarification": True,
-                "language": response_language
-            }
-        
-        # Step 4: Format context from retrieved documents
+        # Step 3: Format context from retrieved documents (may be empty)
         context = self._format_context(relevant_docs)
         
-        # Step 5: Build system prompt with context and language instructions
+        # Step 4: Build system prompt with context and language instructions
         base_system_prompt = self.LEGAL_SYSTEM_PROMPT.format(context=context)
         system_prompt = self.multilingual_service.prepare_multilingual_prompt(
             base_system_prompt,
             response_language
         )
         
-        # Step 6: Build user prompt
+        # Step 5: Build user prompt
         user_prompt = self.query_prompt.format(query=query)
         
-        # Step 7: Generate response using Ollama
+        # Step 6: Generate response using Ollama
         try:
             result = self.ollama_client.generate(
                 prompt=user_prompt,
@@ -164,10 +152,10 @@ Clarifying questions:"""
                 "error": str(e)
             }
         
-        # Step 8: Extract citations from response
+        # Step 7: Extract citations from response
         citations = self._extract_citations(response_text, relevant_docs)
         
-        # Step 9: Add disclaimer for low confidence responses
+        # Step 8: Add disclaimer for low confidence responses
         if confidence < 0.7:
             response_text = self.multilingual_service.add_language_disclaimer(
                 response_text,
@@ -379,25 +367,11 @@ Clarifying questions:"""
                 "data": {
                     "confidence": confidence,
                     "language": response_language,
-                    "needs_clarification": confidence < 0.6
+                    "needs_clarification": False
                 }
             }
             
-            # Step 3: Check if clarification is needed (low confidence)
-            if confidence < 0.6:
-                clarification_response = self._generate_clarification(query, response_language)
-                # Send clarification as complete response
-                yield {
-                    "type": "token",
-                    "data": {"content": clarification_response}
-                }
-                yield {
-                    "type": "citations",
-                    "data": {"citations": []}
-                }
-                return
-            
-            # Step 4: Format context from retrieved documents
+            # Step 3: Format context from retrieved documents
             context = self._format_context(relevant_docs)
             
             # Step 5: Build system prompt with context and language instructions
