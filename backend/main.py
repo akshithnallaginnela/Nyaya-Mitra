@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import init_db
-from routers import auth, chat, case, action_plan, documents, legal_aid, language
+from routers import auth, chat, case, action_plan, documents, legal_aid, language, evidence
 
 app = FastAPI(
     title="Nyaya Mitra API",
