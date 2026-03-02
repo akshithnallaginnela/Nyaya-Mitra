@@ -53,7 +53,9 @@ def test_property_31_case_specific_guidance():
         assert len(guidance['relevant_laws']) > 0
         
         # Verify title and description are case-specific
-        assert case_type.value in data['title'].lower() or 'general' in data['title'].lower()
+        # Handle case types with underscores by replacing with spaces
+        case_type_display = case_type.value.replace('_', ' ')
+        assert case_type_display in data['title'].lower() or 'general' in data['title'].lower()
         assert len(data['description']) > 0
 
 
