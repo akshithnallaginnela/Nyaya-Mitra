@@ -390,7 +390,7 @@ The implementation uses:
     - Ensure consistent legal term translations
     - _Requirements: 6.2, 6.6_
 
-  - [ ] 14.3 Implement language switching functionality
+  - [-] 14.3 Implement language switching functionality
     - Add language preference to user profile
     - Create language selection API endpoint
     - Implement real-time language switching in frontend
