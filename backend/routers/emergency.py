@@ -268,3 +268,118 @@ async def get_national_emergency_contacts(db: Session = Depends(get_db)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving national emergency contacts. Please try again."
         )
+
+
+
+# Emergency mode models
+class EmergencyModeRequest(BaseModel):
+    """Request model for toggling emergency mode."""
+    emergency_mode: bool
+
+
+class EmergencyModeResponse(BaseModel):
+    """Response model for emergency mode status."""
+    emergency_mode: bool
+    message: str
+    quick_access_links: Optional[Dict[str, str]] = None
+
+
+@router.post("/mode", response_model=EmergencyModeResponse)
+async def toggle_emergency_mode(
+    request: EmergencyModeRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Toggle emergency mode for the current user.
+    
+    When emergency mode is activated:
+    - User session is flagged for emergency
+    - Quick access links to evidence documentation are provided
+    - Emergency contacts are readily available
+    
+    Args:
+        request: Emergency mode toggle request
+        current_user: Authenticated user
+        db: Database session
+        
+    Returns:
+        EmergencyModeResponse with status and quick access links
+        
+    Requirements: 8.7 (Evidence access in emergency mode)
+    """
+    try:
+        # Update user's emergency mode
+        current_user.emergency_mode = request.emergency_mode
+        db.commit()
+        
+        # Prepare response
+        message = "Emergency mode activated" if request.emergency_mode else "Emergency mode deactivated"
+        
+        # Provide quick access links when emergency mode is activated
+        quick_access_links = None
+        if request.emergency_mode:
+            quick_access_links = {
+                "emergency_contacts": "/api/emergency/contacts",
+                "evidence_guide": "/api/evidence/guide",
+                "document_upload": "/api/ocr/upload",
+                "legal_aid_search": "/api/legal-aid/search",
+                "chat_support": "/api/chat/query"
+            }
+        
+        return EmergencyModeResponse(
+            emergency_mode=request.emergency_mode,
+            message=message,
+            quick_access_links=quick_access_links
+        )
+        
+    except Exception as e:
+        print(f"Error toggling emergency mode: {str(e)}")
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while toggling emergency mode. Please try again."
+        )
+
+
+@router.get("/mode", response_model=EmergencyModeResponse)
+async def get_emergency_mode_status(
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get the current emergency mode status for the authenticated user.
+    
+    Args:
+        current_user: Authenticated user
+        
+    Returns:
+        EmergencyModeResponse with current status and quick access links if active
+        
+    Requirements: 8.7 (Evidence access in emergency mode)
+    """
+    try:
+        # Prepare quick access links if emergency mode is active
+        quick_access_links = None
+        if current_user.emergency_mode:
+            quick_access_links = {
+                "emergency_contacts": "/api/emergency/contacts",
+                "evidence_guide": "/api/evidence/guide",
+                "document_upload": "/api/ocr/upload",
+                "legal_aid_search": "/api/legal-aid/search",
+                "chat_support": "/api/chat/query"
+            }
+        
+        message = "Emergency mode is active" if current_user.emergency_mode else "Emergency mode is inactive"
+        
+        return EmergencyModeResponse(
+            emergency_mode=current_user.emergency_mode,
+            message=message,
+            quick_access_links=quick_access_links
+        )
+        
+    except Exception as e:
+        print(f"Error retrieving emergency mode status: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while retrieving emergency mode status. Please try again."
+        )

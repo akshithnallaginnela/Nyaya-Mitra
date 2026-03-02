@@ -463,7 +463,7 @@ The implementation uses:
     - Optimize for <1 second response time
     - _Requirements: 8.2, 8.4_
 
-  - [-] 16.3 Add emergency mode quick access
+  - [x] 16.3 Add emergency mode quick access
     - Create emergency mode flag in user session
     - Provide quick access links to evidence documentation in emergency mode
     - _Requirements: 8.7_
