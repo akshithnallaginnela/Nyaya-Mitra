@@ -22,22 +22,24 @@ import {
 import { HamburgerIcon } from '@chakra-ui/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import LanguageSelector from './LanguageSelector';
-
-const navLinks = [
-  { label: 'Dashboard', path: '/dashboard', icon: '🏠' },
-  { label: 'Legal Chat', path: '/chat', icon: '💬' },
-  { label: 'Case Analyzer', path: '/case-analyzer', icon: '🔍' },
-  { label: 'Documents', path: '/documents', icon: '📄' },
-  { label: 'Legal Aid', path: '/legal-aid', icon: '⚖️' },
-  { label: 'Evidence Guide', path: '/evidence', icon: '📋' },
-];
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout, user } = useAuth();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { t } = useLanguage();
+
+  const navLinks = [
+    { label: t('welcome', 'Dashboard'), path: '/dashboard', icon: '🏠', tKey: 'dashboard' },
+    { label: t('chat_title', 'Legal Chat'), path: '/chat', icon: '💬' },
+    { label: t('case_analysis', 'Case Analyzer'), path: '/case-analyzer', icon: '🔍' },
+    { label: t('document_generator', 'Documents'), path: '/documents', icon: '📄' },
+    { label: t('legal_aid', 'Legal Aid'), path: '/legal-aid', icon: '⚖️' },
+    { label: t('evidence_guide', 'Evidence Guide'), path: '/evidence', icon: '📋' },
+  ];
 
   const handleLogout = () => {
     logout();
@@ -122,7 +124,7 @@ const Navbar: React.FC = () => {
                   onClick={handleLogout}
                   borderRadius="lg"
                 >
-                  Logout
+                  {t('logout', 'Logout')}
                 </Button>
               </Hide>
 
