@@ -21,6 +21,7 @@ import {
 import { EmailIcon, LockIcon } from '@chakra-ui/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -29,6 +30,7 @@ const Login: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
+  const { t } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,7 +61,7 @@ const Login: React.FC = () => {
         <VStack spacing={6} textAlign="center" mb={6}>
           <Text fontSize="5xl">⚖️</Text>
           <Heading size="lg" bgGradient="linear(to-r, brand.600, brand.400)" bgClip="text">
-            Welcome to Nyaya Mitra
+            {t('welcome', 'Welcome to Nyaya Mitra')}
           </Heading>
           <Text color="gray.600">
             Your AI-powered legal companion for Indian college students
@@ -69,10 +71,10 @@ const Login: React.FC = () => {
         <Card borderRadius="2xl" boxShadow="lg" bg="white">
           <CardBody p={8}>
             <VStack spacing={5} as="form" onSubmit={handleSubmit}>
-              <Heading size="md" color="gray.700">Sign In</Heading>
+              <Heading size="md" color="gray.700">{t('login', 'Sign In')}</Heading>
 
               <FormControl isRequired>
-                <FormLabel fontSize="sm" fontWeight="600" color="gray.600">Email</FormLabel>
+                <FormLabel fontSize="sm" fontWeight="600" color="gray.600">{t('email', 'Email')}</FormLabel>
                 <InputGroup>
                   <InputLeftElement pointerEvents="none">
                     <EmailIcon color="gray.400" />
@@ -89,7 +91,7 @@ const Login: React.FC = () => {
               </FormControl>
 
               <FormControl isRequired>
-                <FormLabel fontSize="sm" fontWeight="600" color="gray.600">Password</FormLabel>
+                <FormLabel fontSize="sm" fontWeight="600" color="gray.600">{t('password', 'Password')}</FormLabel>
                 <InputGroup>
                   <InputLeftElement pointerEvents="none">
                     <LockIcon color="gray.400" />
@@ -114,7 +116,7 @@ const Login: React.FC = () => {
                 borderRadius="xl"
                 fontWeight="700"
               >
-                Sign In
+                {t('login', 'Sign In')}
               </Button>
 
               <Divider />
@@ -122,7 +124,7 @@ const Login: React.FC = () => {
               <Text fontSize="sm" color="gray.600">
                 Don't have an account?{' '}
                 <Link color="brand.500" fontWeight="600" onClick={() => navigate('/register')}>
-                  Register here
+                  {t('register', 'Register here')}
                 </Link>
               </Text>
             </VStack>

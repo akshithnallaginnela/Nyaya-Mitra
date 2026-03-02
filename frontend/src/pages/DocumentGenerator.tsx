@@ -19,6 +19,7 @@ import {
   Divider,
 } from '@chakra-ui/react';
 import api from '../api/axios';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const DocumentGenerator: React.FC = () => {
   const [templates, setTemplates] = useState<string[]>([]);
@@ -27,6 +28,7 @@ const DocumentGenerator: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [generatedDoc, setGeneratedDoc] = useState<string | null>(null);
   const toast = useToast();
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     loadTemplates();
@@ -51,6 +53,7 @@ const DocumentGenerator: React.FC = () => {
       const response = await api.post('/documents/generate', {
         template_type: selectedTemplate,
         inputs,
+        language,
       });
       setGeneratedDoc(response.data.content || response.data.document || JSON.stringify(response.data, null, 2));
       toast({
@@ -84,7 +87,7 @@ const DocumentGenerator: React.FC = () => {
         <HStack mb={6}>
           <Text fontSize="3xl">📄</Text>
           <VStack align="start" spacing={0}>
-            <Heading size="lg" color="gray.800">Document Generator</Heading>
+            <Heading size="lg" color="gray.800">{t('document_generator', 'Document Generator')}</Heading>
             <Text color="gray.600" fontSize="sm">
               Generate legal documents from professional templates
             </Text>
@@ -95,7 +98,7 @@ const DocumentGenerator: React.FC = () => {
           <CardBody p={6}>
             <VStack spacing={5} align="stretch">
               <FormControl>
-                <FormLabel fontWeight="600" color="gray.700">📑 Document Type</FormLabel>
+                <FormLabel fontWeight="600" color="gray.700">📑 {t('select_template', 'Document Type')}</FormLabel>
                 <Select
                   value={selectedTemplate}
                   onChange={(e) => {
@@ -180,7 +183,7 @@ const DocumentGenerator: React.FC = () => {
                     borderRadius="xl"
                     fontWeight="700"
                   >
-                    📄 Generate Document
+                    📄 {t('generate_document', 'Generate Document')}
                   </Button>
                 </>
               )}

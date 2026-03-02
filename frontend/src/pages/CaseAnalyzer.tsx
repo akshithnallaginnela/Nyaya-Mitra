@@ -23,6 +23,7 @@ import {
   Divider,
 } from '@chakra-ui/react';
 import api from '../api/axios';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const CaseAnalyzer: React.FC = () => {
   const [evidence, setEvidence] = useState('');
@@ -32,6 +33,7 @@ const CaseAnalyzer: React.FC = () => {
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const toast = useToast();
+  const { t, language } = useLanguage();
 
   const analyzeCase = async () => {
     if (!evidence.trim() && !allegations.trim()) {
@@ -50,6 +52,7 @@ const CaseAnalyzer: React.FC = () => {
         allegations,
         procedures,
         timeline,
+        language,
       });
       setResult(response.data);
     } catch (error) {
@@ -76,7 +79,7 @@ const CaseAnalyzer: React.FC = () => {
         <HStack mb={6}>
           <Text fontSize="3xl">🔍</Text>
           <VStack align="start" spacing={0}>
-            <Heading size="lg" color="gray.800">Case Validity Analyzer</Heading>
+            <Heading size="lg" color="gray.800">{t('case_analysis', 'Case Validity Analyzer')}</Heading>
             <Text color="gray.600" fontSize="sm">
               Analyze the strength and validity of your case with AI
             </Text>
@@ -155,7 +158,7 @@ const CaseAnalyzer: React.FC = () => {
                 borderRadius="xl"
                 fontWeight="700"
               >
-                🔍 Analyze Case
+              🔍 {t('case_analysis', 'Analyze Case')}
               </Button>
             </VStack>
           </CardBody>
@@ -189,22 +192,22 @@ const CaseAnalyzer: React.FC = () => {
 
                 <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
                   <Stat bg="blue.50" p={3} borderRadius="lg" textAlign="center">
-                    <StatLabel fontSize="xs" color="gray.600">Evidence</StatLabel>
+                    <StatLabel fontSize="xs" color="gray.600">{t('evidence_strength', 'Evidence')}</StatLabel>
                     <StatNumber color="blue.600">{result.breakdown?.evidence || 0}</StatNumber>
                     <StatHelpText>/40</StatHelpText>
                   </Stat>
                   <Stat bg="purple.50" p={3} borderRadius="lg" textAlign="center">
-                    <StatLabel fontSize="xs" color="gray.600">Legal Basis</StatLabel>
+                    <StatLabel fontSize="xs" color="gray.600">{t('legal_basis', 'Legal Basis')}</StatLabel>
                     <StatNumber color="purple.600">{result.breakdown?.legal_basis || 0}</StatNumber>
                     <StatHelpText>/30</StatHelpText>
                   </Stat>
                   <Stat bg="teal.50" p={3} borderRadius="lg" textAlign="center">
-                    <StatLabel fontSize="xs" color="gray.600">Procedural</StatLabel>
+                    <StatLabel fontSize="xs" color="gray.600">{t('procedural_compliance', 'Procedural')}</StatLabel>
                     <StatNumber color="teal.600">{result.breakdown?.procedural || 0}</StatNumber>
                     <StatHelpText>/20</StatHelpText>
                   </Stat>
                   <Stat bg="orange.50" p={3} borderRadius="lg" textAlign="center">
-                    <StatLabel fontSize="xs" color="gray.600">Timeline</StatLabel>
+                    <StatLabel fontSize="xs" color="gray.600">{t('timeline_analysis', 'Timeline')}</StatLabel>
                     <StatNumber color="orange.600">{result.breakdown?.timeline || 0}</StatNumber>
                     <StatHelpText>/10</StatHelpText>
                   </Stat>
@@ -215,7 +218,7 @@ const CaseAnalyzer: React.FC = () => {
                     <Divider />
                     <Box>
                       <Text fontWeight="700" mb={2} color="gray.700">
-                        💡 Recommendations
+                        💡 {t('recommendations', 'Recommendations')}
                       </Text>
                       <Text color="gray.600" lineHeight="tall" whiteSpace="pre-wrap">
                         {result.recommendations}

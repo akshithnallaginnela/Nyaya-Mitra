@@ -14,61 +14,63 @@ import {
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-
-const features = [
-  {
-    title: 'Legal Chat',
-    path: '/chat',
-    description: 'Get instant AI-powered answers to your legal questions with citations from Indian law.',
-    icon: '💬',
-    color: 'blue',
-    badge: 'AI Powered',
-  },
-  {
-    title: 'Case Analyzer',
-    path: '/case-analyzer',
-    description: 'Analyze the validity of a complaint or case with a detailed breakdown and score.',
-    icon: '🔍',
-    color: 'purple',
-    badge: 'Analysis',
-  },
-  {
-    title: 'Document Generator',
-    path: '/documents',
-    description: 'Generate legal documents like counter-petitions and legal letters from templates.',
-    icon: '📄',
-    color: 'green',
-    badge: 'Templates',
-  },
-  {
-    title: 'Legal Aid Search',
-    path: '/legal-aid',
-    description: 'Find free legal aid providers, NGOs, and legal clinics near you across India.',
-    icon: '⚖️',
-    color: 'orange',
-    badge: 'Directory',
-  },
-  {
-    title: 'Evidence Guide',
-    path: '/evidence',
-    description: 'Learn how to properly collect, preserve, and document evidence for your case.',
-    icon: '📋',
-    color: 'teal',
-    badge: 'Guide',
-  },
-  {
-    title: 'Emergency SOS',
-    path: '/emergency',
-    description: 'Quick access to emergency helpline numbers, police, and women\'s helplines.',
-    icon: '🚨',
-    color: 'red',
-    badge: 'Urgent',
-  },
-];
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLanguage();
+
+  const features = [
+    {
+      title: t('chat_title', 'Legal Chat'),
+      path: '/chat',
+      description: t('chat_placeholder', 'Get instant AI-powered answers to your legal questions with citations from Indian law.'),
+      icon: '💬',
+      color: 'blue',
+      badge: 'AI',
+    },
+    {
+      title: t('case_analysis', 'Case Analyzer'),
+      path: '/case-analyzer',
+      description: t('validity_score', 'Analyze the validity of a complaint or case with a detailed breakdown and score.'),
+      icon: '🔍',
+      color: 'purple',
+      badge: t('case_analysis', 'Analysis'),
+    },
+    {
+      title: t('document_generator', 'Document Generator'),
+      path: '/documents',
+      description: t('generate_document', 'Generate legal documents like counter-petitions and legal letters from templates.'),
+      icon: '📄',
+      color: 'green',
+      badge: t('select_template', 'Templates'),
+    },
+    {
+      title: t('legal_aid', 'Legal Aid'),
+      path: '/legal-aid',
+      description: t('find_legal_aid', 'Find free legal aid providers, NGOs, and legal clinics near you across India.'),
+      icon: '⚖️',
+      color: 'orange',
+      badge: t('search', 'Directory'),
+    },
+    {
+      title: t('evidence_guide', 'Evidence Guide'),
+      path: '/evidence',
+      description: t('collect_evidence', 'Learn how to properly collect, preserve, and document evidence for your case.'),
+      icon: '📋',
+      color: 'teal',
+      badge: t('evidence_guide', 'Guide'),
+    },
+    {
+      title: t('emergency', 'Emergency SOS'),
+      path: '/emergency',
+      description: t('emergency_contacts', 'Quick access to emergency helpline numbers, police, and women\'s helplines.'),
+      icon: '🚨',
+      color: 'red',
+      badge: t('emergency', 'Urgent'),
+    },
+  ];
 
   return (
     <Box bg="gray.50" minH="calc(100vh - 60px)">
@@ -82,7 +84,7 @@ const Dashboard: React.FC = () => {
         <Container maxW="6xl">
           <VStack align="start" spacing={3}>
             <Heading size={{ base: 'lg', md: 'xl' }}>
-              Welcome back, {user?.full_name || 'Student'} 👋
+              {t('welcome', 'Welcome to Nyaya Mitra')}, {user?.full_name || 'Student'} 👋
             </Heading>
             <Text fontSize={{ base: 'md', md: 'lg' }} opacity={0.9} maxW="2xl">
               Your AI-powered legal companion. Get guidance on legal rights, 
