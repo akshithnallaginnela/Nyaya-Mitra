@@ -74,7 +74,7 @@ class ChatQueryRequest(BaseModel):
     """Request model for chat query."""
     query: str = Field(..., min_length=1, max_length=2000, description="User's legal question")
     language: Optional[str] = Field("en", description="Preferred response language (ISO 639-1 code)")
-    conversation_id: Optional[int] = Field(None, description="ID of existing conversation to continue")
+    conversation_id: Optional[str] = Field(None, description="ID of existing conversation to continue")
 
 
 class Citation(BaseModel):
@@ -93,8 +93,8 @@ class ChatQueryResponse(BaseModel):
     confidence: float
     needs_clarification: bool
     language: str
-    conversation_id: int
-    message_id: int
+    conversation_id: str
+    message_id: str
 
 
 @router.post("/query", response_model=ChatQueryResponse)
@@ -337,7 +337,7 @@ async def chat_query(
 
 class ConversationSummary(BaseModel):
     """Conversation summary model."""
-    id: int
+    id: str
     created_at: datetime
     updated_at: datetime
     message_count: int
@@ -346,7 +346,7 @@ class ConversationSummary(BaseModel):
 
 class MessageResponse(BaseModel):
     """Message response model."""
-    id: int
+    id: str
     role: str
     content: str
     citations: Optional[List[Citation]] = None
@@ -356,7 +356,7 @@ class MessageResponse(BaseModel):
 
 class ConversationHistoryResponse(BaseModel):
     """Conversation history response model."""
-    conversation_id: int
+    conversation_id: str
     messages: List[MessageResponse]
     total_messages: int
     page: int
@@ -443,7 +443,7 @@ async def get_conversations(
 
 @router.get("/history/{conversation_id}", response_model=ConversationHistoryResponse)
 async def get_conversation_history(
-    conversation_id: int,
+    conversation_id: str,
     page: int = 1,
     page_size: int = 50,
     current_user: User = Depends(get_current_user),

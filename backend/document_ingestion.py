@@ -69,20 +69,23 @@ class DocumentIngestionPipeline:
         # Standardize text field
         text = document.get('text') or document.get('content', '')
         
-        # Create metadata
+        # Create metadata - handle nested metadata dict from corpus files
+        doc_metadata = document.get('metadata', {}) if isinstance(document.get('metadata'), dict) else {}
+        
         metadata = {
-            'source': document.get('source', 'unknown'),
-            'category': document.get('category', 'general'),
-            'language': document.get('language', 'en'),
-            'date': document.get('date', datetime.utcnow().isoformat()),
-            'title': document.get('title', ''),
-            'section': document.get('section', ''),
+            'source': doc_metadata.get('source', document.get('source', 'unknown')),
+            'category': doc_metadata.get('category', document.get('category', 'general')),
+            'language': doc_metadata.get('language', document.get('language', 'en')),
+            'date': doc_metadata.get('date', document.get('date', datetime.utcnow().isoformat())),
+            'title': doc_metadata.get('title', document.get('title', '')),
+            'section': doc_metadata.get('section', document.get('section', '')),
         }
         
-        # Add any additional metadata fields
+        # Add any additional metadata fields (only scalar values)
         for key, value in document.items():
-            if key not in ['id', 'text', 'content'] and key not in metadata:
-                metadata[key] = value
+            if key not in ['id', 'text', 'content', 'metadata'] and key not in metadata:
+                if isinstance(value, (str, int, float, bool)):
+                    metadata[key] = value
         
         return {
             'id': document['id'],
