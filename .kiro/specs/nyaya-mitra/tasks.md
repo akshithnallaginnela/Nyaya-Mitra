@@ -862,7 +862,7 @@ The implementation uses:
     - _Requirements: 9.1, 9.2, 9.3, 9.4_
 
 - [-] 32. Optimize performance
-  - [ ] 32.1 Add caching layer
+  - [-] 32.1 Add caching layer
     - Set up Redis for caching
     - Cache frequently accessed legal documents
     - Cache legal aid provider search results
