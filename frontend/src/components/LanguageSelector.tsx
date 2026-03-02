@@ -1,11 +1,9 @@
 import React from 'react';
 import { Select, HStack, Text } from '@chakra-ui/react';
-import { useAuth } from '../contexts/AuthContext';
-import api from '../api/axios';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const LanguageSelector: React.FC = () => {
-  const { user } = useAuth();
-  const [language, setLanguage] = React.useState(user?.preferred_language || 'en');
+  const { language, setLanguage } = useLanguage();
 
   const languages = [
     { code: 'en', name: 'English', flag: '🇬🇧' },
@@ -17,22 +15,12 @@ const LanguageSelector: React.FC = () => {
     { code: 'gu', name: 'ગુજરાતી (Gujarati)', flag: '🇮🇳' },
   ];
 
-  const handleLanguageChange = async (newLanguage: string) => {
-    setLanguage(newLanguage);
-    try {
-      await api.post('/language/set', { language: newLanguage });
-      window.location.reload();
-    } catch (error) {
-      console.error('Failed to change language:', error);
-    }
-  };
-
   return (
     <HStack spacing={1}>
       <Text fontSize="lg">🌐</Text>
       <Select
         value={language}
-        onChange={(e) => handleLanguageChange(e.target.value)}
+        onChange={(e) => setLanguage(e.target.value)}
         width="160px"
         size="sm"
         bg="white"
