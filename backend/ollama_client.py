@@ -25,9 +25,9 @@ class OllamaClient:
             temperature: Temperature for response generation (default: 0.3 for consistency)
         """
         self.base_url = base_url or os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-        self.model = model or os.getenv("OLLAMA_MODEL", "mistral:7b")
+        self.model = model or os.getenv("OLLAMA_MODEL", "llama3.2:3b")
         self.temperature = temperature
-        self.timeout = 300  # 5 minute timeout - local LLM can be slow on CPU
+        self.timeout = 120  # 2 minute timeout - llama3.2:3b is fast on GPU
         
     def is_available(self) -> bool:
         """
