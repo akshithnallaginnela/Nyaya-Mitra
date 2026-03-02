@@ -21,8 +21,26 @@ import {
 import api from '../api/axios';
 import { useLanguage } from '../contexts/LanguageContext';
 
+interface TemplateField {
+  name: string;
+  label: string;
+  field_type: string;
+  required: boolean;
+  description: string;
+  placeholder: string;
+}
+
+interface Template {
+  document_type: string;
+  name: string;
+  description: string;
+  category: string;
+  fields: TemplateField[];
+  attachment_summary: any;
+}
+
 const DocumentGenerator: React.FC = () => {
-  const [templates, setTemplates] = useState<string[]>([]);
+  const [templates, setTemplates] = useState<Template[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [inputs, setInputs] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -37,10 +55,16 @@ const DocumentGenerator: React.FC = () => {
   const loadTemplates = async () => {
     try {
       const response = await api.get('/documents/templates');
-      setTemplates(response.data.templates || []);
+      // Backend returns List[TemplateResponse] directly (not wrapped in { templates: [] })
+      const data = Array.isArray(response.data) ? response.data : response.data.templates || [];
+      setTemplates(data);
     } catch (error) {
       console.error('Failed to load templates:', error);
     }
+  };
+
+  const getSelectedTemplateConfig = (): Template | undefined => {
+    return templates.find(t => t.document_type === selectedTemplate);
   };
 
   const generateDocument = async () => {
@@ -51,35 +75,30 @@ const DocumentGenerator: React.FC = () => {
     setLoading(true);
     try {
       const response = await api.post('/documents/generate', {
-        template_type: selectedTemplate,
+        document_type: selectedTemplate,
         inputs,
-        language,
       });
-      setGeneratedDoc(response.data.content || response.data.document || JSON.stringify(response.data, null, 2));
+      setGeneratedDoc(response.data.text_content || response.data.content || JSON.stringify(response.data, null, 2));
       toast({
         title: 'Document generated successfully!',
         description: 'Your document is ready below',
         status: 'success',
         duration: 3000,
       });
-    } catch (error) {
+    } catch (error: any) {
+      const detail = error?.response?.data?.detail || 'Please fill all required fields and try again';
       toast({
         title: 'Generation failed',
-        description: 'Please fill all required fields and try again',
+        description: detail,
         status: 'error',
-        duration: 3000,
+        duration: 5000,
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const templateLabels: Record<string, string> = {
-    legal_letter: '📧 Legal Notice / Letter',
-    counter_petition: '📜 Counter Petition',
-    complaint: '📝 Formal Complaint',
-    affidavit: '📋 Affidavit',
-  };
+  const selectedConfig = getSelectedTemplateConfig();
 
   return (
     <Box bg="gray.50" minH="calc(100vh - 60px)" py={8}>
@@ -112,67 +131,61 @@ const DocumentGenerator: React.FC = () => {
                   borderRadius="xl"
                   _focus={{ bg: 'white' }}
                 >
-                  {templates.map((template) => (
-                    <option key={template} value={template}>
-                      {templateLabels[template] || template}
+                  {templates.map((tmpl) => (
+                    <option key={tmpl.document_type} value={tmpl.document_type}>
+                      {tmpl.name}
                     </option>
                   ))}
                 </Select>
               </FormControl>
 
-              {selectedTemplate && (
+              {selectedConfig && (
                 <>
+                  <Box bg="blue.50" p={3} borderRadius="lg">
+                    <Text fontSize="sm" color="blue.700">{selectedConfig.description}</Text>
+                  </Box>
                   <Divider />
                   <Text fontWeight="600" color="gray.700">Fill in the details:</Text>
 
-                  <FormControl>
-                    <FormLabel fontSize="sm" fontWeight="600" color="gray.600">Your Full Name</FormLabel>
-                    <Input
-                      value={inputs.name || ''}
-                      onChange={(e) => setInputs({ ...inputs, name: e.target.value })}
-                      placeholder="Enter your full name"
-                      bg="gray.50"
-                      borderRadius="xl"
-                      _focus={{ bg: 'white' }}
-                    />
-                  </FormControl>
-
-                  <FormControl>
-                    <FormLabel fontSize="sm" fontWeight="600" color="gray.600">Recipient / Authority Name</FormLabel>
-                    <Input
-                      value={inputs.recipient || ''}
-                      onChange={(e) => setInputs({ ...inputs, recipient: e.target.value })}
-                      placeholder="Name of the person or authority"
-                      bg="gray.50"
-                      borderRadius="xl"
-                      _focus={{ bg: 'white' }}
-                    />
-                  </FormControl>
-
-                  <FormControl>
-                    <FormLabel fontSize="sm" fontWeight="600" color="gray.600">Subject</FormLabel>
-                    <Input
-                      value={inputs.subject || ''}
-                      onChange={(e) => setInputs({ ...inputs, subject: e.target.value })}
-                      placeholder="Subject of the document"
-                      bg="gray.50"
-                      borderRadius="xl"
-                      _focus={{ bg: 'white' }}
-                    />
-                  </FormControl>
-
-                  <FormControl>
-                    <FormLabel fontSize="sm" fontWeight="600" color="gray.600">Details / Content</FormLabel>
-                    <Textarea
-                      value={inputs.details || ''}
-                      onChange={(e) => setInputs({ ...inputs, details: e.target.value })}
-                      placeholder="Describe the details of your case or request..."
-                      rows={4}
-                      bg="gray.50"
-                      borderRadius="xl"
-                      _focus={{ bg: 'white' }}
-                    />
-                  </FormControl>
+                  {selectedConfig.fields.map((field) => (
+                    <FormControl key={field.name} isRequired={field.required}>
+                      <FormLabel fontSize="sm" fontWeight="600" color="gray.600">
+                        {field.label} {field.required && <Text as="span" color="red.400">*</Text>}
+                      </FormLabel>
+                      {field.field_type === 'textarea' ? (
+                        <Textarea
+                          value={inputs[field.name] || ''}
+                          onChange={(e) => setInputs({ ...inputs, [field.name]: e.target.value })}
+                          placeholder={field.placeholder || field.description}
+                          rows={4}
+                          bg="gray.50"
+                          borderRadius="xl"
+                          _focus={{ bg: 'white' }}
+                        />
+                      ) : field.field_type === 'date' ? (
+                        <Input
+                          type="date"
+                          value={inputs[field.name] || ''}
+                          onChange={(e) => setInputs({ ...inputs, [field.name]: e.target.value })}
+                          bg="gray.50"
+                          borderRadius="xl"
+                          _focus={{ bg: 'white' }}
+                        />
+                      ) : (
+                        <Input
+                          value={inputs[field.name] || ''}
+                          onChange={(e) => setInputs({ ...inputs, [field.name]: e.target.value })}
+                          placeholder={field.placeholder || field.description}
+                          bg="gray.50"
+                          borderRadius="xl"
+                          _focus={{ bg: 'white' }}
+                        />
+                      )}
+                      {field.description && field.description !== field.placeholder && (
+                        <Text fontSize="xs" color="gray.500" mt={1}>{field.description}</Text>
+                      )}
+                    </FormControl>
+                  ))}
 
                   <Button
                     onClick={generateDocument}
