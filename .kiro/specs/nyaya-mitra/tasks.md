@@ -413,7 +413,7 @@ The implementation uses:
 
 ### Phase 7: Evidence Guide and Emergency Features
 
-- [-] 15. Implement evidence documentation guide
+- [x] 15. Implement evidence documentation guide
   - [x] 15.1 Create evidence guide content system
     - Create case-type specific evidence guide templates
     - Add digital evidence preservation instructions
@@ -430,7 +430,7 @@ The implementation uses:
     - Generate evidence type checklists
     - _Requirements: 7.4, 7.5_
 
-  - [-] 15.3 Create evidence guide endpoint
+  - [x] 15.3 Create evidence guide endpoint
     - Create GET /api/evidence/guide endpoint with case type parameter
     - Return formatted evidence guide with all sections
     - Support multiple languages
