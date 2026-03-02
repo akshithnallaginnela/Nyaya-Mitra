@@ -419,7 +419,7 @@ async def get_conversations(
             ).order_by(Message.created_at.desc()).first()
             
             summaries.append(ConversationSummary(
-                id=conv.id,
+                id=str(conv.id),
                 created_at=conv.created_at,
                 updated_at=conv.updated_at,
                 message_count=message_count,
@@ -499,7 +499,7 @@ async def get_conversation_history(
                 citations = [Citation(**c) for c in msg.citations]
             
             formatted_messages.append(MessageResponse(
-                id=msg.id,
+                id=str(msg.id),
                 role=msg.role,
                 content=msg.content,
                 citations=citations,
