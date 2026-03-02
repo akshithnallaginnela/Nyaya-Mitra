@@ -11,7 +11,6 @@ import os
 from typing import Dict, List, Optional
 
 import chromadb
-from chromadb.config import Settings
 from sentence_transformers import SentenceTransformer
 
 
@@ -47,11 +46,8 @@ class VectorDatabase:
         os.makedirs(persist_directory, exist_ok=True)
         
         # Initialize ChromaDB client with persistent storage
-        self.client = chromadb.Client(
-            Settings(
-                persist_directory=persist_directory,
-                anonymized_telemetry=False
-            )
+        self.client = chromadb.PersistentClient(
+            path=persist_directory
         )
         
         # Initialize embedding model
