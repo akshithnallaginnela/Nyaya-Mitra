@@ -42,7 +42,7 @@ class ScoreBreakdownResponse(BaseModel):
 
 class CaseAnalyzeResponse(BaseModel):
     """Response model for case analysis."""
-    analysis_id: int
+    analysis_id: str
     validity_score: float
     score_breakdown: ScoreBreakdownResponse
     strengths: List[str]
@@ -123,16 +123,14 @@ async def analyze_case(
                 "witness_statements": request.witness_statements,
                 "documentation": request.documentation
             },
-            validity_score=result.validity_score,
+            validity_score=int(result.validity_score),
             score_breakdown={
                 "evidence_strength": result.score_breakdown.evidence_strength,
                 "legal_basis": result.score_breakdown.legal_basis,
                 "procedural_compliance": result.score_breakdown.procedural_compliance,
                 "timeline_reasonableness": result.score_breakdown.timeline_reasonableness
             },
-            strengths=result.strengths,
             weaknesses=result.weaknesses,
-            missing_elements=result.missing_elements,
             recommendations=result.recommendations
         )
         
@@ -141,7 +139,7 @@ async def analyze_case(
         db.refresh(case_analysis)
         
         return CaseAnalyzeResponse(
-            analysis_id=case_analysis.id,
+            analysis_id=str(case_analysis.id),
             validity_score=result.validity_score,
             score_breakdown=ScoreBreakdownResponse(
                 evidence_strength=result.score_breakdown.evidence_strength,
