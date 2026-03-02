@@ -134,8 +134,8 @@ const LegalAidSearch: React.FC = () => {
         )}
 
         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-          {providers.map((provider) => (
-            <Card key={provider.id} borderRadius="xl" boxShadow="sm" _hover={{ boxShadow: 'lg' }} transition="all 0.2s">
+          {providers.map((provider, idx) => (
+            <Card key={provider.id || idx} borderRadius="xl" boxShadow="sm" _hover={{ boxShadow: 'lg' }} transition="all 0.2s">
               <CardBody p={5}>
                 <HStack justify="space-between" mb={2}>
                   <Heading size="sm" color="gray.800">{provider.name}</Heading>
