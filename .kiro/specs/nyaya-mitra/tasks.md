@@ -539,7 +539,7 @@ The implementation uses:
     - Set up Axios for API calls
     - _Requirements: All frontend requirements_
 
-  - [ ] 19.2 Implement authentication UI components
+  - [-] 19.2 Implement authentication UI components
     - Create Login component with form validation
     - Create Registration component with email validation
     - Create password reset flow
