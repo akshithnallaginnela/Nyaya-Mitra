@@ -240,8 +240,8 @@ async def chat_query(
                 confidence=1.0,
                 needs_clarification=False,
                 language=request.language or "en",
-                conversation_id=conversation.id,
-                message_id=assistant_message.id
+                conversation_id=str(conversation.id),
+                message_id=str(assistant_message.id)
             )
         
         # Regular chat query processing (existing code)
@@ -317,8 +317,8 @@ async def chat_query(
             confidence=result["confidence"],
             needs_clarification=result["needs_clarification"],
             language=result["language"],
-            conversation_id=conversation.id,
-            message_id=assistant_message.id
+            conversation_id=str(conversation.id),
+            message_id=str(assistant_message.id)
         )
         
     except HTTPException:
