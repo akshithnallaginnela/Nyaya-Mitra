@@ -46,7 +46,7 @@ const DocumentGenerator: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [generatedDoc, setGeneratedDoc] = useState<string | null>(null);
   const toast = useToast();
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadTemplates();

@@ -20,11 +20,9 @@ import {
   StatLabel,
   StatNumber,
   StatHelpText,
-  Divider,
   List,
   ListItem,
   ListIcon,
-  UnorderedList,
 } from '@chakra-ui/react';
 import { CheckCircleIcon, WarningIcon, InfoIcon } from '@chakra-ui/icons';
 import api from '../api/axios';
