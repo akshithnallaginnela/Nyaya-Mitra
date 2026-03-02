@@ -27,7 +27,7 @@ class OllamaClient:
         self.base_url = base_url or os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
         self.model = model or os.getenv("OLLAMA_MODEL", "mistral:7b")
         self.temperature = temperature
-        self.timeout = 30  # 30 second timeout for API calls
+        self.timeout = 300  # 5 minute timeout - local LLM can be slow on CPU
         
     def is_available(self) -> bool:
         """
