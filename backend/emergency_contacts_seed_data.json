@@ -1,0 +1,519 @@
+{
+  "national_contacts": [
+    {
+      "name": "National Emergency Number",
+      "category": "police",
+      "phone_number": "112",
+      "description": "Single emergency number for all emergencies in India",
+      "is_national": true
+    },
+    {
+      "name": "Women Helpline",
+      "category": "police",
+      "phone_number": "1091",
+      "description": "24x7 helpline for women in distress",
+      "is_national": true
+    },
+    {
+      "name": "National Legal Services Authority (NALSA)",
+      "category": "legal_helpline",
+      "phone_number": "15100",
+      "description": "Free legal aid and advice across India",
+      "is_national": true
+    },
+    {
+      "name": "National Human Rights Commission",
+      "category": "legal_helpline",
+      "phone_number": "011-23385368",
+      "description": "Human rights violations and legal assistance",
+      "is_national": true
+    },
+    {
+      "name": "NIMHANS Mental Health Helpline",
+      "category": "mental_health",
+      "phone_number": "080-46110007",
+      "description": "24x7 mental health support and counseling",
+      "is_national": true
+    },
+    {
+      "name": "Vandrevala Foundation Helpline",
+      "category": "mental_health",
+      "phone_number": "1860-2662-345",
+      "description": "Free 24x7 mental health counseling",
+      "is_national": true
+    },
+    {
+      "name": "UGC Student Grievance Redressal",
+      "category": "student_services",
+      "phone_number": "011-23239633",
+      "description": "University Grants Commission student complaints",
+      "is_national": true
+    },
+    {
+      "name": "AICTE Student Helpline",
+      "category": "student_services",
+      "phone_number": "1800-111-656",
+      "description": "All India Council for Technical Education student support",
+      "is_national": true
+    }
+  ],
+  "state_contacts": [
+    {
+      "name": "Delhi Police Control Room",
+      "category": "police",
+      "phone_number": "100",
+      "description": "Delhi Police emergency response",
+      "state": "Delhi",
+      "city": "New Delhi"
+    },
+    {
+      "name": "Delhi State Legal Services Authority",
+      "category": "legal_helpline",
+      "phone_number": "011-23381696",
+      "description": "Free legal aid in Delhi",
+      "state": "Delhi"
+    },
+    {
+      "name": "Delhi Mental Health Helpline",
+      "category": "mental_health",
+      "phone_number": "011-23389090",
+      "description": "Mental health support in Delhi",
+      "state": "Delhi"
+    },
+    {
+      "name": "Delhi University Student Welfare",
+      "category": "student_services",
+      "phone_number": "011-27667725",
+      "description": "Delhi University student support services",
+      "state": "Delhi",
+      "city": "New Delhi"
+    },
+    {
+      "name": "Mumbai Police Control Room",
+      "category": "police",
+      "phone_number": "100",
+      "description": "Mumbai Police emergency response",
+      "state": "Maharashtra",
+      "city": "Mumbai"
+    },
+    {
+      "name": "Maharashtra State Legal Services Authority",
+      "category": "legal_helpline",
+      "phone_number": "022-22620328",
+      "description": "Free legal aid in Maharashtra",
+      "state": "Maharashtra"
+    },
+    {
+      "name": "Mumbai Mental Health Helpline",
+      "category": "mental_health",
+      "phone_number": "022-25521111",
+      "description": "Mental health support in Mumbai",
+      "state": "Maharashtra",
+      "city": "Mumbai"
+    },
+    {
+      "name": "Mumbai University Student Helpline",
+      "category": "student_services",
+      "phone_number": "022-26543000",
+      "description": "Mumbai University student support",
+      "state": "Maharashtra",
+      "city": "Mumbai"
+    },
+    {
+      "name": "Bangalore Police Control Room",
+      "category": "police",
+      "phone_number": "100",
+      "description": "Bangalore Police emergency response",
+      "state": "Karnataka",
+      "city": "Bangalore"
+    },
+    {
+      "name": "Karnataka State Legal Services Authority",
+      "category": "legal_helpline",
+      "phone_number": "080-22862289",
+      "description": "Free legal aid in Karnataka",
+      "state": "Karnataka"
+    },
+    {
+      "name": "Bangalore Mental Health Helpline",
+      "category": "mental_health",
+      "phone_number": "080-25501055",
+      "description": "Mental health support in Bangalore",
+      "state": "Karnataka",
+      "city": "Bangalore"
+    },
+    {
+      "name": "Bangalore University Student Services",
+      "category": "student_services",
+      "phone_number": "080-22961315",
+      "description": "Bangalore University student support",
+      "state": "Karnataka",
+      "city": "Bangalore"
+    },
+    {
+      "name": "Chennai Police Control Room",
+      "category": "police",
+      "phone_number": "100",
+      "description": "Chennai Police emergency response",
+      "state": "Tamil Nadu",
+      "city": "Chennai"
+    },
+    {
+      "name": "Tamil Nadu State Legal Services Authority",
+      "category": "legal_helpline",
+      "phone_number": "044-25340001",
+      "description": "Free legal aid in Tamil Nadu",
+      "state": "Tamil Nadu"
+    },
+    {
+      "name": "Chennai Mental Health Helpline",
+      "category": "mental_health",
+      "phone_number": "044-24640050",
+      "description": "Mental health support in Chennai",
+      "state": "Tamil Nadu",
+      "city": "Chennai"
+    },
+    {
+      "name": "Anna University Student Welfare",
+      "category": "student_services",
+      "phone_number": "044-22357070",
+      "description": "Anna University student support",
+      "state": "Tamil Nadu",
+      "city": "Chennai"
+    },
+    {
+      "name": "Kolkata Police Control Room",
+      "category": "police",
+      "phone_number": "100",
+      "description": "Kolkata Police emergency response",
+      "state": "West Bengal",
+      "city": "Kolkata"
+    },
+    {
+      "name": "West Bengal State Legal Services Authority",
+      "category": "legal_helpline",
+      "phone_number": "033-22523034",
+      "description": "Free legal aid in West Bengal",
+      "state": "West Bengal"
+    },
+    {
+      "name": "Kolkata Mental Health Helpline",
+      "category": "mental_health",
+      "phone_number": "033-24637401",
+      "description": "Mental health support in Kolkata",
+      "state": "West Bengal",
+      "city": "Kolkata"
+    },
+    {
+      "name": "Calcutta University Student Services",
+      "category": "student_services",
+      "phone_number": "033-22419121",
+      "description": "Calcutta University student support",
+      "state": "West Bengal",
+      "city": "Kolkata"
+    },
+    {
+      "name": "Hyderabad Police Control Room",
+      "category": "police",
+      "phone_number": "100",
+      "description": "Hyderabad Police emergency response",
+      "state": "Telangana",
+      "city": "Hyderabad"
+    },
+    {
+      "name": "Telangana State Legal Services Authority",
+      "category": "legal_helpline",
+      "phone_number": "040-23312908",
+      "description": "Free legal aid in Telangana",
+      "state": "Telangana"
+    },
+    {
+      "name": "Hyderabad Mental Health Helpline",
+      "category": "mental_health",
+      "phone_number": "040-66202000",
+      "description": "Mental health support in Hyderabad",
+      "state": "Telangana",
+      "city": "Hyderabad"
+    },
+    {
+      "name": "Osmania University Student Welfare",
+      "category": "student_services",
+      "phone_number": "040-27682222",
+      "description": "Osmania University student support",
+      "state": "Telangana",
+      "city": "Hyderabad"
+    },
+    {
+      "name": "Ahmedabad Police Control Room",
+      "category": "police",
+      "phone_number": "100",
+      "description": "Ahmedabad Police emergency response",
+      "state": "Gujarat",
+      "city": "Ahmedabad"
+    },
+    {
+      "name": "Gujarat State Legal Services Authority",
+      "category": "legal_helpline",
+      "phone_number": "079-23251501",
+      "description": "Free legal aid in Gujarat",
+      "state": "Gujarat"
+    },
+    {
+      "name": "Ahmedabad Mental Health Helpline",
+      "category": "mental_health",
+      "phone_number": "079-26305544",
+      "description": "Mental health support in Ahmedabad",
+      "state": "Gujarat",
+      "city": "Ahmedabad"
+    },
+    {
+      "name": "Gujarat University Student Services",
+      "category": "student_services",
+      "phone_number": "079-26302231",
+      "description": "Gujarat University student support",
+      "state": "Gujarat",
+      "city": "Ahmedabad"
+    },
+    {
+      "name": "Pune Police Control Room",
+      "category": "police",
+      "phone_number": "100",
+      "description": "Pune Police emergency response",
+      "state": "Maharashtra",
+      "city": "Pune"
+    },
+    {
+      "name": "Pune Mental Health Helpline",
+      "category": "mental_health",
+      "phone_number": "020-25501055",
+      "description": "Mental health support in Pune",
+      "state": "Maharashtra",
+      "city": "Pune"
+    },
+    {
+      "name": "Pune University Student Welfare",
+      "category": "student_services",
+      "phone_number": "020-25601000",
+      "description": "Pune University student support",
+      "state": "Maharashtra",
+      "city": "Pune"
+    },
+    {
+      "name": "Jaipur Police Control Room",
+      "category": "police",
+      "phone_number": "100",
+      "description": "Jaipur Police emergency response",
+      "state": "Rajasthan",
+      "city": "Jaipur"
+    },
+    {
+      "name": "Rajasthan State Legal Services Authority",
+      "category": "legal_helpline",
+      "phone_number": "0141-2227271",
+      "description": "Free legal aid in Rajasthan",
+      "state": "Rajasthan"
+    },
+    {
+      "name": "Jaipur Mental Health Helpline",
+      "category": "mental_health",
+      "phone_number": "0141-2566251",
+      "description": "Mental health support in Jaipur",
+      "state": "Rajasthan",
+      "city": "Jaipur"
+    },
+    {
+      "name": "Rajasthan University Student Services",
+      "category": "student_services",
+      "phone_number": "0141-2702039",
+      "description": "Rajasthan University student support",
+      "state": "Rajasthan",
+      "city": "Jaipur"
+    },
+    {
+      "name": "Lucknow Police Control Room",
+      "category": "police",
+      "phone_number": "100",
+      "description": "Lucknow Police emergency response",
+      "state": "Uttar Pradesh",
+      "city": "Lucknow"
+    },
+    {
+      "name": "Uttar Pradesh State Legal Services Authority",
+      "category": "legal_helpline",
+      "phone_number": "0522-2237891",
+      "description": "Free legal aid in Uttar Pradesh",
+      "state": "Uttar Pradesh"
+    },
+    {
+      "name": "Lucknow Mental Health Helpline",
+      "category": "mental_health",
+      "phone_number": "0522-2257450",
+      "description": "Mental health support in Lucknow",
+      "state": "Uttar Pradesh",
+      "city": "Lucknow"
+    },
+    {
+      "name": "Lucknow University Student Welfare",
+      "category": "student_services",
+      "phone_number": "0522-2740402",
+      "description": "Lucknow University student support",
+      "state": "Uttar Pradesh",
+      "city": "Lucknow"
+    },
+    {
+      "name": "Chandigarh Police Control Room",
+      "category": "police",
+      "phone_number": "100",
+      "description": "Chandigarh Police emergency response",
+      "state": "Chandigarh",
+      "city": "Chandigarh"
+    },
+    {
+      "name": "Chandigarh State Legal Services Authority",
+      "category": "legal_helpline",
+      "phone_number": "0172-2740891",
+      "description": "Free legal aid in Chandigarh",
+      "state": "Chandigarh"
+    },
+    {
+      "name": "Chandigarh Mental Health Helpline",
+      "category": "mental_health",
+      "phone_number": "0172-2748090",
+      "description": "Mental health support in Chandigarh",
+      "state": "Chandigarh",
+      "city": "Chandigarh"
+    },
+    {
+      "name": "Panjab University Student Services",
+      "category": "student_services",
+      "phone_number": "0172-2534818",
+      "description": "Panjab University student support",
+      "state": "Chandigarh",
+      "city": "Chandigarh"
+    },
+    {
+      "name": "Bhopal Police Control Room",
+      "category": "police",
+      "phone_number": "100",
+      "description": "Bhopal Police emergency response",
+      "state": "Madhya Pradesh",
+      "city": "Bhopal"
+    },
+    {
+      "name": "Madhya Pradesh State Legal Services Authority",
+      "category": "legal_helpline",
+      "phone_number": "0755-2551701",
+      "description": "Free legal aid in Madhya Pradesh",
+      "state": "Madhya Pradesh"
+    },
+    {
+      "name": "Bhopal Mental Health Helpline",
+      "category": "mental_health",
+      "phone_number": "0755-2744345",
+      "description": "Mental health support in Bhopal",
+      "state": "Madhya Pradesh",
+      "city": "Bhopal"
+    },
+    {
+      "name": "Bhopal University Student Welfare",
+      "category": "student_services",
+      "phone_number": "0755-2517500",
+      "description": "Bhopal University student support",
+      "state": "Madhya Pradesh",
+      "city": "Bhopal"
+    },
+    {
+      "name": "Patna Police Control Room",
+      "category": "police",
+      "phone_number": "100",
+      "description": "Patna Police emergency response",
+      "state": "Bihar",
+      "city": "Patna"
+    },
+    {
+      "name": "Bihar State Legal Services Authority",
+      "category": "legal_helpline",
+      "phone_number": "0612-2235524",
+      "description": "Free legal aid in Bihar",
+      "state": "Bihar"
+    },
+    {
+      "name": "Patna Mental Health Helpline",
+      "category": "mental_health",
+      "phone_number": "0612-2302073",
+      "description": "Mental health support in Patna",
+      "state": "Bihar",
+      "city": "Patna"
+    },
+    {
+      "name": "Patna University Student Services",
+      "category": "student_services",
+      "phone_number": "0612-2670931",
+      "description": "Patna University student support",
+      "state": "Bihar",
+      "city": "Patna"
+    },
+    {
+      "name": "Thiruvananthapuram Police Control Room",
+      "category": "police",
+      "phone_number": "100",
+      "description": "Thiruvananthapuram Police emergency response",
+      "state": "Kerala",
+      "city": "Thiruvananthapuram"
+    },
+    {
+      "name": "Kerala State Legal Services Authority",
+      "category": "legal_helpline",
+      "phone_number": "0471-2322288",
+      "description": "Free legal aid in Kerala",
+      "state": "Kerala"
+    },
+    {
+      "name": "Kerala Mental Health Helpline",
+      "category": "mental_health",
+      "phone_number": "0471-2552056",
+      "description": "Mental health support in Kerala",
+      "state": "Kerala",
+      "city": "Thiruvananthapuram"
+    },
+    {
+      "name": "Kerala University Student Welfare",
+      "category": "student_services",
+      "phone_number": "0471-2305245",
+      "description": "Kerala University student support",
+      "state": "Kerala",
+      "city": "Thiruvananthapuram"
+    },
+    {
+      "name": "Guwahati Police Control Room",
+      "category": "police",
+      "phone_number": "100",
+      "description": "Guwahati Police emergency response",
+      "state": "Assam",
+      "city": "Guwahati"
+    },
+    {
+      "name": "Assam State Legal Services Authority",
+      "category": "legal_helpline",
+      "phone_number": "0361-2738544",
+      "description": "Free legal aid in Assam",
+      "state": "Assam"
+    },
+    {
+      "name": "Guwahati Mental Health Helpline",
+      "category": "mental_health",
+      "phone_number": "0361-2570709",
+      "description": "Mental health support in Guwahati",
+      "state": "Assam",
+      "city": "Guwahati"
+    },
+    {
+      "name": "Gauhati University Student Services",
+      "category": "student_services",
+      "phone_number": "0361-2700311",
+      "description": "Gauhati University student support",
+      "state": "Assam",
+      "city": "Guwahati"
+    }
+  ]
+}
