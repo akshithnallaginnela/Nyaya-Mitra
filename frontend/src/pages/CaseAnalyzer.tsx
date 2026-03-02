@@ -21,7 +21,12 @@ import {
   StatNumber,
   StatHelpText,
   Divider,
+  List,
+  ListItem,
+  ListIcon,
+  UnorderedList,
 } from '@chakra-ui/react';
+import { CheckCircleIcon, WarningIcon, InfoIcon } from '@chakra-ui/icons';
 import api from '../api/axios';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -47,11 +52,16 @@ const CaseAnalyzer: React.FC = () => {
     }
     setLoading(true);
     try {
+      // Backend expects: evidence: List[str], procedures_followed: List[str], timeline: dict
+      const evidenceList = evidence.trim() ? evidence.split('\n').map(s => s.trim()).filter(Boolean) : [];
+      const proceduresList = procedures.trim() ? procedures.split('\n').map(s => s.trim()).filter(Boolean) : [];
+      const timelineObj = timeline.trim() ? { events: timeline } : {};
+
       const response = await api.post('/case/analyze', {
-        evidence,
+        evidence: evidenceList,
         allegations,
-        procedures,
-        timeline,
+        procedures_followed: proceduresList,
+        timeline: timelineObj,
         language,
       });
       setResult(response.data);
@@ -93,10 +103,11 @@ const CaseAnalyzer: React.FC = () => {
                 <FormLabel fontWeight="600" color="gray.700">
                   📝 Evidence Details
                 </FormLabel>
+                <Text fontSize="xs" color="gray.500" mb={1}>Enter each piece of evidence on a separate line</Text>
                 <Textarea
                   value={evidence}
                   onChange={(e) => setEvidence(e.target.value)}
-                  placeholder="Describe the evidence you have (documents, witnesses, digital records, etc.)..."
+                  placeholder={"CCTV footage from campus\nWitness statement from roommate\nScreenshots of threatening messages"}
                   rows={4}
                   bg="gray.50"
                   borderRadius="xl"
@@ -123,10 +134,11 @@ const CaseAnalyzer: React.FC = () => {
                 <FormLabel fontWeight="600" color="gray.700">
                   📋 Procedures Followed
                 </FormLabel>
+                <Text fontSize="xs" color="gray.500" mb={1}>Enter each procedure on a separate line</Text>
                 <Textarea
                   value={procedures}
                   onChange={(e) => setProcedures(e.target.value)}
-                  placeholder="What procedures were followed by authorities? (FIR filing, investigation, etc.)"
+                  placeholder={"FIR filed at local police station\nMedical examination conducted\nStatements recorded"}
                   rows={3}
                   bg="gray.50"
                   borderRadius="xl"
@@ -165,74 +177,140 @@ const CaseAnalyzer: React.FC = () => {
         </Card>
 
         {result && (
-          <Card borderRadius="xl" boxShadow="lg" borderTop="4px solid" borderTopColor={`${getScoreColor(result.validity_score)}.400`}>
-            <CardBody p={6}>
-              <VStack spacing={5} align="stretch">
-                <HStack justify="space-between">
-                  <Heading size="md" color="gray.800">Analysis Results</Heading>
-                  <Badge
+          <VStack spacing={4} align="stretch">
+            <Card borderRadius="xl" boxShadow="lg" borderTop="4px solid" borderTopColor={`${getScoreColor(result.validity_score)}.400`}>
+              <CardBody p={6}>
+                <VStack spacing={5} align="stretch">
+                  <HStack justify="space-between">
+                    <Heading size="md" color="gray.800">Analysis Results</Heading>
+                    <Badge
+                      colorScheme={getScoreColor(result.validity_score)}
+                      fontSize="md"
+                      px={4}
+                      py={1}
+                      borderRadius="full"
+                    >
+                      Score: {result.validity_score}/100
+                    </Badge>
+                  </HStack>
+
+                  <Progress
+                    value={result.validity_score}
                     colorScheme={getScoreColor(result.validity_score)}
-                    fontSize="md"
-                    px={4}
-                    py={1}
                     borderRadius="full"
-                  >
-                    Score: {result.validity_score}/100
-                  </Badge>
-                </HStack>
+                    size="lg"
+                    hasStripe
+                    isAnimated
+                  />
 
-                <Progress
-                  value={result.validity_score}
-                  colorScheme={getScoreColor(result.validity_score)}
-                  borderRadius="full"
-                  size="lg"
-                  hasStripe
-                  isAnimated
-                />
+                  <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
+                    <Stat bg="blue.50" p={3} borderRadius="lg" textAlign="center">
+                      <StatLabel fontSize="xs" color="gray.600">{t('evidence_strength', 'Evidence')}</StatLabel>
+                      <StatNumber color="blue.600">{result.score_breakdown?.evidence_strength || 0}</StatNumber>
+                      <StatHelpText>/40</StatHelpText>
+                    </Stat>
+                    <Stat bg="purple.50" p={3} borderRadius="lg" textAlign="center">
+                      <StatLabel fontSize="xs" color="gray.600">{t('legal_basis', 'Legal Basis')}</StatLabel>
+                      <StatNumber color="purple.600">{result.score_breakdown?.legal_basis || 0}</StatNumber>
+                      <StatHelpText>/30</StatHelpText>
+                    </Stat>
+                    <Stat bg="teal.50" p={3} borderRadius="lg" textAlign="center">
+                      <StatLabel fontSize="xs" color="gray.600">{t('procedural_compliance', 'Procedural')}</StatLabel>
+                      <StatNumber color="teal.600">{result.score_breakdown?.procedural_compliance || 0}</StatNumber>
+                      <StatHelpText>/20</StatHelpText>
+                    </Stat>
+                    <Stat bg="orange.50" p={3} borderRadius="lg" textAlign="center">
+                      <StatLabel fontSize="xs" color="gray.600">{t('timeline_analysis', 'Timeline')}</StatLabel>
+                      <StatNumber color="orange.600">{result.score_breakdown?.timeline_reasonableness || 0}</StatNumber>
+                      <StatHelpText>/10</StatHelpText>
+                    </Stat>
+                  </SimpleGrid>
+                </VStack>
+              </CardBody>
+            </Card>
 
-                <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
-                  <Stat bg="blue.50" p={3} borderRadius="lg" textAlign="center">
-                    <StatLabel fontSize="xs" color="gray.600">{t('evidence_strength', 'Evidence')}</StatLabel>
-                    <StatNumber color="blue.600">{result.breakdown?.evidence || 0}</StatNumber>
-                    <StatHelpText>/40</StatHelpText>
-                  </Stat>
-                  <Stat bg="purple.50" p={3} borderRadius="lg" textAlign="center">
-                    <StatLabel fontSize="xs" color="gray.600">{t('legal_basis', 'Legal Basis')}</StatLabel>
-                    <StatNumber color="purple.600">{result.breakdown?.legal_basis || 0}</StatNumber>
-                    <StatHelpText>/30</StatHelpText>
-                  </Stat>
-                  <Stat bg="teal.50" p={3} borderRadius="lg" textAlign="center">
-                    <StatLabel fontSize="xs" color="gray.600">{t('procedural_compliance', 'Procedural')}</StatLabel>
-                    <StatNumber color="teal.600">{result.breakdown?.procedural || 0}</StatNumber>
-                    <StatHelpText>/20</StatHelpText>
-                  </Stat>
-                  <Stat bg="orange.50" p={3} borderRadius="lg" textAlign="center">
-                    <StatLabel fontSize="xs" color="gray.600">{t('timeline_analysis', 'Timeline')}</StatLabel>
-                    <StatNumber color="orange.600">{result.breakdown?.timeline || 0}</StatNumber>
-                    <StatHelpText>/10</StatHelpText>
-                  </Stat>
-                </SimpleGrid>
+            {result.strengths && result.strengths.length > 0 && (
+              <Card borderRadius="xl" boxShadow="md">
+                <CardBody p={5}>
+                  <Text fontWeight="700" mb={3} color="green.700">✅ Strengths</Text>
+                  <List spacing={2}>
+                    {result.strengths.map((s: string, i: number) => (
+                      <ListItem key={i} display="flex" alignItems="flex-start">
+                        <ListIcon as={CheckCircleIcon} color="green.500" mt={1} />
+                        <Text fontSize="sm" color="gray.700">{s}</Text>
+                      </ListItem>
+                    ))}
+                  </List>
+                </CardBody>
+              </Card>
+            )}
 
-                {result.recommendations && (
-                  <>
-                    <Divider />
-                    <Box>
-                      <Text fontWeight="700" mb={2} color="gray.700">
-                        💡 {t('recommendations', 'Recommendations')}
-                      </Text>
-                      <Text color="gray.600" lineHeight="tall" whiteSpace="pre-wrap">
-                        {result.recommendations}
-                      </Text>
-                    </Box>
-                  </>
-                )}
-              </VStack>
-            </CardBody>
-          </Card>
+            {result.weaknesses && result.weaknesses.length > 0 && (
+              <Card borderRadius="xl" boxShadow="md">
+                <CardBody p={5}>
+                  <Text fontWeight="700" mb={3} color="red.700">⚠️ Weaknesses</Text>
+                  <List spacing={2}>
+                    {result.weaknesses.map((w: string, i: number) => (
+                      <ListItem key={i} display="flex" alignItems="flex-start">
+                        <ListIcon as={WarningIcon} color="red.500" mt={1} />
+                        <Text fontSize="sm" color="gray.700">{w}</Text>
+                      </ListItem>
+                    ))}
+                  </List>
+                </CardBody>
+              </Card>
+            )}
+
+            {result.missing_elements && result.missing_elements.length > 0 && (
+              <Card borderRadius="xl" boxShadow="md">
+                <CardBody p={5}>
+                  <Text fontWeight="700" mb={3} color="orange.700">📋 Missing Elements</Text>
+                  <List spacing={2}>
+                    {result.missing_elements.map((m: string, i: number) => (
+                      <ListItem key={i} display="flex" alignItems="flex-start">
+                        <ListIcon as={InfoIcon} color="orange.500" mt={1} />
+                        <Text fontSize="sm" color="gray.700">{m}</Text>
+                      </ListItem>
+                    ))}
+                  </List>
+                </CardBody>
+              </Card>
+            )}
+
+            {result.recommendations && result.recommendations.length > 0 && (
+              <Card borderRadius="xl" boxShadow="md">
+                <CardBody p={5}>
+                  <Text fontWeight="700" mb={3} color="blue.700">💡 {t('recommendations', 'Recommendations')}</Text>
+                  <List spacing={2}>
+                    {result.recommendations.map((r: string, i: number) => (
+                      <ListItem key={i} display="flex" alignItems="flex-start">
+                        <ListIcon as={InfoIcon} color="blue.500" mt={1} />
+                        <Text fontSize="sm" color="gray.700">{r}</Text>
+                      </ListItem>
+                    ))}
+                  </List>
+                </CardBody>
+              </Card>
+            )}
+
+            {result.requires_legal_consultation && (
+              <Card borderRadius="xl" boxShadow="md" bg="red.50" borderLeft="4px solid" borderLeftColor="red.400">
+                <CardBody p={5}>
+                  <Text fontWeight="700" color="red.700">
+                    ⚖️ Legal Consultation Recommended
+                  </Text>
+                  <Text fontSize="sm" color="red.600" mt={1}>
+                    Based on the analysis, it is strongly recommended to consult with a qualified lawyer for this case.
+                  </Text>
+                </CardBody>
+              </Card>
+            )}
+          </VStack>
         )}
       </Container>
     </Box>
   );
 };
+
 
 export default CaseAnalyzer;
