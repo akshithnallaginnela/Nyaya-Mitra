@@ -12,13 +12,14 @@ import DocumentGenerator from './pages/DocumentGenerator';
 import LegalAidSearch from './pages/LegalAidSearch';
 import EvidenceGuide from './pages/EvidenceGuide';
 import Emergency from './pages/Emergency';
+import theme from './theme';
 
 function App() {
   return (
-    <ChakraProvider>
+    <ChakraProvider theme={theme}>
       <AuthProvider>
         <Router>
-          <Box minH="100vh">
+          <Box minH="100vh" bg="gray.50">
             <Navbar />
             <Routes>
               <Route path="/login" element={<Login />} />
