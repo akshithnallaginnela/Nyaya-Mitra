@@ -292,7 +292,7 @@ class CaseAnalysisService:
         complaint: ComplaintDetails
     ) -> List[str]:
         """
-        Identify case strengths.
+        Identify case strengths with encouraging student-friendly messages.
         
         Args:
             breakdown: Score breakdown
@@ -304,19 +304,33 @@ class CaseAnalysisService:
         strengths = []
         
         if breakdown.evidence_strength >= 30:
-            strengths.append("Strong documentary evidence supporting the case")
+            strengths.append("💪 Strong Evidence — You have solid documentary proof supporting your case. Keep all originals safe!")
+        elif breakdown.evidence_strength >= 15:
+            strengths.append("📎 Decent Evidence — You have some evidence collected. Adding more will make your case stronger.")
         
         if len(complaint.witness_statements) >= 2:
-            strengths.append("Multiple witness statements corroborating the allegations")
+            strengths.append("👥 Multiple Witnesses — Having multiple witnesses greatly strengthens your credibility.")
+        elif len(complaint.witness_statements) == 1:
+            strengths.append("👤 Witness Available — You have a witness. Try to get at least one more for stronger support.")
         
         if breakdown.legal_basis >= 20:
-            strengths.append("Clear legal basis with specific references to applicable laws")
+            strengths.append("⚖️ Clear Legal Basis — Your allegations reference specific laws, which is excellent for building a case.")
+        elif breakdown.legal_basis >= 10:
+            strengths.append("📜 Some Legal Basis — Your allegations have some legal grounding. Adding specific sections will help more.")
         
         if breakdown.procedural_compliance >= 15:
-            strengths.append("Proper legal procedures have been followed")
+            strengths.append("✅ Proper Procedures — You've followed the right steps, which shows the legal system you're serious.")
+        elif breakdown.procedural_compliance >= 8:
+            strengths.append("📝 Some Steps Taken — You've started the right processes. A few more steps will complete the picture.")
         
         if breakdown.timeline_reasonableness >= 7:
-            strengths.append("Well-documented timeline of events")
+            strengths.append("📅 Well-Documented Timeline — Your chronological record of events is thorough and credible.")
+        elif breakdown.timeline_reasonableness >= 4:
+            strengths.append("🕐 Timeline Started — You have a basic timeline. Adding more dates and details will improve it.")
+        
+        # Add encouragement if there are some strengths
+        if len(strengths) > 0:
+            strengths.append("👍 Good job on what you've done so far! Focus on the areas that need improvement below.")
         
         return strengths
     
