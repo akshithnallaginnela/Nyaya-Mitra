@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import init_db
-from routers import auth, chat, case, action_plan, documents, legal_aid, language, evidence
+from routers import auth, chat, case, action_plan, documents, legal_aid, language, evidence, emergency
 
 app = FastAPI(
     title="Nyaya Mitra API",
@@ -29,6 +29,7 @@ app.include_router(documents.router)
 app.include_router(legal_aid.router)
 app.include_router(language.router)
 app.include_router(evidence.router)
+app.include_router(emergency.router)
 
 
 @app.on_event("startup")

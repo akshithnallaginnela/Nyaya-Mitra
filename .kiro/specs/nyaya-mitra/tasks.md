@@ -455,7 +455,7 @@ The implementation uses:
     - Create database seeding script
     - _Requirements: 8.3, 8.5, 8.6_
 
-  - [-] 16.2 Create emergency contacts endpoint
+  - [x] 16.2 Create emergency contacts endpoint
     - Create GET /api/emergency/contacts endpoint
     - Accept location parameter (state/city)
     - Return categorized emergency contacts
@@ -463,12 +463,12 @@ The implementation uses:
     - Optimize for <1 second response time
     - _Requirements: 8.2, 8.4_
 
-  - [ ] 16.3 Add emergency mode quick access
+  - [-] 16.3 Add emergency mode quick access
     - Create emergency mode flag in user session
     - Provide quick access links to evidence documentation in emergency mode
     - _Requirements: 8.7_
 
-  - [ ]* 16.4 Write property tests for emergency features
+  - [~] 16.4 Write property tests for emergency features
     - **Property 38: Emergency response time** - Verify <1 second response
     - **Property 39: Contact categorization** - Verify 4+ categories
     - **Property 40: Callable phone numbers** - Verify phone number field present

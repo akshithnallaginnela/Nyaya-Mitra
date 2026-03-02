@@ -78,6 +78,12 @@ class User(BaseModel):
         nullable=False
     )
     
+    emergency_mode = Column(
+        Boolean,
+        default=False,
+        nullable=False
+    )
+    
     # Relationships
     conversations = relationship(
         "Conversation",
