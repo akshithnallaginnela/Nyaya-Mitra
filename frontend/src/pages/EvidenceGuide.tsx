@@ -21,18 +21,20 @@ import {
 } from '@chakra-ui/react';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import api from '../api/axios';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const EvidenceGuide: React.FC = () => {
   const [caseType, setCaseType] = useState('');
   const [guide, setGuide] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const { t, language } = useLanguage();
 
   const loadGuide = async () => {
     if (!caseType) return;
     setLoading(true);
     try {
       const response = await api.get('/evidence/guide', {
-        params: { case_type: caseType },
+        params: { case_type: caseType, language },
       });
       setGuide(response.data);
     } catch (error) {
@@ -55,7 +57,7 @@ const EvidenceGuide: React.FC = () => {
         <HStack mb={6}>
           <Text fontSize="3xl">📋</Text>
           <VStack align="start" spacing={0}>
-            <Heading size="lg" color="gray.800">Evidence Documentation Guide</Heading>
+            <Heading size="lg" color="gray.800">{t('evidence_guide', 'Evidence Documentation Guide')}</Heading>
             <Text color="gray.600" fontSize="sm">
               Learn how to properly collect and preserve evidence for your case
             </Text>
@@ -97,7 +99,7 @@ const EvidenceGuide: React.FC = () => {
                 fontWeight="700"
                 isDisabled={!caseType}
               >
-                📋 Get Evidence Guide
+                📋 {t('collect_evidence', 'Get Evidence Guide')}
               </Button>
             </VStack>
           </CardBody>
@@ -109,7 +111,7 @@ const EvidenceGuide: React.FC = () => {
               <CardBody p={6}>
                 <HStack justify="space-between" mb={4}>
                   <Heading size="md" color="gray.800">
-                    Evidence Collection Steps
+                    {t('collect_evidence', 'Evidence Collection Steps')}
                   </Heading>
                   <Badge colorScheme="teal" fontSize="sm" px={3} py={1} borderRadius="full">
                     {guide.steps?.length || 0} Steps
