@@ -158,7 +158,7 @@ class CaseAnalysis(BaseModel):
             raise ValueError("Score breakdown must be a dictionary")
         
         # Required components as per design document
-        required_components = {'evidence', 'legal_basis', 'procedural', 'timeline'}
+        required_components = {'evidence_strength', 'legal_basis', 'procedural_compliance', 'timeline_reasonableness'}
         missing_components = required_components - set(breakdown.keys())
         
         if missing_components:
@@ -168,10 +168,10 @@ class CaseAnalysis(BaseModel):
         
         # Validate component score ranges
         component_ranges = {
-            'evidence': (0, 40),
+            'evidence_strength': (0, 40),
             'legal_basis': (0, 30),
-            'procedural': (0, 20),
-            'timeline': (0, 10)
+            'procedural_compliance': (0, 20),
+            'timeline_reasonableness': (0, 10)
         }
         
         for component, (min_val, max_val) in component_ranges.items():
