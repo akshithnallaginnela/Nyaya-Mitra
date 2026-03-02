@@ -1,6 +1,7 @@
 # Nyaya Mitra Backend - FastAPI Application
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from middleware.security import RateLimitMiddleware, SessionTimeoutMiddleware, SecurityHeadersMiddleware
 
 from database import init_db
 from routers import auth, chat, case, action_plan, documents, legal_aid, language, evidence, emergency
@@ -10,6 +11,11 @@ app = FastAPI(
     description="AI-powered legal assistance platform for Indian college students",
     version="1.0.0"
 )
+
+# Security middleware
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(SessionTimeoutMiddleware, timeout_minutes=30)
+app.add_middleware(RateLimitMiddleware, requests_per_hour=100)
 
 # CORS configuration
 app.add_middleware(
