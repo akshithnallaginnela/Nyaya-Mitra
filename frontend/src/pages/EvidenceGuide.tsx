@@ -18,8 +18,6 @@ import {
   AlertIcon,
   AlertTitle,
   AlertDescription,
-  Divider,
-  SimpleGrid,
   Tag,
   TagLabel,
   Wrap,
@@ -29,9 +27,8 @@ import {
   AccordionButton,
   AccordionPanel,
   AccordionIcon,
-  UnorderedList,
 } from '@chakra-ui/react';
-import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons';
+import { CheckCircleIcon } from '@chakra-ui/icons';
 import api from '../api/axios';
 import { useLanguage } from '../contexts/LanguageContext';
 
