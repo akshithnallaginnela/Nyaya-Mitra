@@ -134,9 +134,9 @@ if not exist "%TF_DIR%\terraform.tfvars" (
         echo ecs_desired_count = 1
         echo ecs_max_count     = 4
         echo.
-        echo # AI
-        echo ollama_base_url = "http://localhost:11434"
-        echo ollama_model    = "llama3.2:3b"
+        echo # AI (Amazon Bedrock)
+        echo ai_provider      = "bedrock"
+        echo bedrock_model_id = "anthropic.claude-3-haiku-20240307-v1:0"
         echo.
         echo # Security
         echo jwt_secret = "!RANDOM_JWT_SECRET!"

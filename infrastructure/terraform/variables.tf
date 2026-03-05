@@ -83,17 +83,17 @@ variable "ecs_max_count" {
   default     = 4
 }
 
-# ─── AI / Ollama ───
-variable "ollama_base_url" {
-  description = "Ollama API base URL (separate EC2 instance or sidecar)"
+# ─── AI / Amazon Bedrock ───
+variable "ai_provider" {
+  description = "AI Provider to use (ollama or bedrock)"
   type        = string
-  default     = "http://localhost:11434"
+  default     = "bedrock"
 }
 
-variable "ollama_model" {
-  description = "Ollama model to use"
+variable "bedrock_model_id" {
+  description = "Bedrock model ID (e.g., anthropic.claude-3-haiku-20240307-v1:0)"
   type        = string
-  default     = "llama3.2:3b"
+  default     = "anthropic.claude-3-haiku-20240307-v1:0"
 }
 
 # ─── Security ───
