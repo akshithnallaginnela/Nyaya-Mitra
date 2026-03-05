@@ -7,9 +7,11 @@ from datetime import datetime
 from langchain.prompts import PromptTemplate, ChatPromptTemplate
 from langchain.schema import HumanMessage, SystemMessage, AIMessage
 from ollama_client import get_ollama_client
+from aws_bedrock import BedrockClient
 from rag_system import RAGRetrievalSystem
 from vector_db import VectorDatabase
 from multilingual_service import get_multilingual_service
+import os
 
 
 class LangChainOrchestrator:
@@ -60,7 +62,17 @@ Clarifying questions:"""
             vector_db: Vector database instance (optional, will create if not provided)
             rag_system: RAG retrieval system instance (optional, will create if not provided)
         """
-        self.ollama_client = get_ollama_client()
+        # Initialize AI Client (Bedrock for Production, Ollama for Local)
+        self.ai_provider = os.getenv("AI_PROVIDER", "ollama").lower()
+        
+        if self.ai_provider == "bedrock":
+            self.ai_client = BedrockClient(
+                region=os.getenv("AWS_REGION", "us-east-1"),
+                model_id=os.getenv("BEDROCK_MODEL_ID", "anthropic.claude-3-haiku-20240307-v1:0")
+            )
+        else:
+            self.ai_client = get_ollama_client()
+            
         self.vector_db = vector_db or VectorDatabase()
         self.rag_system = rag_system or RAGRetrievalSystem(self.vector_db)
         self.multilingual_service = get_multilingual_service()
@@ -129,19 +141,25 @@ Clarifying questions:"""
         # Step 5: Build user prompt
         user_prompt = self.query_prompt.format(query=query)
         
-        # Step 6: Generate response using Ollama
+        # Step 6: Generate response using AI Provider
         try:
-            result = self.ollama_client.generate(
-                prompt=user_prompt,
-                system_prompt=system_prompt,
-                context=conversation_context,
-                temperature=0.3
-            )
+            if self.ai_provider == "bedrock":
+                response_text = self.ai_client.generate_response(
+                    prompt=user_prompt,
+                    system_prompt=system_prompt,
+                    temperature=0.3
+                )
+            else:
+                result = self.ai_client.generate(
+                    prompt=user_prompt,
+                    system_prompt=system_prompt,
+                    context=conversation_context,
+                    temperature=0.3
+                )
+                response_text = result["response"]
             
-            response_text = result["response"]
-            
-        except RuntimeError as e:
-            # Handle Ollama service errors
+        except Exception as e:
+            # Handle AI service errors
             return {
                 "response": "I apologize, but I'm currently unable to process your query due to a technical issue. Please try again in a moment.",
                 "citations": [],
@@ -288,13 +306,19 @@ Clarifying questions:"""
         )
         
         try:
-            result = self.ollama_client.generate(
-                prompt=prompt,
-                system_prompt=system_prompt,
-                temperature=0.5  # Slightly higher temperature for variety
-            )
-            
-            clarification = result["response"]
+            if self.ai_provider == "bedrock":
+                clarification = self.ai_client.generate_response(
+                    prompt=prompt,
+                    system_prompt=system_prompt,
+                    temperature=0.5
+                )
+            else:
+                result = self.ai_client.generate(
+                    prompt=prompt,
+                    system_prompt=system_prompt,
+                    temperature=0.5  # Slightly higher temperature for variety
+                )
+                clarification = result["response"]
             
             # Add preamble based on language
             if language == "hi":
@@ -384,21 +408,33 @@ Clarifying questions:"""
             # Step 6: Build user prompt
             user_prompt = self.query_prompt.format(query=query)
             
-            # Step 7: Stream response using Ollama
+            # Step 7: Stream response from AI Provider
             full_response = ""
-            for chunk in self.ollama_client.generate_stream(
-                prompt=user_prompt,
-                system_prompt=system_prompt,
-                context=conversation_context,
-                temperature=0.3
-            ):
-                if chunk.get("message", {}).get("content"):
-                    token = chunk["message"]["content"]
+            
+            if self.ai_provider == "bedrock":
+                for token in self.ai_client.stream_response(
+                    prompt=user_prompt,
+                    system_prompt=system_prompt
+                ):
                     full_response += token
                     yield {
                         "type": "token",
                         "data": {"content": token}
                     }
+            else:
+                for chunk in self.ai_client.generate_stream(
+                    prompt=user_prompt,
+                    system_prompt=system_prompt,
+                    context=conversation_context,
+                    temperature=0.3
+                ):
+                    if chunk.get("message", {}).get("content"):
+                        token = chunk["message"]["content"]
+                        full_response += token
+                        yield {
+                            "type": "token",
+                            "data": {"content": token}
+                        }
             
             # Step 8: Extract citations from full response
             citations = self._extract_citations(full_response, relevant_docs)
