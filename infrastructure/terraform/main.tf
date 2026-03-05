@@ -483,7 +483,7 @@ resource "aws_ecs_task_definition" "backend" {
 
       environment = [
         { name = "DATABASE_URL", value = "postgresql://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.endpoint}/${var.db_name}" },
-        { name = "OLLAMA_BASE_URL", value = var.ollama_base_url },
+        { name = "OLLAMA_BASE_URL", value = "http://${aws_instance.ai_layer.private_ip}:11434" },
         { name = "OLLAMA_MODEL", value = var.ollama_model },
         { name = "JWT_SECRET", value = var.jwt_secret },
         { name = "JWT_ALGORITHM", value = "HS256" },
@@ -789,6 +789,146 @@ resource "aws_appautoscaling_policy" "ecs_cpu" {
     }
     target_value = 70.0
   }
+}
+
+# ─────────────────────────────────────────────
+# AI LAYER (EC2 INSTANCE for OLLAMA)
+# ─────────────────────────────────────────────
+data "aws_ami" "amazon_linux_2023" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["al2023-ami-2023.*-x86_64"]
+  }
+}
+
+resource "aws_security_group" "ai_layer" {
+  name_prefix = "${var.project_name}-ai-layer-"
+  vpc_id      = aws_vpc.main.id
+
+  # Allow ECS backend to hit Ollama API on 11434
+  ingress {
+    from_port       = 11434
+    to_port         = 11434
+    protocol        = "tcp"
+    security_groups = [aws_security_group.ecs.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = { Name = "${var.project_name}-ai-layer-sg" }
+}
+
+resource "aws_instance" "ai_layer" {
+  ami           = data.aws_ami.amazon_linux_2023.id
+  instance_type = "t3.medium" # Default to CPU, recommended g4dn.xlarge for GPU
+  subnet_id     = aws_subnet.private[0].id
+  vpc_security_group_ids = [aws_security_group.ai_layer.id]
+  
+  root_block_device {
+    volume_size = 30
+    volume_type = "gp3"
+  }
+
+  user_data = <<-EOF
+              #!/bin/bash
+              curl -fsSL https://ollama.ai/install.sh | sh
+              sed -i 's/^Environment="OLLAMA_HOST=.*"/Environment="OLLAMA_HOST=0.0.0.0:11434"/' /etc/systemd/system/ollama.service
+              # If the env var isn't there, append it:
+              if ! grep -q "OLLAMA_HOST" /etc/systemd/system/ollama.service; then
+                  sed -i '/\[Service\]/a Environment="OLLAMA_HOST=0.0.0.0:11434"' /etc/systemd/system/ollama.service
+              fi
+              systemctl daemon-reload
+              systemctl enable ollama
+              systemctl start ollama
+              # Pre-pull the fallback model in background
+              ollama pull llama3.2:3b &
+              EOF
+
+  tags = { Name = "${var.project_name}-ai-layer" }
+}
+
+# ─────────────────────────────────────────────
+# SECURITY & MONITORING (COGNITO & WAF)
+# ─────────────────────────────────────────────
+
+# Cognito User Pool (For students/users)
+resource "aws_cognito_user_pool" "students" {
+  name = "${var.project_name}-students"
+  
+  password_policy {
+    minimum_length    = 8
+    require_lowercase = true
+    require_numbers   = true
+    require_symbols   = true
+    require_uppercase = true
+  }
+
+  auto_verified_attributes = ["email"]
+  tags = { Name = "${var.project_name}-students-pool" }
+}
+
+resource "aws_cognito_user_pool_client" "web_client" {
+  name         = "${var.project_name}-web-client"
+  user_pool_id = aws_cognito_user_pool.students.id
+
+  explicit_auth_flows = [
+    "ALLOW_USER_SRP_AUTH",
+    "ALLOW_REFRESH_TOKEN_AUTH"
+  ]
+}
+
+# WAF Web ACL (Attached to ALB)
+resource "aws_wafv2_web_acl" "alb" {
+  name        = "${var.project_name}-alb-waf"
+  description = "WAF for Nyaya Mitra Application Load Balancer"
+  scope       = "REGIONAL"
+
+  default_action {
+    allow {}
+  }
+
+  visibility_config {
+    cloudwatch_metrics_enabled = true
+    metric_name                = "${var.project_name}WAF"
+    sampled_requests_enabled   = true
+  }
+
+  rule {
+    name     = "AWSManagedRulesCommonRuleSet"
+    priority = 1
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesCommonRuleSet"
+        vendor_name = "AWS"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "AWSManagedRulesCommonRuleSetMetric"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  tags = { Name = "${var.project_name}-waf" }
+}
+
+resource "aws_wafv2_web_acl_association" "alb" {
+  resource_arn = aws_lb.main.arn
+  web_acl_arn  = aws_wafv2_web_acl.alb.arn
 }
 
 # ─────────────────────────────────────────────
