@@ -444,6 +444,19 @@ resource "aws_iam_role_policy" "ecs_task_s3" {
           aws_s3_bucket.uploads.arn,
           "${aws_s3_bucket.uploads.arn}/*"
         ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "bedrock:InvokeModel",
+          "bedrock:InvokeModelWithResponseStream"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = "sts:GetCallerIdentity"
+        Resource = "*"
       }
     ]
   })
@@ -483,8 +496,8 @@ resource "aws_ecs_task_definition" "backend" {
 
       environment = [
         { name = "DATABASE_URL", value = "postgresql://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.endpoint}/${var.db_name}" },
-        { name = "OLLAMA_BASE_URL", value = "http://${aws_instance.ai_layer.private_ip}:11434" },
-        { name = "OLLAMA_MODEL", value = var.ollama_model },
+        { name = "AI_PROVIDER", value = "bedrock" },
+        { name = "BEDROCK_MODEL_ID", value = "anthropic.claude-3-haiku-20240307-v1:0" },
         { name = "JWT_SECRET", value = var.jwt_secret },
         { name = "JWT_ALGORITHM", value = "HS256" },
         { name = "JWT_EXPIRATION_HOURS", value = "24" },
