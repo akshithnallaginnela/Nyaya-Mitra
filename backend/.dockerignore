@@ -1,0 +1,50 @@
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Tests
+tests/
+test_*.py
+.pytest_cache/
+pytest.ini
+
+# Database files (local)
+chroma_db/
+test_chroma_db/
+test_rag_chroma_db/
+*.db
+*.sqlite3
+
+# Environment files
+.env
+.env.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+!README.md
+
+# Generated content (will be created at runtime)
+generated_documents/
+uploads/
+
+# OS files
+Thumbs.db
+.DS_Store

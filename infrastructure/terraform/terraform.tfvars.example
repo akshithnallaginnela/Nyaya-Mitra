@@ -1,0 +1,33 @@
+# ============================================
+# Nyaya Mitra — Terraform Variable Values
+# ============================================
+# Copy this file to terraform.tfvars and fill in your values
+# NEVER commit terraform.tfvars to version control!
+
+# General
+project_name = "nyaya-mitra"
+environment  = "production"
+aws_region   = "ap-south-1"
+domain_name  = "nyayamitra.com"
+
+# Database
+db_instance_class = "db.t3.micro"
+db_name           = "nyaya_mitra"
+db_username       = "nyaya_admin"
+db_password       = "CHANGE_ME_TO_A_STRONG_PASSWORD"
+
+# ECS
+ecs_task_cpu      = "1024"
+ecs_task_memory   = "4096"
+ecs_desired_count = 1
+ecs_max_count     = 4
+
+# AI
+ollama_base_url = "http://localhost:11434"
+ollama_model    = "llama3.2:3b"
+
+# Security
+jwt_secret = "CHANGE_ME_TO_A_RANDOM_SECRET_KEY"
+
+# SSL (uncomment when you have a certificate)
+# acm_certificate_arn = "arn:aws:acm:ap-south-1:ACCOUNT_ID:certificate/CERT_ID"

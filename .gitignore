@@ -59,3 +59,17 @@ chroma_data/
 # Generated files
 generated_documents/
 uploads/
+
+# Terraform
+infrastructure/terraform/.terraform/
+infrastructure/terraform/*.tfstate
+infrastructure/terraform/*.tfstate.*
+infrastructure/terraform/.terraform.lock.hcl
+infrastructure/terraform/tfplan
+infrastructure/terraform/terraform.tfvars
+
+# Docker
+docker-compose.override.yml
+
+# AWS
+.aws/

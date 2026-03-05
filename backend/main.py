@@ -1,4 +1,5 @@
 # Nyaya Mitra Backend - FastAPI Application
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from middleware.security import RateLimitMiddleware, SessionTimeoutMiddleware, SecurityHeadersMiddleware
@@ -9,7 +10,9 @@ from routers import auth, chat, case, action_plan, documents, legal_aid, languag
 app = FastAPI(
     title="Nyaya Mitra API",
     description="AI-powered legal assistance platform for Indian college students",
-    version="1.0.0"
+    version="1.0.0",
+    docs_url="/api/docs" if os.getenv("ENVIRONMENT") == "production" else "/docs",
+    redoc_url="/api/redoc" if os.getenv("ENVIRONMENT") == "production" else "/redoc",
 )
 
 # Security middleware
@@ -17,10 +20,13 @@ app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(SessionTimeoutMiddleware, timeout_minutes=30)
 app.add_middleware(RateLimitMiddleware, requests_per_hour=100)
 
-# CORS configuration
+# CORS configuration — dynamically loaded from environment
+cors_origins_env = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:5173")
+cors_origins = [origin.strip() for origin in cors_origins_env.split(",")]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
