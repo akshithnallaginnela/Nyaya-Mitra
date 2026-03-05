@@ -8,7 +8,7 @@ Requirements: 10.1 (Vector database for RAG)
 """
 
 import os
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 
 import chromadb
 from sentence_transformers import SentenceTransformer
@@ -222,25 +222,34 @@ class VectorDatabase:
 
 
 # Global vector database instance
-_vector_db: Optional[VectorDatabase] = None
+_vector_db: Optional[Any] = None
 
 
-def get_vector_db() -> VectorDatabase:
+def get_vector_db() -> Any:
     """
     Get or create the global vector database instance.
     
     Returns:
-        VectorDatabase: Vector database instance
+        VectorDatabase or OpenSearchVectorDB: Vector database instance
     """
     global _vector_db
     
     if _vector_db is None:
-        _vector_db = VectorDatabase()
+        db_type = os.getenv("VECTOR_DB_TYPE", "chroma").lower()
+        
+        if db_type == "opensearch":
+            from vector_db_opensearch import OpenSearchVectorDB
+            _vector_db = OpenSearchVectorDB(
+                endpoint=os.getenv("OPENSEARCH_URL", ""),
+                region=os.getenv("AWS_REGION", "ap-south-1")
+            )
+        else:
+            _vector_db = VectorDatabase()
     
     return _vector_db
 
 
-def init_vector_db() -> VectorDatabase:
+def init_vector_db() -> Any:
     """
     Initialize the vector database.
     
@@ -248,5 +257,5 @@ def init_vector_db() -> VectorDatabase:
         VectorDatabase: Initialized vector database instance
     """
     global _vector_db
-    _vector_db = VectorDatabase()
-    return _vector_db
+    _vector_db = None
+    return get_vector_db()

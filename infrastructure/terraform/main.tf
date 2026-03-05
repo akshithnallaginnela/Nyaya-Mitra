@@ -491,7 +491,11 @@ resource "aws_ecs_task_definition" "backend" {
         { name = "ENVIRONMENT", value = var.environment },
         { name = "AWS_S3_BUCKET", value = aws_s3_bucket.uploads.bucket },
         { name = "AWS_REGION", value = var.aws_region },
-        { name = "CORS_ORIGINS", value = "https://${var.domain_name},https://www.${var.domain_name}" }
+        { name = "CORS_ORIGINS", value = "https://${var.domain_name},https://www.${var.domain_name}" },
+        { name = "VECTOR_DB_TYPE", value = "opensearch" },
+        { name = "OPENSEARCH_URL", value = "https://${aws_opensearch_domain.legal_docs.endpoint}" },
+        { name = "COGNITO_USER_POOL_ID", value = aws_cognito_user_pool.students.id },
+        { name = "COGNITO_APP_CLIENT_ID", value = aws_cognito_user_pool_client.web_client.id }
       ]
 
       logConfiguration = {
@@ -1037,4 +1041,19 @@ output "frontend_bucket" {
 output "uploads_bucket" {
   description = "S3 bucket for uploads"
   value       = aws_s3_bucket.uploads.bucket
+}
+
+output "opensearch_endpoint" {
+  description = "OpenSearch endpoint for vector database"
+  value       = aws_opensearch_domain.legal_docs.endpoint
+}
+
+output "cognito_user_pool_id" {
+  description = "Address of the Cognito user pool"
+  value       = aws_cognito_user_pool.students.id
+}
+
+output "cognito_user_pool_client_id" {
+  description = "The client ID of the user pool"
+  value       = aws_cognito_user_pool_client.web_client.id
 }
