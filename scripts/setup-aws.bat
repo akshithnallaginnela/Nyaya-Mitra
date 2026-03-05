@@ -177,6 +177,8 @@ for /f "tokens=*" %%i in ('terraform output -raw frontend_bucket') do set "FRONT
 for /f "tokens=*" %%i in ('terraform output -raw cloudfront_domain') do set "CLOUDFRONT_DOMAIN=%%i"
 for /f "tokens=*" %%i in ('terraform output -raw alb_dns') do set "ALB_DNS=%%i"
 for /f "tokens=*" %%i in ('terraform output -raw ecr_repository_url') do set "ECR_REPO=%%i"
+for /f "tokens=*" %%i in ('terraform output -raw opensearch_endpoint') do set "OPENSEARCH_URL=%%i"
+for /f "tokens=*" %%i in ('terraform output -raw cognito_user_pool_id') do set "COGNITO_ID=%%i"
 
 popd
 
@@ -282,11 +284,17 @@ echo.
 echo   🔧 Backend API:
 echo      http://%ALB_DNS%/health
 echo.
+echo   🔍 Vector Database (OpenSearch):
+echo      https://%OPENSEARCH_URL%
+echo.
+echo   🔑 Cognito User Pool:
+echo      %COGNITO_ID%
+echo.
 echo   📊 AWS Console:
 echo      https://ap-south-1.console.aws.amazon.com/ecs
 echo.
-echo   ⏳ Note: ECS backend may take 2-5 more
-echo      minutes to become fully healthy.
+echo   ⏳ Note: ECS backend and OpenSearch may take 5-10 more
+echo      minutes to become fully healthy and accessible.
 echo ============================================
 echo.
 pause
