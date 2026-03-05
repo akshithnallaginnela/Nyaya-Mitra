@@ -932,6 +932,80 @@ resource "aws_wafv2_web_acl_association" "alb" {
 }
 
 # ─────────────────────────────────────────────
+# VECTOR DATABASE (OPEN SEARCH)
+# ─────────────────────────────────────────────
+
+resource "aws_security_group" "opensearch" {
+  name        = "${var.project_name}-opensearch-sg"
+  description = "Allow inbound traffic to OpenSearch"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [aws_security_group.ecs.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = { Name = "${var.project_name}-opensearch-sg" }
+}
+
+resource "aws_iam_service_linked_role" "opensearch" {
+  aws_service_name = "opensearchservice.amazonaws.com"
+  
+  # Only create if it doesn't exist
+  lifecycle {
+    ignore_changes = all
+  }
+}
+
+resource "aws_opensearch_domain" "legal_docs" {
+  domain_name    = "${var.project_name}-vector-db"
+  engine_version = "OpenSearch_2.11"
+
+  cluster_config {
+    instance_type = "t3.small.search"
+    instance_count = 1
+  }
+
+  ebs_options {
+    ebs_enabled = true
+    volume_size = 10
+    volume_type = "gp3"
+  }
+
+  vpc_options {
+    subnet_ids         = [aws_subnet.private[0].id]
+    security_group_ids = [aws_security_group.opensearch.id]
+  }
+
+  access_policies = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action    = "es:*"
+        Principal = {
+          AWS = "*"
+        }
+        Effect    = "Allow"
+        Resource  = "arn:aws:es:${var.aws_region}:${data.aws_caller_identity.current.account_id}:domain/${var.project_name}-vector-db/*"
+      }
+    ]
+  })
+
+  tags = { Name = "${var.project_name}-opensearch" }
+
+  depends_on = [aws_iam_service_linked_role.opensearch]
+}
+
+# ─────────────────────────────────────────────
 # OUTPUTS
 # ─────────────────────────────────────────────
 output "cloudfront_domain" {
