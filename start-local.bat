@@ -19,15 +19,26 @@ if errorlevel 1 (
 echo PostgreSQL is running ✓
 echo.
 
-REM Check if Ollama is running
-echo [2/5] Checking Ollama...
-curl -s http://localhost:11434/api/tags >nul 2>&1
-if errorlevel 1 (
-    echo Ollama is not running. Please start Ollama from Start menu.
-    pause
-    exit /b 1
+REM Check AI provider
+set AI_PROVIDER=ollama
+if exist backend\.env (
+    for /f "tokens=2 delims==" %%a in ('findstr /i "AI_PROVIDER=" backend\.env') do set AI_PROVIDER=%%a
 )
-echo Ollama is running ✓
+set AI_PROVIDER=%AI_PROVIDER: =%
+
+if /i "%AI_PROVIDER%"=="bedrock" (
+    echo [2/5] Using AI Provider: Amazon Bedrock (skipping Ollama check)
+) else (
+    REM Check if Ollama is running
+    echo [2/5] Checking Ollama...
+    curl -s http://localhost:11434/api/tags >nul 2>&1
+    if errorlevel 1 (
+        echo Ollama is not running. Please start Ollama from Start menu.
+        pause
+        exit /b 1
+    )
+    echo Ollama is running ✓
+)
 echo.
 
 REM Start Backend
