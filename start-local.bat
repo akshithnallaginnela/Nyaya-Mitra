@@ -9,10 +9,10 @@ echo.
 
 REM Check if PostgreSQL is running
 echo [1/5] Checking PostgreSQL...
-sc query postgresql-x64-14 | find "RUNNING" >nul
+sc query postgresql-x64-18 | find "RUNNING" >nul
 if errorlevel 1 (
     echo PostgreSQL is not running. Please start PostgreSQL service.
-    echo Run: net start postgresql-x64-14
+    echo Run: net start postgresql-x64-18
     pause
     exit /b 1
 )
