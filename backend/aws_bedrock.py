@@ -11,10 +11,24 @@ class BedrockClient:
     def __init__(self, region: str = "us-east-1", model_id: str = "anthropic.claude-3-haiku-20240307-v1:0"):
         self.region = region
         self.model_id = model_id
-        self.client = boto3.client(
-            service_name="bedrock-runtime",
-            region_name=region
-        )
+        
+        # Get credentials from environment
+        access_key = os.getenv("AWS_ACCESS_KEY_ID")
+        secret_key = os.getenv("AWS_SECRET_ACCESS_KEY")
+        
+        if access_key and secret_key:
+            self.client = boto3.client(
+                service_name="bedrock-runtime",
+                region_name=region,
+                aws_access_key_id=access_key,
+                aws_secret_access_key=secret_key
+            )
+        else:
+            # Fallback to default credential provider chain
+            self.client = boto3.client(
+                service_name="bedrock-runtime",
+                region_name=region
+            )
 
     def generate_response(
         self, 

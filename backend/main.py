@@ -2,6 +2,11 @@
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
 from middleware.security import RateLimitMiddleware, SessionTimeoutMiddleware, SecurityHeadersMiddleware
 
 from database import init_db
