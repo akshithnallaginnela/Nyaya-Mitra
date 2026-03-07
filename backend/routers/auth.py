@@ -266,6 +266,33 @@ async def login(
     )
 
 
+@router.get(
+    "/me",
+    response_model=dict,
+    summary="Get current user details",
+    description="Fetch the authenticated user's details from the JWT token"
+)
+async def get_me(
+    current_user: User = Depends(get_current_user)
+) -> dict:
+    """
+    Get current user details.
+    
+    Args:
+        current_user: Authenticated user from JWT token
+        
+    Returns:
+        dict: User information
+    """
+    return {
+        "id": str(current_user.id),
+        "email": current_user.email,
+        "full_name": current_user.full_name,
+        "college_name": current_user.college_name,
+        "preferred_language": current_user.preferred_language
+    }
+
+
 @router.post(
     "/refresh",
     response_model=AuthResponse,

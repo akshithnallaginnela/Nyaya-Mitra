@@ -1,33 +1,56 @@
+# AWS Credentials and Deployment Files
+deployment-info.json
+nyaya-mitra-key.pem
+*.pem
+aws-credentials.ps1
+
+# Terraform
+infrastructure/terraform/.terraform/
+infrastructure/terraform/.terraform.lock.hcl
+infrastructure/terraform/terraform.tfstate
+infrastructure/terraform/terraform.tfstate.backup
+infrastructure/terraform/tfplan
+infrastructure/terraform/*.tfvars
+
+# Environment files
+.env
+.env.local
+.env.production
+backend/.env
+backend/.env.*
+
+# Temporary deployment files
+setup-ec2.sh
+backend-env
+install-backend.sh
+nyaya-mitra-backend.service
+nginx-config
+website-config.json
+bucket-policy.json
+distribution-config.json
+
+# Node modules
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-venv/
-env/
-ENV/
-.venv
+backend/.venv/
+backend/venv/
 *.egg-info/
-dist/
-build/
 
-# Node
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-dist/
-dist-ssr/
-*.local
+# Database
+*.db
+*.sqlite
+*.sqlite3
+backend/chroma_db/
 
-# Environment
-.env
-.env.local
-.env.*.local
-
-# IDEs
+# IDE
 .vscode/
 .idea/
 *.swp
@@ -38,38 +61,11 @@ dist-ssr/
 .DS_Store
 Thumbs.db
 
-# Database
-*.db
-*.sqlite
-*.sqlite3
-
 # Logs
-logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Testing
-.coverage
-htmlcov/
-.pytest_cache/
-coverage/
-
-# Chroma
-chroma_data/
-
-# Generated files
-generated_documents/
-uploads/
-
-# Terraform
-infrastructure/terraform/.terraform/
-infrastructure/terraform/*.tfstate
-infrastructure/terraform/*.tfstate.*
-infrastructure/terraform/.terraform.lock.hcl
-infrastructure/terraform/tfplan
-infrastructure/terraform/terraform.tfvars
-
-# Docker
-docker-compose.override.yml
-
-# AWS
-.aws/
+# Generated documents
+backend/generated_documents/

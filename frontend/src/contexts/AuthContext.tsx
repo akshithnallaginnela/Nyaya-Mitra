@@ -34,12 +34,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (token) {
-      // Verify token and get user info
+    const initAuth = async () => {
+      if (token) {
+        try {
+          const response = await api.get('/auth/me');
+          setUser(response.data);
+        } catch (error) {
+          console.error('Session expired', error);
+          logout();
+        }
+      }
       setLoading(false);
-    } else {
-      setLoading(false);
-    }
+    };
+    initAuth();
   }, [token]);
 
   const login = async (email: string, password: string) => {

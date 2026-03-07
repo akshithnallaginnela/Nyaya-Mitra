@@ -114,7 +114,7 @@ const Navbar: React.FC = () => {
             <Show below="md">SOS</Show>
           </Button>
 
-          {user && (
+          {user ? (
             <>
               <Hide below="lg">
                 <Button
@@ -139,6 +139,16 @@ const Navbar: React.FC = () => {
                 />
               </Show>
             </>
+          ) : (
+            <Button
+              size="sm"
+              colorScheme="brand"
+              variant="outline"
+              onClick={() => navigate('/login')}
+              borderRadius="lg"
+            >
+              {t('login', 'Sign In')}
+            </Button>
           )}
         </HStack>
       </Flex>
