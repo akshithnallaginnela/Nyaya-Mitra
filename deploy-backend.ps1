@@ -239,4 +239,3 @@ Write-Host ""
 
 # Clean up temporary files
 Remove-Item setup-ec2.sh, backend-env, install-backend.sh, nyaya-mitra-backend.service, nginx-config -ErrorAction SilentlyContinue
-"@
