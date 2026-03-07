@@ -497,7 +497,7 @@ resource "aws_ecs_task_definition" "backend" {
       environment = [
         { name = "DATABASE_URL", value = "postgresql://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.endpoint}/${var.db_name}" },
         { name = "AI_PROVIDER", value = "bedrock" },
-        { name = "BEDROCK_MODEL_ID", value = "anthropic.claude-3-haiku-20240307-v1:0" },
+        { name = "BEDROCK_MODEL_ID", value = var.bedrock_model_id },
         { name = "JWT_SECRET", value = var.jwt_secret },
         { name = "JWT_ALGORITHM", value = "HS256" },
         { name = "JWT_EXPIRATION_HOURS", value = "24" },
