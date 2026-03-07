@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 from typing import List, Dict, Any
 
+from sqlalchemy import and_, or_, func
 from sqlalchemy.orm import Session
 
 from database import SessionLocal, engine, Base
@@ -170,7 +171,7 @@ def verify_seeded_data(db: Session) -> None:
     print("\nProviders by organization type:")
     org_types = db.query(
         LegalAidProvider.organization_type,
-        db.func.count(LegalAidProvider.id)
+        func.count(LegalAidProvider.id)
     ).group_by(LegalAidProvider.organization_type).all()
     
     for org_type, count in org_types:
@@ -180,9 +181,9 @@ def verify_seeded_data(db: Session) -> None:
     print("\nTop 10 states by provider count:")
     states = db.query(
         LegalAidProvider.state,
-        db.func.count(LegalAidProvider.id)
+        func.count(LegalAidProvider.id)
     ).group_by(LegalAidProvider.state).order_by(
-        db.func.count(LegalAidProvider.id).desc()
+        func.count(LegalAidProvider.id).desc()
     ).limit(10).all()
     
     for state, count in states:
