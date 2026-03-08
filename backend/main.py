@@ -27,7 +27,10 @@ app.add_middleware(RateLimitMiddleware, requests_per_hour=100)
 
 # CORS configuration — dynamically loaded from environment
 cors_origins_env = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:5173")
-cors_origins = [origin.strip() for origin in cors_origins_env.split(",")]
+if cors_origins_env == "*":
+    cors_origins = ["*"]
+else:
+    cors_origins = [origin.strip() for origin in cors_origins_env.split(",")]
 
 app.add_middleware(
     CORSMiddleware,

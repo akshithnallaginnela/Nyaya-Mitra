@@ -1,0 +1,7 @@
+{
+  "inputText": "Hello, respond with just 'Hi'",
+  "textGenerationConfig": {
+    "maxTokenCount": 100,
+    "temperature": 0.7
+  }
+}

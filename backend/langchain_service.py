@@ -8,6 +8,7 @@ from langchain.prompts import PromptTemplate, ChatPromptTemplate
 from langchain.schema import HumanMessage, SystemMessage, AIMessage
 from ollama_client import get_ollama_client
 from aws_bedrock import BedrockClient
+from groq_client import get_groq_client
 from rag_system import RAGRetrievalSystem
 from vector_db import VectorDatabase
 from multilingual_service import get_multilingual_service
@@ -62,10 +63,12 @@ Clarifying questions:"""
             vector_db: Vector database instance (optional, will create if not provided)
             rag_system: RAG retrieval system instance (optional, will create if not provided)
         """
-        # Initialize AI Client (Bedrock for Production, Ollama for Local)
-        self.ai_provider = os.getenv("AI_PROVIDER", "ollama").lower()
+        # Initialize AI Client (Groq for Production, Bedrock/Ollama as fallback)
+        self.ai_provider = os.getenv("AI_PROVIDER", "groq").lower()
         
-        if self.ai_provider == "bedrock":
+        if self.ai_provider == "groq":
+            self.ai_client = get_groq_client()
+        elif self.ai_provider == "bedrock":
             self.ai_client = BedrockClient(
                 region=os.getenv("AWS_REGION", "us-east-1"),
                 model_id=os.getenv("BEDROCK_MODEL_ID", "anthropic.claude-3-haiku-20240307-v1:0")
@@ -143,7 +146,15 @@ Clarifying questions:"""
         
         # Step 6: Generate response using AI Provider
         try:
-            if self.ai_provider == "bedrock":
+            if self.ai_provider == "groq":
+                result = self.ai_client.generate(
+                    prompt=user_prompt,
+                    system_prompt=system_prompt,
+                    context=conversation_context,
+                    temperature=0.3
+                )
+                response_text = result["response"]
+            elif self.ai_provider == "bedrock":
                 response_text = self.ai_client.generate_response(
                     prompt=user_prompt,
                     system_prompt=system_prompt,
@@ -160,14 +171,31 @@ Clarifying questions:"""
             
         except Exception as e:
             # Handle AI service errors
+            error_msg = str(e)
+            
+            # Provide more helpful error message for payment/access issues
+            if "INVALID_PAYMENT_INSTRUMENT" in error_msg or "AccessDeniedException" in error_msg:
+                response_text = """I apologize, but the AI service is currently being set up. 
+
+**Status**: AWS Bedrock model access is being configured. This typically takes 2-5 minutes after adding a payment method.
+
+**What you can try**:
+1. Wait 2-3 minutes and try again
+2. Refresh the page and send your question again
+3. Contact support if the issue persists
+
+**For your project demo**: You can show the other features (user registration, legal aid search, document generation) while this is being resolved."""
+            else:
+                response_text = f"I apologize, but I'm currently unable to process your query due to a technical issue. Please try again in a moment.\n\nTechnical details: {error_msg}"
+            
             return {
-                "response": "I apologize, but I'm currently unable to process your query due to a technical issue. Please try again in a moment.",
+                "response": response_text,
                 "citations": [],
                 "confidence": 0.0,
                 "retrieved_docs": [],
                 "needs_clarification": False,
                 "language": response_language,
-                "error": str(e)
+                "error": error_msg
             }
         
         # Step 7: Extract citations from response
