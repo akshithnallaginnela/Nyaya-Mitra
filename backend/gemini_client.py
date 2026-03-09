@@ -10,8 +10,8 @@ class GeminiClient:
     
     def __init__(self, api_key: str = None):
         self.api_key = api_key or os.getenv("GEMINI_API_KEY")
-        self.model = "gemini-pro"
-        self.base_url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
+        self.model = "gemini-1.5-flash"
+        self.base_url = f"https://generativelanguage.googleapis.com/v1/models/{self.model}:generateContent"
         
     def generate_response(
         self, 

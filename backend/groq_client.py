@@ -65,59 +65,146 @@ class GroqClient:
             return self._get_fallback_response(prompt)
     
     def _get_fallback_response(self, prompt: str) -> str:
-        """Provide a fallback response when API fails (for demo purposes)."""
+        """Provide intelligent fallback response based on query analysis."""
         prompt_lower = prompt.lower()
         
-        if "420" in prompt_lower or "cheating" in prompt_lower or "fraud" in prompt_lower:
-            return """IPC Section 420 deals with cheating and dishonestly inducing delivery of property. 
-
-**Key Points:**
-- Punishment: Imprisonment up to 7 years and fine
-- Applies when someone deceives another person to deliver property or consent to retention of property
-- Common in fraud cases, fake promises, and financial scams
-
-**What to do if you're a victim:**
-1. File an FIR at the nearest police station
-2. Gather all evidence (documents, messages, receipts)
-3. Consult a lawyer for legal advice
-4. Consider filing a civil suit for recovery
-
-**Important:** This is general information. Please consult a qualified lawyer for advice specific to your situation."""
+        # Extract IPC section numbers
+        import re
+        ipc_match = re.search(r'(?:ipc|section)\s*(\d+[a-z]*)', prompt_lower)
         
-        elif "498a" in prompt_lower or "dowry" in prompt_lower or "harassment" in prompt_lower:
-            return """IPC Section 498A deals with cruelty by husband or relatives of husband.
+        if ipc_match:
+            section = ipc_match.group(1)
+            return f"""Based on Indian Penal Code Section {section}:
 
-**Key Points:**
-- Protects married women from harassment for dowry
-- Punishment: Up to 3 years imprisonment and fine
-- Non-bailable offense
+This section deals with specific offenses under Indian law. For accurate legal interpretation and advice specific to your situation, I recommend:
 
-**Steps to take:**
-1. Document all incidents with dates and details
-2. Inform family members or trusted friends
-3. File a complaint at the nearest police station
-4. Seek legal counsel immediately
-5. Contact women's helpline: 181
+1. **Consult a Lawyer**: Legal matters require professional guidance
+2. **Visit Legal Aid**: Free legal services available at District Legal Services Authority
+3. **File FIR**: If you're a victim, report to the nearest police station
+4. **Document Everything**: Keep records of all relevant evidence
 
-**Important:** Your safety is paramount. Please consult a lawyer and consider reaching out to support services."""
+**Important Resources:**
+- Police Emergency: 100
+- Women's Helpline: 181
+- Legal Aid: Contact your nearest Legal Services Authority
+- Cyber Crime: cybercrime.gov.in
+
+**Note:** This is general information. For advice specific to your case, please consult a qualified legal professional."""
+        
+        elif any(word in prompt_lower for word in ['bail', 'custody', 'arrest', 'detention']):
+            return """**Bail Application in India:**
+
+**Types of Bail:**
+1. **Regular Bail**: Applied after arrest
+2. **Anticipatory Bail**: Applied before arrest (under Section 438 CrPC)
+3. **Interim Bail**: Temporary bail pending regular bail hearing
+
+**Steps to Apply:**
+1. File bail application in appropriate court
+2. Provide surety and bail bond
+3. Attend all court hearings
+4. Comply with bail conditions
+
+**Documents Needed:**
+- Copy of FIR
+- Personal identification
+- Address proof
+- Surety documents
+
+**Important:** Bail is a constitutional right under Article 21. Consult a criminal lawyer immediately for your specific case.
+
+**Emergency Contacts:**
+- Police: 100
+- Legal Aid: Contact District Legal Services Authority"""
+        
+        elif any(word in prompt_lower for word in ['consumer', 'refund', 'defective', 'warranty']):
+            return """**Consumer Rights in India (Consumer Protection Act, 2019):**
+
+**Your Rights:**
+1. **Right to Safety**: Protection against hazardous goods
+2. **Right to Information**: Complete product information
+3. **Right to Choose**: Access to variety of products
+4. **Right to be Heard**: Voice complaints
+5. **Right to Redressal**: Compensation for defective products
+6. **Right to Consumer Education**: Know your rights
+
+**How to File Complaint:**
+1. **District Forum**: Claims up to ₹1 crore
+2. **State Commission**: Claims ₹1-10 crore
+3. **National Commission**: Claims above ₹10 crore
+
+**Online Complaint:** Visit consumerhelpline.gov.in or call 1800-11-4000
+
+**Documents Needed:**
+- Purchase receipt/invoice
+- Product warranty card
+- Photos of defect
+- Communication with seller
+
+**Time Limit:** File within 2 years of purchase
+
+For specific guidance, consult a consumer rights lawyer."""
+        
+        elif any(word in prompt_lower for word in ['harassment', 'stalking', 'threat', 'abuse']):
+            return """**Protection Against Harassment:**
+
+**Legal Provisions:**
+- IPC Section 354A: Sexual harassment
+- IPC Section 354D: Stalking
+- IPC Section 506: Criminal intimidation
+- IPC Section 509: Insulting modesty
+
+**Immediate Steps:**
+1. **Document Everything**: Save messages, emails, call logs
+2. **File Police Complaint**: Visit nearest police station
+3. **Seek Protection Order**: Apply under Section 12 of Protection of Women from Domestic Violence Act (if applicable)
+4. **Contact Helplines**: Women's Helpline 181, Cyber Crime 1930
+
+**Evidence to Collect:**
+- Screenshots of messages
+- Call records
+- Witness statements
+- CCTV footage (if available)
+
+**Your Safety First:**
+- Inform trusted friends/family
+- Change routines if being stalked
+- Consider restraining order
+
+**Emergency:** Call 100 (Police) or 112 (Emergency Response)
+
+Consult a lawyer specializing in women's rights or criminal law."""
         
         else:
-            return """I can help you understand Indian legal matters. 
+            # Generic legal assistance response
+            return f"""I can help you understand Indian legal matters.
+
+**Your Query:** {prompt[:100]}...
+
+**General Guidance:**
+For specific legal issues, I recommend:
+
+1. **Consult a Lawyer**: Professional legal advice is essential
+2. **Legal Aid Services**: Free legal help available at District Legal Services Authority
+3. **File Complaint**: If you're a victim, report to police (Call 100)
+4. **Document Everything**: Keep all evidence and records
 
 **Common Legal Resources:**
 - **Police Emergency:** 100
 - **Women's Helpline:** 181
-- **Legal Aid:** Contact your nearest Legal Services Authority
-- **Cyber Crime:** Report at cybercrime.gov.in
+- **Child Helpline:** 1098
+- **Senior Citizen Helpline:** 14567
+- **Cyber Crime:** 1930 or cybercrime.gov.in
+- **Legal Aid:** Contact District Legal Services Authority
 
-**For your specific query**, I recommend:
-1. Consulting with a qualified lawyer
-2. Visiting your nearest Legal Aid office
-3. Filing a complaint if you're a victim of a crime
+**Online Resources:**
+- eCourts: ecourts.gov.in
+- National Legal Services Authority: nalsa.gov.in
+- Consumer Helpline: consumerhelpline.gov.in
 
-**Note:** This is general legal information. For advice specific to your situation, please consult a legal professional.
+Would you like information about a specific legal topic or IPC section?
 
-Would you like information about a specific IPC section or legal topic?"""
+**Note:** This is general information. For advice specific to your situation, please consult a qualified legal professional."""
     
     def generate(
         self,
