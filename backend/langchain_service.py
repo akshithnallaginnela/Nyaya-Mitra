@@ -9,6 +9,7 @@ from langchain.schema import HumanMessage, SystemMessage, AIMessage
 from ollama_client import get_ollama_client
 from aws_bedrock import BedrockClient
 from groq_client import get_groq_client
+from gemini_client import get_gemini_client
 from rag_system import RAGRetrievalSystem
 from vector_db import VectorDatabase
 from multilingual_service import get_multilingual_service
