@@ -149,7 +149,15 @@ Clarifying questions:"""
         
         # Step 6: Generate response using AI Provider
         try:
-            if self.ai_provider == "groq":
+            if self.ai_provider == "gemini":
+                result = self.ai_client.generate(
+                    prompt=user_prompt,
+                    system_prompt=system_prompt,
+                    context=conversation_context,
+                    temperature=0.3
+                )
+                response_text = result["response"]
+            elif self.ai_provider == "groq":
                 result = self.ai_client.generate(
                     prompt=user_prompt,
                     system_prompt=system_prompt,
