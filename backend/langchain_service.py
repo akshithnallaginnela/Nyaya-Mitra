@@ -64,10 +64,12 @@ Clarifying questions:"""
             vector_db: Vector database instance (optional, will create if not provided)
             rag_system: RAG retrieval system instance (optional, will create if not provided)
         """
-        # Initialize AI Client (Groq for Production, Bedrock/Ollama as fallback)
-        self.ai_provider = os.getenv("AI_PROVIDER", "groq").lower()
+        # Initialize AI Client (Gemini/Groq for Production, Bedrock/Ollama as fallback)
+        self.ai_provider = os.getenv("AI_PROVIDER", "gemini").lower()
         
-        if self.ai_provider == "groq":
+        if self.ai_provider == "gemini":
+            self.ai_client = get_gemini_client()
+        elif self.ai_provider == "groq":
             self.ai_client = get_groq_client()
         elif self.ai_provider == "bedrock":
             self.ai_client = BedrockClient(
